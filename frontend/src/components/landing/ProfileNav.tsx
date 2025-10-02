@@ -24,7 +24,7 @@ export const ProfileNav: FC<ProfileNavProps> = ({ user }) => {
       <DropdownMenuTrigger asChild>
         <Button
           variant={"ghost"}
-          className="flex items-center space-x-2 px-3 focus:outline-none focus-visible:ring-0 focus-visible:outline-none"
+          className="flex items-center justify-center md:space-x-2 md:px-3 focus:outline-none focus-visible:ring-0 focus-visible:outline-none"
         >
           <Avatar className="w-8 h-8">
             <AvatarImage src={user?.profilePic} alt={user.name}></AvatarImage>
@@ -54,7 +54,7 @@ export const ProfileNav: FC<ProfileNavProps> = ({ user }) => {
             <p className="text-medium font-bold tracking-widest text-gray-900">
               {user.name}
             </p>
-            <p className="text-xs text-gray-500 capitalize font-mono">
+            <p className="text-xs text-gray-500 font-mono">
               {user.email}
             </p>
           </div>
@@ -77,9 +77,7 @@ export const ProfileNav: FC<ProfileNavProps> = ({ user }) => {
           <DropdownMenuSeparator />
           <button
             className="w-full text-center py-3 text-sm text-white rounded"
-            onClick={() => {
-              /* handle logout here */
-            }}
+            
           >
             <span className="bg-red-500 hover:bg-red-400 px-4 py-1.5 rounded-lg font-semibold font-mono">
               Logout

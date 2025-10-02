@@ -24,12 +24,12 @@ interface NavItem {
 
 export const Header: FC<HeaderProps> = ({ showDashboardNav = false }) => {
   const pathname = usePathname();
-  const isAuthenticated = true;
+  const isAuthenticated = false;
   const user = {
     type: "patient",
     name : 'Harsh',
-    profilePic : "djhvcjkvh",
-    email : "cdjhv"
+    profilePic : "harsh",
+    email : "harsh.exe123@gmail.com"
   };
 
   const getHeaderNavigation = (): NavItem[] => {
@@ -65,8 +65,8 @@ export const Header: FC<HeaderProps> = ({ showDashboardNav = false }) => {
   };
 
   return (
-    <header className="bg-gray-200/20 border-b rounded-b-2xl border-b-gray-400 fixed top-0 left-0 right-0 backdrop-blur-sm z-50">
-      <div className="container mx-auto h-16 px-4 flex items-center justify-between">
+    <header className="bg-gray-200/20 border-b rounded-b-2xl border-b-gray-400 fixed top-0 left-0 right-0 backdrop-blur-sm z-50 shadow-md">
+      <div className="container mx-auto h-16 px-4 flex items-center justify-between ">
         <div className="flex items-center space-x-8">
           <Logo />
           {isAuthenticated && showDashboardNav && (
@@ -89,8 +89,8 @@ export const Header: FC<HeaderProps> = ({ showDashboardNav = false }) => {
           )}
         </div>
 
-        {!isAuthenticated && showDashboardNav ? (
-          <div className="flex items-center space-x-5">
+        {isAuthenticated && showDashboardNav ? (
+          <div className="flex items-center space-x-0 md:space-x-5">
             <ProfileNav user={user} />
 
             <Button className="relative">
@@ -102,8 +102,11 @@ export const Header: FC<HeaderProps> = ({ showDashboardNav = false }) => {
           </div>
         ) : (
           <div className="flex">
-            <Link href={"/patient/login"} className="mx-4">
-              <Button variant={'ghost'} className="text-blue-700 font-bold font-mono text-lg">
+            <Link href={"/login/patient"} className="mx-4">
+              <Button
+                variant={"ghost"}
+                className="text-blue-700 font-bold font-mono text-lg"
+              >
                 Login
               </Button>
             </Link>
