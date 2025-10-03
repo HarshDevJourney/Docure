@@ -7,8 +7,8 @@ export const Herosection = () => {
     <section className="px-4 py-10 md:py-18 bg-gradient-to-b from-blue-50 to-white">
       <div className="mx-auto text-center container">
         <h1 className="text-3xl sm:text-4xl md:text-5xl font-serif font-bold leading-snug">
-          Every <span className="text-blue-600">Symptom</span> Isn’t a{" "}
-          <span className="text-blue-600 font-extrabold">Disaster</span>
+          Every <span className="text-blue-600 ">Symptom</span> Isn’t a{" "}
+          <span className="text-blue-600 font-extrabold italic">Disaster</span>
           <br />
           Ask a <span className="text-blue-600">Doctor</span> Who Gets Your{" "}
           <span className="text-blue-400 italic">Overthinking</span>

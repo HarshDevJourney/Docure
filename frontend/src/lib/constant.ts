@@ -1,3 +1,4 @@
+import { Facebook, Instagram, Linkedin, Twitter } from "lucide-react";
 
 export const healthcareCategories = [
   {
@@ -83,4 +84,21 @@ export const specializations = [
   "Ophthalmologist",
 ];
 
-
+export const socials = [
+  { name: "twitter", icon: Twitter, url: "https://twitter.com/docure" },
+  {
+    name: "facebook",
+    icon: Facebook,
+    url: "https://facebook.com/docure",
+  },
+  {
+    name: "linkedin",
+    icon: Linkedin,
+    url: "https://linkedin.com/company/docure",
+  },
+  {
+    name: "instagram",
+    icon: Instagram,
+    url: "https://instagram.com/docure",
+  },
+];

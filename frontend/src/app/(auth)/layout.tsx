@@ -1,11 +1,20 @@
+"use client";
+
+import { usePathname } from "next/navigation";
 import React from "react";
 
 export default function layout({ children }: { children: React.ReactNode }) {
-  const mode: string = "signp";
+  // eslint-disable-next-line react-hooks/rules-of-hooks
+  const pathname = usePathname();
+
+  const mode = pathname.includes("signup") ? "signup" : "login";
+
   return (
     <div className="flex min-h-screen">
       <div
-        className={`w-full lg:w-1/2 flex justify-center items-center p-6 bg-white ${mode == "signup" ? "translate-x-full" : ""}`}
+        className={`w-full lg:w-1/2 flex justify-center items-center p-6 bg-white ${
+          mode == "signup" ? "translate-x-full" : ""
+        }`}
       >
         {children}
       </div>
