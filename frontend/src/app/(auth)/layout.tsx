@@ -13,14 +13,14 @@ export default function layout({ children }: { children: React.ReactNode }) {
     <div className="flex min-h-screen">
       <div
         className={`w-full lg:w-1/2 flex justify-center items-center p-6 bg-white ${
-          mode == "signup" ? "translate-x-full" : ""
+          mode == "signup" ? "lg:translate-x-full" : ""
         }`}
       >
         {children}
       </div>
       <div
         className={`hidden lg:block w-1/2 relative overflow-hidden ${
-          mode == "signup" ? "-translate-x-full" : "translate-x-0"
+          mode == "signup" ? "lg:-translate-x-full" : "translate-x-0"
         } transition-all duration-1200 `}
       >
         <div className="absolute inset-0 bg-gradient-to-br from-black/10 to-transparent z-10"></div>

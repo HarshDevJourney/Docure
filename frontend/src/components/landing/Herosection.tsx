@@ -8,10 +8,13 @@ export const Herosection = () => {
       <div className="mx-auto text-center container">
         <h1 className="text-3xl sm:text-4xl md:text-5xl font-serif font-bold leading-snug">
           Every <span className="text-blue-600 ">Symptom</span> Isn’t a{" "}
-          <span className="text-blue-600 font-extrabold italic">Disaster</span>
+          <span className="text-blue-600  font-extrabold italic">
+            Disaster
+          </span>
           <br />
-          Ask a <span className="text-blue-600">Doctor</span> Who Gets Your{" "}
-          <span className="text-blue-400 italic">Overthinking</span>
+          Ask a <span className="text-blue-600 ">Doctor</span> Who Gets
+          Your{" "}
+          <span className="text-blue-400 italic  ">Overthinking</span>
         </h1>
 
         <p className="mt-4 lg:mt-7 md:text-xl text-gray-700 ">
@@ -22,10 +25,10 @@ export const Herosection = () => {
         </p>
 
         <div className="flex flex-col items-center justify-center my-10 sm:space-x-5 md:space-x-8 gap-4 sm:flex-row mx-auto">
-          <Button className="font-bold md:text-lg rounded-full px-17 sm:px-10.5 bg-blue-600 text-white">
+          <Button className="cursor-pointer hover:bg-blue-400 font-bold md:text-lg rounded-full px-17 sm:px-10.5 bg-blue-600 text-white">
             Book a Visit
           </Button>
-          <Button className="font-bold md:text-lg px-12 sm:px-6 rounded-full bg-gray-100 border border-blue-600 text-blue-600">
+          <Button className="cursor-pointer hover:bg-gray-200 font-bold md:text-lg px-12 sm:px-6 rounded-full bg-gray-100 border border-blue-600 text-blue-600">
             Login As A Doctor
           </Button>
         </div>
@@ -41,7 +44,7 @@ export const Herosection = () => {
               {healthcareCategories.map((el) => (
                 <button
                   key={el.id}
-                  className="flex flex-col min-w-[100px]  items-center group transition-transform shrink-0 snap-start "
+                  className="flex flex-col min-w-[100px] cursor-pointer items-center group transition-transform shrink-0 snap-start "
                   type="button"
                 >
                   <div

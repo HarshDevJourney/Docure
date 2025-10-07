@@ -7,11 +7,15 @@ const bodyParser = require('body-parser');
 
 
 const connectDB = require('./db');
+const passportLib = require('./passport')
 const responseMiddleware = require("./middlewares/response");
 const authRouter = require('./routes/auth')
+const docRouter = require('./routes/doctorRoute');
+const patientRouter = require('./routes/patientRoute');
 
 const app = express();
 connectDB();
+
 
 app.use(helmet());
 app.use(morgan('dev'));
@@ -23,16 +27,15 @@ app.use(cors({
     credentials : true
 }))
 
+
+// routes
 app.use(responseMiddleware);
-
-app.get('/health',(req, res, next) => {
-    res.status(200).json({
-        status : 'ok'
-    })
-})
-
-
+app.use(passportLib.initialize());
+app.get('/health',(req, res, next) => res.ok('Api is Running, no need to worry Bro'));
 app.use('/api/auth', authRouter);
+app.use('/api/doctor', docRouter);
+app.use('/api/patient', patientRouter);
+
 
 const PORT = process.env.PORT;
 

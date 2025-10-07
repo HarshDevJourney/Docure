@@ -18,13 +18,13 @@ const EmergencyContactSchema = new Schema({
 
 const MedicalHistorySchema = new Schema({
   allergies: {
-    type: [String],
+    type: String,
   },
   currentMedications: {
-    type: [String],
+    type: String,
   },
-  chronicCondition: {
-    type: [String],
+  chronicConditions: {
+    type: String,
   },
 },{ _id: false });
 
@@ -74,13 +74,13 @@ const PatientSchema = new Schema({
 
 
 PatientSchema.pre('save',(next) => {
-    if(this.dob && this.isModified('dob')){
-        const birthDate = new Date(this.dob);
-        const diff = Date.now() - birthDate.getTime();
-        this.age = Math.floor(diff / (1000 * 60 * 60 * 24 * 365.25));
-    }
+  if(this.dob && this.isModified('dob')){
+    const birthDate = new Date(this.dob);
+    const diff = Date.now() - birthDate.getTime();
+    this.age = Math.floor(diff / (1000 * 60 * 60 * 24 * 365.25));
+  }
 
-    next();
+  next();
 })
 
 module.exports = model('patient' ,PatientSchema);

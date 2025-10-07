@@ -1,6 +1,5 @@
 import { socials } from "@/lib/constant";
-import { Icon, Stethoscope } from "lucide-react";
-import { stringify } from "querystring";
+import { Stethoscope } from "lucide-react";
 import React from "react";
 
 export const Footer = () => {

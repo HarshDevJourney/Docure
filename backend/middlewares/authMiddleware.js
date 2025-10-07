@@ -40,7 +40,6 @@ exports.doctorRegistration = async (req, res, next) => {
     const doc = await Doctor.create({
       ...req.data,
       password: hashedPass,
-      isVerified: true,
     });
 
     createAndSendToken(doc, res, "Doctor");
@@ -97,7 +96,6 @@ exports.patientRegistration = async (req, res, next) => {
     const patient = await Patient.create({
       ...req.data,
       password: hashedPass,
-      isVerified: true,
     });
 
     createAndSendToken(patient, res, "Patient");
@@ -212,11 +210,10 @@ exports.protect = async (req, res, next) => {
   }
 };
 
-
 exports.requiredRole = role => (req, res, next) => {
-    if(!req.auth || req.auth.type !== role){
-        return res.forbidden("Insufficient role Permission")
-    }
+  if(!req.auth || req.auth.type !== role){
+    return res.forbidden("Insufficient role Permission")
+  }
 
-    next();
+  next();
 }

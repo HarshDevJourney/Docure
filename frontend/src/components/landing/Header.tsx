@@ -105,13 +105,13 @@ export const Header: FC<HeaderProps> = ({ showDashboardNav = false }) => {
             <Link href={"/login/patient"} className="mx-4">
               <Button
                 variant={"ghost"}
-                className="text-blue-700 font-bold font-mono text-lg"
+                className="text-blue-700 font-bold font-mono text-lg cursor-pointer rounded-2xl hover:bg-gray-200"
               >
                 Login
               </Button>
             </Link>
             <Link href={"/patient/login"} className="hidden md:flex">
-              <Button className="font-bold font-mono text-lg rounded-full bg-blue-600 text-white">
+              <Button className="font-bold font-mono text-lg rounded-full bg-blue-600 hover:bg-blue-400 text-white cursor-pointer">
                 Book Consultation
               </Button>
             </Link>
