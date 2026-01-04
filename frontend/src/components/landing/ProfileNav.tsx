@@ -18,25 +18,25 @@ interface ProfileNavProps {
   user: UserProfile;
 }
 
-export const ProfileNav: FC<ProfileNavProps> = ({ user }) => {
+export const ProfileNav: FC<ProfileNavProps> = ({ user } : ProfileNavProps ) => {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button
           variant={"ghost"}
-          className="flex items-center justify-center md:space-x-2 md:px-3 focus:outline-none focus-visible:ring-0 focus-visible:outline-none"
+          className="flex items-center justify-center md:space-x-1 md:px-2 focus:outline-none focus-visible:ring-0 focus-visible:outline-none"
         >
           <Avatar className="w-8 h-8">
             <AvatarImage src={user?.profilePic} alt={user.name}></AvatarImage>
-            <AvatarFallback className="bg-blue-200 text-blue-700 font-bold border-3 border-blue-400 text-lg">
+            <AvatarFallback className="text-blue-700 font-bold border-3 text-lg">
               {user.name?.charAt(0)?.toUpperCase()}
             </AvatarFallback>
           </Avatar>
-          <div className="hidden md:block text-center">
-            <p className="text-medium font-bold tracking-widest text-gray-900">
+          <div className="hidden md:block text-start">
+            <p className="text-blue-600 font-bold text-medium">
               {user.name}
             </p>
-            <p className="text-xs text-gray-500 capitalize font-mono">
+            <p className="text-xs text-gray-500 capitalize ">
               {user.type}
             </p>
           </div>

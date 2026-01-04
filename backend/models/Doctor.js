@@ -81,7 +81,6 @@ const DoctorSchema = new Schema({
   },
   experience: {
     type: Number,
-    required: true,
   },
   about: {
     type: String,

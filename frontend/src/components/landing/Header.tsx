@@ -9,6 +9,7 @@ import { Button } from "../ui/button";
 import { Badge } from "../ui/badge";
 import { Logo } from "./Logo";
 import { ProfileNav } from "./ProfileNav";
+import { userAuthStore } from "@/store/authStore";
 
 
 interface HeaderProps {
@@ -24,13 +25,14 @@ interface NavItem {
 
 export const Header: FC<HeaderProps> = ({ showDashboardNav = false }) => {
   const pathname = usePathname();
-  const isAuthenticated = false;
-  const user = {
-    type: "patient",
-    name : 'Harsh',
-    profilePic : "harsh",
-    email : "harsh.exe123@gmail.com"
-  };
+  const { isAuthenticated, user } = userAuthStore()
+  // const isAuthenticated = true;
+  // const user = {
+  //   type: "doctor",
+  //   name : 'Harsh',
+  //   profilePic : "harsh",
+  //   email : "harsh.exe123@gmail.com"
+  // };
 
   const getHeaderNavigation = (): NavItem[] => {
     if (!user || !showDashboardNav) return [];
@@ -67,10 +69,10 @@ export const Header: FC<HeaderProps> = ({ showDashboardNav = false }) => {
   return (
     <header className="bg-white border-b rounded-b-2xl border-b-gray-400 fixed top-0 left-0 right-0 backdrop-blur-sm z-50 shadow-md">
       <div className="container mx-auto h-16 px-4 flex items-center justify-between ">
-        <div className="flex items-center space-x-8">
+        <div className="flex items-center justify-between space-x-12">
           <Logo />
           {isAuthenticated && showDashboardNav && (
-            <nav className="hidden md:block">
+            <nav className="hidden md:flex md:space-x-4">
               {getHeaderNavigation().map((item) => (
                 <Link
                   href={item.href}
@@ -90,12 +92,12 @@ export const Header: FC<HeaderProps> = ({ showDashboardNav = false }) => {
         </div>
 
         {isAuthenticated && showDashboardNav ? (
-          <div className="flex items-center space-x-0 md:space-x-5">
+          <div className="flex items-center space-x-0 md:space-x-3">
             <ProfileNav user={user} />
 
             <Button className="relative">
               <Bell className="h-5 w-5 size-6 text-gray-600" />
-              <Badge className="absolute w-5 h-5 text-xs text-white -top-1 -right-1 bg-red-600 rounded-full">
+              <Badge className="absolute w-5 h-5 text-xs text-white -top-1.5 -right-0.5 bg-red-600 rounded-full">
                 2
               </Badge>
             </Button>
@@ -104,13 +106,13 @@ export const Header: FC<HeaderProps> = ({ showDashboardNav = false }) => {
           <div className="flex">
             <Link href={"/login/patient"} className="mx-4">
               <Button
-                variant={"ghost"}
+                variant={"outline"}
                 className="text-blue-700 font-bold font-mono text-lg cursor-pointer rounded-2xl hover:bg-gray-200"
               >
                 Login
               </Button>
             </Link>
-            <Link href={"/patient/login"} className="hidden md:flex">
+            <Link href={"/login/patient"} className="hidden md:flex">
               <Button className="font-bold font-mono text-lg rounded-full bg-blue-600 hover:bg-blue-400 text-white cursor-pointer">
                 Book Consultation
               </Button>

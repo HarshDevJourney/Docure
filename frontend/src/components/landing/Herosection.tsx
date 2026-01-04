@@ -1,6 +1,7 @@
 import React from "react";
 import { Button } from "../ui/button";
 import { healthcareCategories } from "@/lib/constant";
+import Link from "next/link";
 
 export const Herosection = () => {
   return (
@@ -28,9 +29,11 @@ export const Herosection = () => {
           <Button className="cursor-pointer hover:bg-blue-400 font-bold md:text-lg rounded-full px-17 sm:px-10.5 bg-blue-600 text-white">
             Book a Visit
           </Button>
-          <Button className="cursor-pointer hover:bg-gray-200 font-bold md:text-lg px-12 sm:px-6 rounded-full bg-gray-100 border border-blue-600 text-blue-600">
-            Login As A Doctor
-          </Button>
+          <Link href={'/login/doctor'}>
+            <Button className="cursor-pointer hover:bg-gray-200 font-bold md:text-lg px-12 sm:px-6 rounded-full bg-gray-100 border border-blue-600 text-blue-600">
+              Login As A Doctor
+            </Button>
+          </Link>
         </div>
 
         <section className="py-4 sm:py-8">

@@ -2,7 +2,7 @@
 
 import { userAuthStore } from "@/store/authStore";
 import { useRouter } from "next/navigation";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Card, CardContent } from "../ui/card";
 import { Label } from "../ui/label";
 import { Input } from "../ui/input";
@@ -10,6 +10,7 @@ import { Button } from "../ui/button";
 import { EyeClosedIcon, EyeIcon } from "lucide-react";
 import { Checkbox } from "../ui/checkbox";
 import Link from "next/link";
+import { toast } from "sonner";
 
 interface AuthFormProp {
   type: "login" | "signup";
@@ -33,21 +34,36 @@ const AuthForm = ({ type, userRole }: AuthFormProp) => {
     loginPatient,
     isloading,
     error,
+    isAuthenticated,
+    user
   } = userAuthStore();
   const router = useRouter();
 
-  const handleSubmit = async (e: React.FocusEvent) => {
+  useEffect(() => {
+    if(isAuthenticated && user){
+      if(!user.isVerified){
+        router.push(`/onboarding/${user.type}`)
+      }
+      else{
+        router.push(`/${user.type}/dashboard`)
+      }
+    }
+  },[isAuthenticated, user, router])
+
+  const handleSubmit = async (e: React.FocusEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (type === "signup" && !agreeTerms) return;
-
+    
     try {
       if (type === "signup") {
         if (userRole === "doctor") {
           await registerDoctor({ ...formData });
-        } else await registerPatient({ ...formData });
+        } 
+        else await registerPatient({ ...formData });
 
         router.push(`/onboarding/${userRole}`);
-      } else {
+      } 
+      else {
         if (userRole === "doctor") {
           await loginDoctor(formData.email, formData.password);
         } else await loginPatient(formData.email, formData.password);
@@ -71,8 +87,8 @@ const AuthForm = ({ type, userRole }: AuthFormProp) => {
   const altLinkPath = !islogin ? `/login/${userRole}` : `/signup/${userRole}`;
 
   return (
-    <div>
-      <div className="  w-screen bg-gradient-to-br rounded-4xl mb-4 from-blue-600 via-blue-700 to to-blue-800 flex lg:hidden justify-center items-center">
+    <div className="-translate-y-1/12">
+      <div className=" w-screen bg-gradient-to-br rounded-4xl mt-4 pt-10 pb-5 from-blue-600 via-blue-700 to to-blue-800 flex lg:hidden justify-center items-center">
         <div className="text-center text-white p-8 max-w-md">
           <div className="bg-white/20 text-center flex justify-center mx-auto mb-7 items-center w-20 h-20 rounded-2xl">
             <svg
@@ -100,7 +116,7 @@ const AuthForm = ({ type, userRole }: AuthFormProp) => {
           </p>
         </div>
       </div>
-      <div className="w-full max-w-md mx-auto bg-white rounded-2x lg:p-8">
+      <div className="w-full max-w-md mx-auto mt-15 bg-white rounded-2x lg:p-8">
         {/* Title Section */}
         <div className="text-center mb-6 hidden lg:block">
           <h1 className="font-extrabold border-b-4 border-blue-500 bg-gradient-to-b from-blue-600 to-blue-500 bg-clip-text text-transparent text-3xl lg:text-4xl">
@@ -109,8 +125,8 @@ const AuthForm = ({ type, userRole }: AuthFormProp) => {
         </div>
 
         {/* Card Section */}
-        <Card className="border-0 shadow-none bg-transparent">
-          <CardContent className="p-0">
+        <Card className="border-0 shadow-none mx-8 bg-transparent ">
+          <CardContent className="p-0 ">
             <form onSubmit={handleSubmit} className="space-y-5">
               {/* Name (only for signup) */}
               {!islogin && (

@@ -49,8 +49,13 @@ class HttpService {
         ...(body && { body: JSON.stringify(body) }),
       };
 
+
+      console.log(config)
+
       const response = await fetch(url, config);
       const data: ApiResponse<T> = await response.json();
+
+      console.log(response)
 
       if (!response.ok) {
         throw new Error(

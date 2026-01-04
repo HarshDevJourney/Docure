@@ -22,7 +22,7 @@ export default function Home() {
   });
 
   return (
-    <div className="h-[100vh] bg-white">
+    <div className="h-[100vh] bg-white text-black">
       <Header showDashboardNav={true} />
       <main className="pt-16">
         <Herosection />

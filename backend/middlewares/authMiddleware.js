@@ -1,6 +1,7 @@
 const Doctor = require("../models/Doctor");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
+const { promisify } = require("util");
 const Patient = require("../models/Patient");
 const passport = require("./../passport");
 
@@ -13,17 +14,22 @@ const generateJwtToken = (id, type) => {
 const createAndSendToken = (user, res, type) => {
   const token = generateJwtToken(user._id, type);
 
+  const hours = Number(process.env.JWT_COOKIE_EXPIRE_IN);
+  if (isNaN(hours)) {
+    throw new Error("JWT_COOKIE_EXPIRE_IN must be a number (hours)");
+  }
+
   const cookieOption = {
-    expires: new Date(
-      Date.now() +
-        5.5 * 60 * 60 * 1000 +
-        process.env.JWT_COOKIE_EXPIRE_IN * 24 * 60 * 60 * 1000
-    ),
     httpOnly: true,
+    sameSite: "lax",
+    expires: new Date(
+      Date.now() + hours * 60 * 60 * 1000 
+    ),
   };
 
-  if (process.env.NODE_ENV === "PRODUCTION") {
+  if(process.env.NODE_ENV === "PRODUCTION") {
     cookieOption.secure = true;
+    cookieOption.sameSite = "none";
   }
 
   res.cookie("jwt", token, cookieOption);
@@ -36,19 +42,26 @@ exports.doctorRegistration = async (req, res, next) => {
     const docExistance = await Doctor.findOne({ email: req.body.email });
     if (docExistance) return res.badRequest("Doctor already Registered");
 
-    const hashedPass = await bcrypt.hash(req.body.password, 20);
+    const { email, name, password } = req.body;
+    
+    const hashedPass = await bcrypt.hash(password, 10);
     const doc = await Doctor.create({
-      ...req.data,
+      name,
+      email,
       password: hashedPass,
     });
 
-    createAndSendToken(doc, res, "Doctor");
+    const token = createAndSendToken(doc, res, "doctor");
 
     return res.created(
       (data = {
+        user: {
+          id: doc._id,
+          name: doc.name,
+          email: doc.email,
+          type: "doctor"
+        },
         token,
-        doctorID: doc._id,
-        type: "Doctor",
       }),
       (message = "Doctor Registered Successfully")
     );
@@ -70,13 +83,17 @@ exports.doctorLogin = async (req, res, next) => {
     const match = await bcrypt.compare(password, doc.password);
     if (!match) return res.unauthorized("Invalid credential");
 
-    createAndSendToken(doc, res, "Doctor");
+    const token = createAndSendToken(doc, res, "doctor");
 
     res.created(
       (data = {
+        user: {
+          id: doc._id,
+          name: doc.name,
+          email: doc.email,
+          type: "doctor"
+        },
         token,
-        doctorID: doc._id,
-        type: "Doctor",
       }),
       (message = "Doctor Login Successfull")
     );
@@ -87,24 +104,33 @@ exports.doctorLogin = async (req, res, next) => {
 
 exports.patientRegistration = async (req, res, next) => {
   try {
-    const { email, password } = req.body;
+    const { name, email, password } = req.body;
 
-    const PatientExistance = await Doctor.findOne({ email });
+    if (!name || !email || !password) {
+      return res.badRequest("All fields are required");
+    }
+
+    const PatientExistance = await Patient.findOne({ email });
     if (PatientExistance) return res.badRequest("Patient already Registered");
 
-    const hashedPass = await bcrypt.hash(password, 20);
+    const hashedPass = await bcrypt.hash(password, 10);
     const patient = await Patient.create({
-      ...req.data,
+      name,
+      email,
       password: hashedPass,
     });
 
-    createAndSendToken(patient, res, "Patient");
+    const token = createAndSendToken(patient, res, "patient");
 
     res.created(
       (data = {
+        user: {
+          id: patient._id,
+          name: patient.name,
+          email: patient.email,
+          type: "patient"
+        },
         token,
-        patientID: patient._id,
-        type: "Patient",
       }),
       (message = "Patient Registered Successfully")
     );
@@ -126,13 +152,17 @@ exports.patientLogin = async (req, res, next) => {
     const match = await bcrypt.compare(password, patient.password);
     if (!match) return res.unauthorized("Invalid credential");
 
-    createAndSendToken(doc, res, "Patient");
+    const token = createAndSendToken(patient, res, "patient");
 
     res.created(
       (data = {
+        user: {
+          id: patient._id,
+          name: patient.name,
+          email: patient.email,
+          type: "patient"
+        },
         token,
-        patientID: patient._id,
-        type: "Patient",
       }),
       (message = "Patient Login Successfull")
     );
@@ -217,3 +247,26 @@ exports.requiredRole = role => (req, res, next) => {
 
   next();
 }
+
+exports.logout = (req, res) => {
+  res.cookie("jwt", "", {
+    httpOnly: true,
+    expires: new Date(0), // ⬅️ immediately expire
+    sameSite: "lax",
+  });
+
+  if (process.env.NODE_ENV === "production") {
+    res.cookie("jwt", "", {
+      httpOnly: true,
+      expires: new Date(0),
+      sameSite: "none",
+      secure: true,
+    });
+  }
+
+  return res.status(200).json({
+    success: true,
+    message: "Logged out successfully",
+  });
+};
+

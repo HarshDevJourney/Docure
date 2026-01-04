@@ -37,6 +37,7 @@ export interface User {
   type: "doctor" | "patient";
   phone?: string;
   profileImage?: string;
+  isVerified : boolean
 
   // Patient fields
   dob?: string;

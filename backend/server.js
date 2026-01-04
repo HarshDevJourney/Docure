@@ -27,6 +27,8 @@ app.use(cors({
     credentials : true
 }))
 
+app.use(express.json())
+
 
 // routes
 app.use(responseMiddleware);

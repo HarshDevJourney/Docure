@@ -73,6 +73,7 @@ const PatientSchema = new Schema({
 },{timestamps : true});
 
 
+// compute age using DOB and add to db
 PatientSchema.pre('save',(next) => {
   if(this.dob && this.isModified('dob')){
     const birthDate = new Date(this.dob);

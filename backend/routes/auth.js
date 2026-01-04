@@ -1,7 +1,8 @@
 const express = require('express');
 const { registerValidator, loginValidator } = require('../middlewares/validationMiddleware');
 const validate = require('../middlewares/validate');
-const { doctorLogin, patientLogin, patientRegistration, googleAuth, googleCallback } = require('../middlewares/authMiddleware');
+const passport = require('../passport');
+const { doctorRegistration, doctorLogin, patientLogin, patientRegistration, googleAuth, googleCallback } = require('../middlewares/authMiddleware');
 
 
 const router = express.Router();
@@ -12,7 +13,7 @@ router.post('/doctor/login', loginValidator, validate, doctorLogin);
 router.post('/patient/register', registerValidator, validate, patientRegistration);
 router.post("/patient/login", loginValidator, validate, patientLogin);
 
-
+// handling google auth routes
 router.get('/google', googleAuth);
 
 router.get('/google/callback', passport.authenticate('google', { 

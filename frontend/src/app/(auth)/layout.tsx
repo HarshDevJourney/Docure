@@ -10,9 +10,9 @@ export default function layout({ children }: { children: React.ReactNode }) {
   const mode = pathname.includes("signup") ? "signup" : "login";
 
   return (
-    <div className="flex min-h-screen">
+    <div className="flex min-h-[100dvh] h-auto overflow-y-scroll">
       <div
-        className={`w-full lg:w-1/2 flex justify-center items-center p-6 bg-white ${
+        className={`w-full lg:w-1/2 flex justify-center items-center py-2 px-5 bg-white ${
           mode == "signup" ? "lg:translate-x-full" : ""
         }`}
       >
