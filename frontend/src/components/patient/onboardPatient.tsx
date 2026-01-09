@@ -13,6 +13,7 @@ import PatientOnboardForm1 from './patientOnboardForm1';
 import PatientOnboardForm2 from './patientOnboardForm2';
 import PatientOnboardForm3 from './patientOnboardForm3';
 import { toast } from 'sonner';
+import { useRouter } from 'next/router';
 
 function Step({ activeStep }: { activeStep: number }) {
   return (
@@ -35,67 +36,87 @@ function Step({ activeStep }: { activeStep: number }) {
   );
 }
 
+export type BasicInfoFormData = z.infer<typeof basicInfoSchema>;
+
+const basicInfoSchema = z.object({
+  name: z
+    .string(),
+
+  email: z
+    .string(),
+
+  // page 1
+  phone: z
+    .string()
+    .min(10, "Phone number is required"),
+
+  dob: z
+    .string()
+    .min(1, "Date of birth is required"),
+
+  gender: z
+    .string()
+    .min(1, "Gender is required"),
+
+  bloodGrp: z.string(),
+
+  // ---------- Page 2: Emergency Details ----------
+  emergencyContact: z.object({
+    name: z.string().min(2, "Contact name is required"),
+    phone: z.string().min(10, "Valid phone number required"),
+    relation: z.string().min(1, "Relationship is required"),
+  }),
+
+  // ---------- Page 3: Medical History ----------
+  medicalHistory: z.object({
+    allergies: z.string().optional(),
+    currentMedications: z.string().optional(),
+    chronicConditions: z.string().optional(),
+  }),
+}); 
+
+
 const PatientOnboardForm = () => {
   const { user , updateProfile } = userAuthStore()
   const [ step, setStep ] = useState(1)
   const [ isSubmitting, setIsSubmitting ] = useState(false)
+  const router = useRouter()
 
-  type BasicInfoFormData = z.infer<typeof basicInfoSchema>;
-
-  const basicInfoSchema = z.object({
-    // page 1
-    phone: z
-      .string()
-      .min(10, "Phone number is required"),
-
-    dob: z
-      .string()
-      .min(1, "Date of birth is required"),
-
-    gender: z
-      .string()
-      .min(1, "Gender is required"),
-
-    bloodGroup: z.string(),
-
-    // page 2
-    emergencyName: z.string().min(2, "Contact name is required"),
-    emergencyPhone: z.string().min(10, "Valid phone number required"),
-    relationship: z.string().min(1, "Relationship is required"),
-
-    // page 3
-    allergies: z.string().optional(),
-    currentMedications: z.string().optional(),
-    chronicConditions: z.string().optional(),
-  }); 
 
   const form = useForm<BasicInfoFormData>({
     resolver: zodResolver(basicInfoSchema),
     defaultValues: {
+      name: user?.name,
+      email: user?.email,
+
       phone: "",
       dob: "",
       gender: "",
-      bloodGroup: "",
+      bloodGrp: "",
 
-      emergencyName: "",
-      emergencyPhone: "",
-      relationship: "",
+      emergencyContact: {
+        name: "",
+        phone: "",
+        relation: ""
+      },
 
-      allergies: "",
-      currentMedications: "",
-      chronicConditions: "",
+      medicalHistory: {
+        allergies: "",
+        currentMedications: "",
+        chronicConditions: ""
+      }
     },
     shouldUnregister: false, // IMPORTANT for multi-step forms
   });
 
-  const onSubmit = (data : BasicInfoFormData) => {
+  const onSubmit = async (data : BasicInfoFormData) => {
     setIsSubmitting(true);
 
     try {
       console.log(data);
-      // await updateProfile(data)
+      await updateProfile(data)
       toast.success('Patient Information Updated Successfully')
-      redirect('/patient/dashboard')
+      router.replace('/patient/dashboard')
     } finally {
       setIsSubmitting(false);
     }

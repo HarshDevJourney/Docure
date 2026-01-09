@@ -91,7 +91,7 @@ exports.updatePatientProfileValidator = [
   body("bloodGrp")
     .optional()
     .isIn(["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"]),
-
+    
   body("emergencyContact").optional().isObject(),
   body("emergencyContact.name").optional().isString().notEmpty(),
   body("emergencyContact.phone").optional().isString().notEmpty(),

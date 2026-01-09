@@ -6,6 +6,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { Settings, User } from "lucide-react";
 import { Button } from '../ui/button';
 import Link from 'next/link';
+import { userAuthStore } from '@/store/authStore';
 
 interface UserProfile {
     type : string,
@@ -19,6 +20,7 @@ interface ProfileNavProps {
 }
 
 export const ProfileNav: FC<ProfileNavProps> = ({ user } : ProfileNavProps ) => {
+  const { logout } = userAuthStore()
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -80,7 +82,7 @@ export const ProfileNav: FC<ProfileNavProps> = ({ user } : ProfileNavProps ) => 
             
           >
             <span className="bg-red-500 hover:bg-red-400 px-4 py-1.5 rounded-lg font-semibold font-mono">
-              Logout
+              <Button onClick={() => logout()}>Logout</Button>
             </span>
           </button>
         </div>

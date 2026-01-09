@@ -14,11 +14,13 @@ import {
   SelectValue,
 } from "../ui/select";
 import { Input } from "../ui/input";
+import { UseFormReturn } from "react-hook-form";
+import { BasicInfoFormData } from "./onboardPatient";
 
-const PatientOnboardForm1 = ({ form }) => {
+const PatientOnboardForm1 = ({ form } : { form: UseFormReturn<BasicInfoFormData> }) => {
   return (
 
-      <div className="grid grid-cols-1 px-3 py-1 md:grid-cols-2 gap-5">
+      <div className="grid md:grid-cols-2 px-3 pb-2 pt-1 gap-5 ">
 
         {/* Phone */}
         <FormField
@@ -91,7 +93,7 @@ const PatientOnboardForm1 = ({ form }) => {
         {/* Blood Group */}
         <FormField
           control={form.control}
-          name="bloodGroup"
+          name="bloodGrp"
           render={({ field }) => (
             <FormItem>
               <FormLabel className="text-sm font-medium text-gray-600">

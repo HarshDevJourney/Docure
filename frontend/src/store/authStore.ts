@@ -59,7 +59,7 @@ export const userAuthStore = create<AuthState>()(
                     isAuthenticated: false,
                     error: null,
                 });
-                toast.warning("Logout failed. Something went wrong")
+                toast.success("Logout Done Successfully")
             },
 
             loginDoctor: async (email, password) => {
@@ -161,8 +161,8 @@ export const userAuthStore = create<AuthState>()(
                     if (!user) throw new Error("User Not Found");
                     const endPoint =
                         user.type === "doctor"
-                            ? "/doctor/onboarding/update"
-                            : "/patient/onboarding/update";
+                            ? "doctor/onboarding/update"
+                            : "patient/onboarding/update";
                     const res = await postWithAuth(endPoint, data);
                     set({
                         user: { ...user, ...res.data },

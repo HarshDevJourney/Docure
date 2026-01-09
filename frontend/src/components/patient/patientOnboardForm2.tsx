@@ -14,9 +14,11 @@ import {
   SelectValue,
 } from "../ui/select";
 import { Input } from "../ui/input";
+import { UseFormReturn } from "react-hook-form";
+import { BasicInfoFormData } from "./onboardPatient";
 
 
-const patientOnboardForm2 = ({ form }) => {
+const patientOnboardForm2 = ({ form } : { form: UseFormReturn<BasicInfoFormData> }) => {
   return (
     <div className="grid grid-cols-1 px-3 py-1 md:grid-cols-2 gap-5">
         <div className="md:col-span-2">
@@ -25,7 +27,7 @@ const patientOnboardForm2 = ({ form }) => {
         {/* CONTACT NAME */}
         <FormField
           control={form.control}
-          name="emergencyName"
+          name="emergencyContact.name"
           render={({ field }) => (
               <FormItem>
               <FormLabel className="text-sm font-medium text-gray-600">
@@ -47,7 +49,7 @@ const patientOnboardForm2 = ({ form }) => {
         {/* CONTACT NUMBER */}
         <FormField
           control={form.control}
-          name="emergencyPhone"
+          name="emergencyContact.phone"
           render={({ field }) => (
             <FormItem>
               <FormLabel className="text-sm font-medium text-gray-600">
@@ -68,7 +70,7 @@ const patientOnboardForm2 = ({ form }) => {
         {/* Relationship */}
         <FormField
         control={form.control}
-        name="relationship"
+        name="emergencyContact.relation"
         render={({ field }) => (
             <FormItem>
             <FormLabel className="text-sm font-medium text-gray-600">

@@ -62,7 +62,7 @@ export const healthcareCategories = [
 export const healthcareCategoriesList = [
   "Primary Care",
   "Manage Your Condition",
-  "Mental & Behavioral Health",
+  "Mental Health",
   "Sexual Health",
   "Children's Health",
   "Senior Health",
@@ -101,4 +101,14 @@ export const socials = [
     icon: Instagram,
     url: "https://instagram.com/docure",
   },
+];
+
+export const days = [
+  { label: "Sun", value: "sunday" },
+  { label: "Mon", value: "monday" },
+  { label: "Tue", value: "tuesday" },
+  { label: "Wed", value: "wednesday" },
+  { label: "Thu", value: "thursday" },
+  { label: "Fri", value: "friday" },
+  { label: "Sat", value: "saturday" },
 ];
