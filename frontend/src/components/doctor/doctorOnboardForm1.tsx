@@ -17,19 +17,21 @@ import { Input } from "../ui/input";
 import { Textarea } from "../ui/textarea";
 import { healthcareCategories, healthcareCategoriesList } from "@/lib/constant";
 import { Checkbox } from "../ui/checkbox";
+import { UseFormReturn } from "react-hook-form";
+import { BasicDocInfoFormData } from "./onboardDoctor";
 
 
-const doctorOnboardForm1 = ({ form }) => {
+const doctorOnboardForm1 = ({ form } : { form : UseFormReturn<BasicDocInfoFormData>}) => {
   return (
-    <div className="grid grid-cols-1 px-3 py-1 md:grid-cols-2 gap-5">
+    <div className="grid grid-cols-1 px-3 py-1 items-start md:grid-cols-2 gap-5">
 
         <FormField
         control={form.control}
-        name="medicalSpecialization"
+        name="specialization"
         render={({ field }) => (
             <FormItem>
             <FormLabel className="text-sm font-medium text-gray-600">
-                Mesdical Specialization
+                Medical Specialization
             </FormLabel>
 
             <Select onValueChange={field.onChange} value={field.value}>
@@ -84,8 +86,14 @@ const doctorOnboardForm1 = ({ form }) => {
               <FormControl>
                 <Input
                   type="number"
+                  min={0}
+                  value={field.value ?? ""}
+                  onChange={(e) =>
+                    field.onChange(
+                      e.target.value === "" ? undefined : Number(e.target.value)
+                    )
+                  }
                   className="h-10 rounded-lg w-full  border border-gray-300 focus:outline-none focus:ring-0 focus:ring-gray-100"
-                  {...field}
                   />
               </FormControl>
               <FormMessage className="text-red-400 text-xs" />
@@ -97,64 +105,60 @@ const doctorOnboardForm1 = ({ form }) => {
 
             <FormField
                 control={form.control}
-                name="categories"
-                render={() => (
+                name="category"
+                render={({ field }) => {
+                  const values: string[] = field.value ?? [];
+
+                  return (
                     <FormItem>
-                    {/* Title */}
-                    <FormLabel className="text-sm font-medium text-gray-700">
-                        Healthcare Categories <span className="text-red-500">*</span>
-                    </FormLabel>
+                      {/* Title */}
+                      <FormLabel className="text-sm font-medium text-gray-700">
+                        Healthcare Categories
+                      </FormLabel>
 
-                    {/* Subtitle */}
-                    <p className="text-xs text-gray-500 mb-3">
-                        Select the healthcare areas you provide services for (select at least one):
-                    </p>
+                      {/* Subtitle */}
+                      <p className="text-xs text-gray-500 mb-3">
+                        Select all healthcare areas you provide services for:
+                      </p>
 
-                    {/* Grid */}
-                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
-                        {healthcareCategoriesList.map((category) => (
-                            <FormField
-                            key={category}
-                            control={form.control}
-                            name="categories"
-                            render={({ field }) => {
-                            const isChecked = field.value?.includes(category);
+                      {/* Grid */}
+                      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
+                        {healthcareCategoriesList.map((category) => {
+                          const checked = values.includes(category);
 
-                            return (
-                                <FormItem
-                                key={category}
-                                className="flex items-center gap-3 h-7"
-                                >
-                                <FormControl>
-                                    <Checkbox
-                                    checked={isChecked}
-                                    onCheckedChange={(checked) => {
-                                        if (checked) {
-                                        field.onChange([...field.value, category]);
-                                        } else {
-                                        field.onChange(
-                                            field.value.filter((v) => v !== category)
-                                        );
-                                        }
-                                    }}
-                                    />
-                                </FormControl>
+                          return (
+                            <div
+                              key={category}
+                              className="flex items-center gap-3 h-7"
+                            >
+                              <Checkbox
+                                checked={checked}
+                                onCheckedChange={(isChecked) => {
+                                  if (isChecked) {
+                                    field.onChange([...values, category]);
+                                  } else {
+                                    field.onChange(
+                                      values.filter((v) => v !== category)
+                                    );
+                                  }
+                                }}
+                              />
 
-                                <FormLabel className="text-xs font-semibold text-gray-700 cursor-pointer">
-                                    {category}
-                                </FormLabel>
-                                </FormItem>
-                            );
-                            }}
-                        />
-                        ))}
-                    </div>
+                              <span className="text-xs font-semibold text-gray-700 cursor-pointer">
+                                {category}
+                              </span>
+                            </div>
+                          );
+                        })}
+                      </div>
 
-                    {/* Error */}
-                    <FormMessage className="text-red-500 text-xs mt-2" />
+                      {/* Error */}
+                      <FormMessage className="text-red-500 text-xs mt-2" />
                     </FormItem>
-                )}
-                />
+                  );
+                }}
+              />
+
 
 
                 <FormField
@@ -199,7 +203,7 @@ const doctorOnboardForm1 = ({ form }) => {
 
           <FormField
           control={form.control}
-          name="consultationFees"
+          name="fees"
           render={({ field }) => (
               <FormItem>
               <FormLabel className="text-sm font-medium text-gray-600">
@@ -208,8 +212,15 @@ const doctorOnboardForm1 = ({ form }) => {
               <FormControl>
                 <Input
                   type="number"
+                  min={0}
+                  value={field.value ?? ""}
+                  onChange={(e) =>
+                    field.onChange(
+                      e.target.value === "" ? undefined : Number(e.target.value)
+                    )
+                  }
                   className="h-10 rounded-lg w-full  border border-gray-300 focus:outline-none focus:ring-0 focus:ring-gray-100"
-                  {...field}
+                  
                   />
               </FormControl>
               <FormMessage className="text-red-400 text-xs" />

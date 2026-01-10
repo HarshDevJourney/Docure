@@ -13,6 +13,7 @@ import { toast } from 'sonner';
 import DoctorOnboardForm1 from './doctorOnboardForm1';
 import DoctorOnboardForm2 from './doctorOnboardForm2';
 import DoctorOnboardForm3 from './doctorOnboardForm3';
+import { useRouter } from 'next/router';
 
 function Step({ activeStep }: { activeStep: number }) {
   return (
@@ -35,70 +36,108 @@ function Step({ activeStep }: { activeStep: number }) {
   );
 }
 
+export type BasicDocInfoFormData = z.infer<typeof basicDocInfoSchema>;
+
+const basicDocInfoSchema = z.object({
+  name: z.string().min(3),
+  email: z.string(),
+
+  // page 1
+  specialization: z.string().min(1),
+  qualification: z.string().min(1),
+  category: z.array(z.string()).min(1, "Select at least one category"),
+  experience: z.number().int().min(0),
+  about: z.string(),
+  fees: z.number().int().min(0),
+
+  // page 2
+  hospitalInfo: z.object({
+    name : z.string(),
+    address: z.string(),
+    cityName: z.string()
+  }),
+
+  // page 3
+  availabilityRange: z
+    .object({
+      startDate: z.string(),
+      endDate: z.string(),
+      excludedWeekdays: z.array(z.number().min(0).max(6)),
+    }),
+  dailyTimeRange: z
+    .array(
+      z.object({
+        start: z.string(), // "09:00"
+        end: z.string(),   // "17:00"
+      })
+    )
+    .min(1, "At least one time range is required"),
+  slotDurationMinutes: z.number().int().min(5).max(180),
+}); 
+
+
 const DoctorOnboardForm = () => {
   const { user , updateProfile } = userAuthStore()
   const [ step, setStep ] = useState(1)
   const [ isSubmitting, setIsSubmitting ] = useState(false)
-
-  type BasicInfoFormData = z.infer<typeof basicInfoSchema>;
-
-  const basicInfoSchema = z.object({
-    // page 1
-    phone: z
-      .string()
-      .min(10, "Phone number is required"),
-
-    dob: z
-      .string()
-      .min(1, "Date of birth is required"),
-
-    gender: z
-      .string()
-      .min(1, "Gender is required"),
-
-    bloodGroup: z.string(),
-
-    // page 2
-    emergencyName: z.string().min(2, "Contact name is required"),
-    emergencyPhone: z.string().min(10, "Valid phone number required"),
-    relationship: z.string().min(1, "Relationship is required"),
-
-    // page 3
-    allergies: z.string().optional(),
-    currentMedications: z.string().optional(),
-    chronicConditions: z.string().optional(),
-  }); 
-
-  const form = useForm<BasicInfoFormData>({
-    resolver: zodResolver(basicInfoSchema),
+  const router = useRouter()
+  
+  const form = useForm<BasicDocInfoFormData>({
+    resolver: zodResolver(basicDocInfoSchema),
     defaultValues: {
-      phone: "",
-      dob: "",
-      gender: "",
-      bloodGroup: "",
-
-      emergencyName: "",
-      emergencyPhone: "",
-      relationship: "",
-
-      allergies: "",
-      currentMedications: "",
-      chronicConditions: "",
-    },
-    shouldUnregister: false, // IMPORTANT for multi-step forms
+      name: user?.name,
+      email: user?.email,
+  
+      specialization: "",
+      qualification: "",
+      category: [],
+      experience: 0,
+      about: "",
+      fees: 0,
+  
+      hospitalInfo: {
+        name: "",
+        address: "",
+        cityName: "",
+      },
+  
+      availabilityRange: {
+        startDate: "",
+        endDate: "",
+        excludedWeekdays: [],
+      },
+  
+      dailyTimeRange: [
+        {
+          start: "09:00",
+          end: "12:00",
+        },
+      ],
+  
+      slotDurationMinutes: 30
+    }
   });
 
-  const onSubmit = (data : BasicInfoFormData) => {
+  const onSubmit = async (data : BasicDocInfoFormData) => {
     setIsSubmitting(true);
-
     try {
       console.log(data);
-      // await updateProfile(data)
-      toast.success('Patient Information Updated Successfully')
-      redirect('/patient/dashboard')
+      await updateProfile(data)
+      toast.success('Doctor Information Updated Successfully')
+      if(user) user.isVerified = true;
+      router.replace('/doctor/dashboard')
+    }
+    catch(err){
+      toast.warning('Something went Wrong')
     } finally {
       setIsSubmitting(false);
     }
+  };
+
+  const onError = (errors: any) => {
+    toast.error("Incomplete form", {
+      description: "Please fill all required fields before submitting.",
+    });
   };
 
   function stepBack(){
@@ -118,7 +157,7 @@ const DoctorOnboardForm = () => {
       <div className='text-center space-y-8'>
         <div className='space-y-1.5'>
           <h1 className='text-black text-2xl font-bold font-sans'>Welcome <span className='text-blue-600 text-4xl font-extrabold capitalize'>{user?.name}</span>, Ready to Onboard !</h1>
-          <p className='text-gray-500 text-sm font-semibold '>Complete your profile to start booking Appointments</p>
+          <p className='text-gray-500 text-sm font-semibold '>Complete your profile to start Practising as Doctor</p>
         </div>
         <div className="flex justify-center items-center gap-10">
           <Step activeStep={step} />
@@ -153,7 +192,7 @@ const DoctorOnboardForm = () => {
             </div>
           }
           <Form {...form}>
-            <form  onSubmit={form.handleSubmit(onSubmit)}>
+            <form  onSubmit={form.handleSubmit(onSubmit, onError)}>
 
             {step == 1 &&
               <div>

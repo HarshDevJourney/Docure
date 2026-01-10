@@ -72,6 +72,7 @@ exports.doctorRegistration = async (req, res, next) => {
 };
 
 exports.doctorLogin = async (req, res, next) => {
+  console.time('doctorLogin');
   try {
     const { email, password } = req.body;
 
@@ -101,6 +102,8 @@ exports.doctorLogin = async (req, res, next) => {
     );
   } catch (err) {
     res.unauthorized();
+  } finally {
+    console.timeEnd('doctorLogin');
   }
 };
 
@@ -143,6 +146,7 @@ exports.patientRegistration = async (req, res, next) => {
 };
 
 exports.patientLogin = async (req, res, next) => {
+  console.time('patientLogin');
   try {
     const { email, password } = req.body;
 
@@ -172,6 +176,8 @@ exports.patientLogin = async (req, res, next) => {
     );
   } catch (err) {
     res.unauthorized();
+  } finally {
+    console.timeEnd('patientLogin');
   }
 };
 

@@ -37,17 +37,7 @@ exports.loginValidator = [
 
   body("password")
     .notEmpty()
-    .withMessage("Password is required")
-    .isLength({ min: 8 })
-    .withMessage("Password must be at least 8 characters long")
-    .matches(/[A-Z]/)
-    .withMessage("Password must contain at least one uppercase letter")
-    .matches(/[a-z]/)
-    .withMessage("Password must contain at least one lowercase letter")
-    .matches(/[0-9]/)
-    .withMessage("Password must contain at least one number")
-    .matches(/[\W_]/)
-    .withMessage("Password must contain at least one special character"),
+    .withMessage("Password is required"),
 ];
 
 exports.doctorListValidator = [
@@ -68,7 +58,7 @@ exports.updateDocProfileValidator = [
   body("email").optional().notEmpty(),
   body("specialization").optional().notEmpty(),
   body("qualification").optional().notEmpty(),
-  body("category").optional().notEmpty(),
+  body("category").isArray({min: 1}).optional().notEmpty(),
   body("experience").optional().isInt({ min: 0 }),
   body("about").optional().isString(),
   body("fees").optional().isInt({ min: 0 }),

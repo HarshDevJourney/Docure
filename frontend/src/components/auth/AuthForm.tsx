@@ -68,7 +68,7 @@ const AuthForm = ({ type, userRole }: AuthFormProp) => {
           await loginDoctor(formData.email, formData.password);
         } else await loginPatient(formData.email, formData.password);
 
-        router.push(`/${userRole}/dashboard`);
+        router.push(`/onboarding/${userRole}`);
       }
     } catch (err) {
       console.log(err);

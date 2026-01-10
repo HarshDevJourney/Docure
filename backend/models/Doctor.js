@@ -71,7 +71,7 @@ const DoctorSchema = new Schema({
     ],
   },
   category: {
-    type: String,
+    type: [String],
     enum: healthcareCategoriesList,
     required: false,
   },

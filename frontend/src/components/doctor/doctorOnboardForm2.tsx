@@ -2,13 +2,15 @@ import React from 'react'
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '../ui/form'
 import { Input } from '../ui/input'
 import { Textarea } from '../ui/textarea'
+import { UseFormReturn } from 'react-hook-form'
+import { BasicDocInfoFormData } from './onboardDoctor'
 
-const doctorOnboardForm2 = ({ form }) => {
+const doctorOnboardForm2 = ({ form } : { form : UseFormReturn<BasicDocInfoFormData>}) => {
   return (
     <div className='grid grid-cols-1 px-3 py-1 gap-5'>
         <FormField
             control={form.control}
-            name="hospitalName"
+            name="hospitalInfo.name"
             render={({ field }) => (
                 <FormItem>
                 <FormLabel className="text-sm font-medium text-gray-600">
@@ -28,7 +30,7 @@ const doctorOnboardForm2 = ({ form }) => {
 
           <FormField
           control={form.control}
-          name="address"
+          name="hospitalInfo.address"
           render={({ field }) => (
               <FormItem>
               <FormLabel className="text-sm font-medium text-gray-600">
@@ -48,7 +50,7 @@ const doctorOnboardForm2 = ({ form }) => {
 
           <FormField
             control={form.control}
-            name="cityName"
+            name="hospitalInfo.cityName"
             render={({ field }) => (
                 <FormItem>
                 <FormLabel className="text-sm font-medium text-gray-600">

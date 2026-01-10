@@ -76,6 +76,7 @@ const PatientSchema = new Schema({
 
 },{timestamps : true});
 
+PatientSchema.index({ email: 1 });
 
 // compute age using DOB and add to db
 PatientSchema.pre('save',(next) => {

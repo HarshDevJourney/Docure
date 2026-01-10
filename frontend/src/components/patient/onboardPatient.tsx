@@ -116,10 +116,19 @@ const PatientOnboardForm = () => {
       console.log(data);
       await updateProfile(data)
       toast.success('Patient Information Updated Successfully')
+      if(user) user.isVerified = true
       router.replace('/patient/dashboard')
+    }catch(err){
+      toast.warning('Fill All Required Information')
     } finally {
       setIsSubmitting(false);
     }
+  };
+
+  const onError = (errors: any) => {
+    toast.error("Incomplete form", {
+      description: "Please fill all required fields before submitting.",
+    });
   };
 
   function stepBack(){
@@ -174,7 +183,7 @@ const PatientOnboardForm = () => {
             </div>
           }
           <Form {...form}>
-            <form  onSubmit={form.handleSubmit(onSubmit)}>
+            <form  onSubmit={form.handleSubmit(onSubmit, onError)}>
 
             {step == 1 &&
               <div>
