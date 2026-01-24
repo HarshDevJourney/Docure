@@ -26,9 +26,11 @@ export const Herosection = () => {
         </p>
 
         <div className="flex flex-col items-center justify-center my-10 sm:space-x-5 md:space-x-8 gap-4 sm:flex-row mx-auto">
-          <Button className="cursor-pointer hover:bg-blue-400 font-bold md:text-lg rounded-full px-17 sm:px-10.5 bg-blue-600 text-white">
-            Book a Visit
-          </Button>
+          <Link href={'/doctor-list'}>
+            <Button className="cursor-pointer hover:bg-blue-400 font-bold md:text-lg rounded-full px-17 sm:px-10.5 bg-blue-600 text-white">
+              Book a Visit
+            </Button>
+          </Link>
           <Link href={'/login/doctor'}>
             <Button className="cursor-pointer hover:bg-gray-200 font-bold md:text-lg px-12 sm:px-6 rounded-full bg-gray-100 border border-blue-600 text-blue-600">
               Login As A Doctor
@@ -45,27 +47,29 @@ export const Herosection = () => {
                  -mx-5 px-5"
             >
               {healthcareCategories.map((el) => (
-                <button
-                  key={el.id}
-                  className="flex flex-col min-w-[100px] cursor-pointer items-center group transition-transform shrink-0 snap-start "
-                  type="button"
-                >
-                  <div
-                    className={`w-12 h-12 hover:scale-80 hover:shadow-blue-500 hover:shadow-2xl transition-all duration-300 rounded-2xl flex justify-center items-center ${el.color}`}
+                <Link href={el.href}>
+                  <button
+                    key={el.id}
+                    className="flex flex-col min-w-[100px] cursor-pointer items-center group transition-transform shrink-0 snap-start "
+                    type="button"
                   >
-                    <svg
-                      className="w-7 h-7 text-white"
-                      fill="currentColor"
-                      viewBox="0 0 24 24"
-                      aria-hidden="true"
+                    <div
+                      className={`w-12 h-12 hover:scale-80 hover:shadow-blue-500 hover:shadow-2xl transition-all duration-300 rounded-2xl flex justify-center items-center ${el.color}`}
                     >
-                      <path d={el.icon} />
-                    </svg>
-                  </div>
-                  <span className="mt-2 text-sm md:text-base font-light font-serif text-center">
-                    {el.title}
-                  </span>
-                </button>
+                      <svg
+                        className="w-7 h-7 text-white"
+                        fill="currentColor"
+                        viewBox="0 0 24 24"
+                        aria-hidden="true"
+                      >
+                        <path d={el.icon} />
+                      </svg>
+                    </div>
+                    <span className="mt-2 text-sm md:text-base font-light font-serif text-center">
+                      {el.title}
+                    </span>
+                  </button>
+                </Link>
               ))}
             </div>
           </div>

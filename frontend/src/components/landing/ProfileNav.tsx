@@ -64,10 +64,17 @@ export const ProfileNav: FC<ProfileNavProps> = ({ user } : ProfileNavProps ) => 
         <div className="py-2">
           <Link
             href="/profile"
-            className="flex items-center gap-2 px-4 py-2 text-sm border-y border-y-gray-500 text-gray-700 hover:bg-gray-100 rounded"
+            className="flex items-center mx-auto gap-2 px-4 py-2 text-sm border-y border-y-gray-500 text-gray-700 hover:bg-gray-100 rounded"
           >
             <User className="w-4 h-4 text-gray-500" />
             <span className="font-serif ">Profile</span>
+          </Link>
+          <Link
+            href={`/${user.type}/dashboard`}
+            className="flex items-center gap-2 px-4 py-2 text-sm border-b border-b-gray-500 text-gray-700 hover:bg-gray-100 rounded"
+          >
+            <User className="w-4 h-4 text-gray-500" />
+            <span className="font-serif ">Dashboard</span>
           </Link>
           <Link
             href="/settings"

@@ -2,7 +2,7 @@
 
 import { userAuthStore } from '@/store/authStore'
 import { ArrowLeftIcon, ArrowRightIcon, Heart, Loader, Phone, User } from 'lucide-react'
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { Button } from '../ui/button';
 import { z } from 'zod'
 import { useForm } from "react-hook-form";
@@ -13,7 +13,7 @@ import PatientOnboardForm1 from './patientOnboardForm1';
 import PatientOnboardForm2 from './patientOnboardForm2';
 import PatientOnboardForm3 from './patientOnboardForm3';
 import { toast } from 'sonner';
-import { useRouter } from 'next/router';
+import { useRouter } from 'next/navigation';
 
 function Step({ activeStep }: { activeStep: number }) {
   return (
@@ -81,6 +81,12 @@ const PatientOnboardForm = () => {
   const [ step, setStep ] = useState(1)
   const [ isSubmitting, setIsSubmitting ] = useState(false)
   const router = useRouter()
+
+  useEffect(() => {
+    if(user?.isVerified){
+      router.replace('/patient/dashboard')
+    }
+  },[router])
 
 
   const form = useForm<BasicInfoFormData>({
