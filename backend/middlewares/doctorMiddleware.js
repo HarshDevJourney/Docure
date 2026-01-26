@@ -1,5 +1,20 @@
 const Doctor = require("../models/Doctor");
 
+exports.getDoctorByID = async (req, res, next) => {
+    try{
+        const { id } = req.params
+
+        const doc = Doctor.findById(id).select('-password -googleId');
+        if(!doc) res.badRequest('Doctor doesnt Exist')
+            
+        res.ok(doc, 'Doctor Profile Fetched Successful');
+    }
+    catch(err){
+        console.error(err.message);
+        res.error(err.message, 'Doctor Matches Fetch Failed');
+    }
+}
+
 exports.getMatchedDoctorsList = async (req, res, next) => {
     try{
         const { search , specilization, city, category, minFees, maxFees, sortBy='createdBy', sortOrder='desc', page=1, limit=100 } = req.query;

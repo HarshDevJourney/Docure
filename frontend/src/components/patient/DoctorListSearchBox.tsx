@@ -12,8 +12,7 @@ import { ArrowBigDown, ArrowDown, ArrowUpDown, Search, Stethoscope } from "lucid
 import { Button } from "../ui/button";
 import { Tabs, TabsList, TabsTrigger } from "../ui/tabs";
 
-const cities = ["fjkbkj", "giboi"];
-
+const cities = ["Mumbai", "Delhi", "Bangalore", "Hyderabad", "Ahmedabad", "Chennai", "Kolkata", "Pune", "Jaipur", "Lucknow", "Kanpur", "Nagpur", "Indore", "Bhopal", "Visakhapatnam", "Patna", "Vadodara", "Ludhiana", "Agra", "Nashik", "Meerut", "Rajkot", "Varanasi", "Srinagar", "Aurangabad", "Amritsar", "Ranchi", "Coimbatore", "Jabalpur", "Gwalior", "Vijayawada", "Jodhpur", "Madurai", "Raipur", "Kota", "Chandigarh", "Guwahati", "Mysore", "Tiruchirappalli", "Jalandhar", "Bhubaneswar", "Salem", "Thiruvananthapuram", "Guntur", "Bikaner", "Noida", "Jamshedpur", "Kochi", "Dehradun", "Siliguri", "Jammu", "Mangalore", "Erode", "Belgaum", "Udaipur", "Gurgaon", "Faridabad", "Surat", "Gandhidagar", "Panaji"];
 const specializations = [
     "General Physician",
     "Cardiologist",
@@ -43,13 +42,17 @@ const DoctorListSearchBox = () => {
                         {/* Speciality */}
                         <div className='w-full sm:w-auto flex justify-center items-center sm:justify-start px-4 py-2 sm:py-0 border-b sm:border-b-0 sm:border-r border-gray-200 bg-gray-50/50 sm:bg-transparent'>
                             <Select>
-                                <SelectTrigger className='w-full sm:w-auto border-none shadow-none focus:ring-2 focus:ring-blue-500/20 focus-visible:ring-2 focus-visible:ring-blue-500/20 h-10 font-semibold text-blue-700 flex items-center gap-2 bg-transparent hover:bg-gray-50 transition-colors'>
+                                <SelectTrigger className='w-full sm:w-auto border border-gray-200 shadow-sm focus:ring-2 focus:ring-blue-500/20 focus-visible:ring-2 focus-visible:ring-blue-500/20 h-10 font-semibold text-blue-700 flex items-center gap-2 bg-white hover:bg-gray-50 transition-colors rounded-lg'>
                                     <Stethoscope className='text-blue-600 w-4 h-4' />
                                     <SelectValue placeholder='Speciality' />
                                 </SelectTrigger>
-                                <SelectContent>
+                                <SelectContent className='bg-white border border-gray-200 shadow-lg rounded-lg'>
                                     {specializations.map((spec) => (
-                                        <SelectItem key={spec} value={spec.toLowerCase()}>
+                                        <SelectItem 
+                                            key={spec} 
+                                            value={spec.toLowerCase()}
+                                            className='hover:bg-blue-50 focus:bg-blue-50 cursor-pointer'
+                                        >
                                             {spec}
                                         </SelectItem>
                                     ))}
@@ -88,7 +91,7 @@ const DoctorListSearchBox = () => {
                                         <SelectTrigger className='h-9 w-full border border-gray-200 shadow-none focus:ring-2 focus:ring-blue-500/20 focus-visible:ring-2 focus-visible:ring-blue-500/20 px-3 text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 transition-colors'>
                                             <SelectValue placeholder='Select city' />
                                         </SelectTrigger>
-                                        <SelectContent>
+                                        <SelectContent className='bg-white border border-gray-200 shadow-lg rounded-lg'>
                                             {cities.map((city) => (
                                                 <SelectItem key={city} value={city.toLowerCase()}>
                                                     {city}

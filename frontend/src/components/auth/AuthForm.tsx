@@ -60,15 +60,15 @@ const AuthForm = ({ type, userRole }: AuthFormProp) => {
           await registerDoctor({ ...formData });
         } 
         else await registerPatient({ ...formData });
-
-        router.push(`/onboarding/${userRole}`);
+        // Redirect handled by useEffect
       } 
       else {
         if (userRole === "doctor") {
           await loginDoctor(formData.email, formData.password);
-        } else await loginPatient(formData.email, formData.password);
-
-        router.push(`/onboarding/${userRole}`);
+        } else {
+          await loginPatient(formData.email, formData.password);
+        }
+        // Redirect handled by useEffect - don't push here
       }
     } catch (err) {
       console.log(err);

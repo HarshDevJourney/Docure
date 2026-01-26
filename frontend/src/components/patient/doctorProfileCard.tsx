@@ -11,7 +11,6 @@ import {
     Stethoscope,
     GraduationCap,
     Calendar,
-    Phone,
     Mail,
     RotateCcw,
     Users,
@@ -60,135 +59,127 @@ const DoctorProfileCard: React.FC<DoctorProfileCardProps> = ({
         return `${displayHour}:${minutes} ${ampm}`;
     };
 
-    // Mock data for additional features (in real app, this would come from API)
+    // Data with fallbacks for API
     const mockData = {
-        rating: 4.8,
-        totalReviews: 1247,
-        languages: ["English", "Hindi"],
+        rating: doctor.rating || 4.8,
+        totalReviews: doctor.totalReviews || 1247,
+        languages: doctor.languages || ["English", "Hindi"],
         avgConsultationTime: doctor.slotDurationMinutes || 30,
-        avgWaitingTime: "15-20 mins",
-        nextAvailable: "Today, 2:30 PM",
-        totalPatients: 2500,
-        satisfaction: 96,
+        avgWaitingTime: doctor.avgWaitingTime || "15-20 mins",
+        totalPatients: doctor.totalPatients || 2500,
+        satisfaction: doctor.satisfaction || 96,
     };
 
     return (
-        <div className='group w-full [perspective:1200px]'>
+        <div className='w-[95%] max-w-[340px] md:max-w-3xl mx-auto [perspective:1500px]'>
             <div
-                className={`relative w-full h-[400px] transition-transform duration-700 [transform-style:preserve-3d] ${
+                className={`relative transition-all duration-700 [transform-style:preserve-3d] ${
                     isFlipped ? "[transform:rotateY(180deg)]" : ""
                 }`}
             >
-                {/* Front Side - Horizontal Layout */}
-                <Card className='absolute w-full h-full [backface-visibility:hidden] border-0 shadow-2xl hover:shadow-[0_20px_50px_rgba(0,0,0,0.15)] transition-all duration-500 bg-white overflow-hidden rounded-3xl'>
-                    <CardContent className='p-0 h-full flex'>
-                        {/* Left Side - Header with gradient */}
-                        <div className='relative bg-gradient-to-br from-blue-600 to-blue-700 w-2/5 text-white overflow-hidden flex-shrink-0'>
-                            {/* Animated Background Pattern */}
-                            <div className='absolute inset-0 opacity-10'>
-                                <div className='absolute top-4 right-8 w-24 h-24 bg-white/20 rounded-full blur-xl animate-pulse'></div>
-                                <div className='absolute bottom-6 left-6 w-16 h-16 bg-white/15 rounded-full blur-lg'></div>
-                                <div className='absolute top-1/2 right-1/4 w-8 h-8 bg-white/10 rounded-full'></div>
-                            </div>
+                {/* ==================== FRONT SIDE ==================== */}
+                <Card className='[backface-visibility:hidden] border border-blue-200 shadow-xl bg-white rounded-2xl overflow-hidden'>
+                    <CardContent className='p-0'>
+                        <div className='flex flex-col md:flex-row'>
+                            {/* LEFT - Profile */}
+                            <div className='md:w-[38%] bg-gradient-to-br from-blue-500 via-blue-600 to-blue-700 p-4 sm:p-6 flex flex-col items-center justify-between text-white relative overflow-hidden'>
+                                {/* Decorative background */}
+                                <div className='absolute inset-0 opacity-10'>
+                                    <div className='absolute -top-8 -right-8 w-32 h-32 bg-white rounded-full blur-2xl'></div>
+                                    <div className='absolute -bottom-8 -left-8 w-24 h-24 bg-white rounded-full blur-xl'></div>
+                                </div>
 
-                            {/* Decorative grid pattern */}
-                            <div className='absolute inset-0 opacity-5' style={{
-                                backgroundImage: 'radial-gradient(circle, white 1px, transparent 1px)',
-                                backgroundSize: '20px 20px'
-                            }}></div>
+                                <div className='relative z-10 w-full space-y-3 sm:space-y-4'>
+                                    {/* Avatar */}
+                                    <div className='flex justify-center'>
+                                        <div className='relative'>
+                                            <Avatar className='w-20 h-20 border-4 border-white/30 shadow-xl'>
+                                                <AvatarImage
+                                                    src={doctor.profileImage}
+                                                    alt={doctor.name}
+                                                    className='object-cover'
+                                                />
+                                                <AvatarFallback className='bg-blue-800 text-white font-bold text-xl'>
+                                                    {getInitials(doctor.name)}
+                                                </AvatarFallback>
+                                            </Avatar>
+                                            {doctor.isVerified && (
+                                                <div className='absolute -bottom-1 -right-1 bg-green-500 rounded-full p-1 shadow-lg border-2 border-white'>
+                                                    <CheckCircle className='w-3.5 h-3.5 text-white' />
+                                                </div>
+                                            )}
+                                        </div>
+                                    </div>
 
-                            <div className='relative h-full flex flex-col justify-between p-6'>
-                                <div>
-                                    <div className='relative group/avatar mb-4'>
-                                        <div className='absolute -inset-1 bg-blue-400 rounded-full opacity-75 blur group-hover/avatar:opacity-100 transition-opacity duration-300'></div>
-                                        <Avatar className='relative w-24 h-24 border-4 border-white shadow-2xl ring-4 ring-white/40 mx-auto'>
-                                            <AvatarImage
-                                                src={doctor.profileImage}
-                                                alt={doctor.name}
-                                                className='object-cover'
-                                            />
-                                            <AvatarFallback className='bg-blue-500 text-white font-bold text-2xl'>
-                                                {getInitials(doctor.name)}
-                                            </AvatarFallback>
-                                        </Avatar>
-                                        {doctor.isVerified && (
-                                            <div className='absolute -bottom-1 -right-1 bg-gradient-to-br from-green-400 to-emerald-500 rounded-full p-1.5 shadow-lg ring-2 ring-white'>
-                                                <CheckCircle className='w-4 h-4 text-white' />
-                                            </div>
+                                    {/* Name & Specialization */}
+                                    <div className='text-center space-y-1'>
+                                        <h3 className='font-bold text-base sm:text-lg leading-tight'>
+                                            {doctor.name}
+                                        </h3>
+                                        <div className='flex items-center justify-center gap-1.5 text-blue-100'>
+                                            <Stethoscope className='w-3.5 h-3.5' />
+                                            <p className='text-xs sm:text-sm'>
+                                                {doctor.specialization}
+                                            </p>
+                                        </div>
+                                    </div>
+
+                                    {/* Rating & Experience */}
+                                    <div className='flex items-center justify-center gap-2 flex-wrap'>
+                                        <div className='bg-white/20 backdrop-blur-sm px-3 py-1.5 rounded-full border border-white/30 flex items-center gap-1.5'>
+                                            <Star className='w-3.5 h-3.5 text-yellow-300 fill-yellow-300' />
+                                            <span className='font-semibold text-sm'>{mockData.rating}</span>
+                                            <span className='text-xs text-blue-100'>
+                                                ({mockData.totalReviews.toLocaleString()})
+                                            </span>
+                                        </div>
+                                        {doctor.experience && (
+                                            <Badge className='bg-white/20 backdrop-blur-sm text-white border-white/30 text-xs px-2.5 py-0.5'>
+                                                {doctor.experience} yrs
+                                            </Badge>
                                         )}
                                     </div>
 
-                                    <div className='text-center'>
-                                        <h3 className='font-bold text-xl mb-1 tracking-tight'>
-                                            {doctor.name}
-                                        </h3>
-                                        <p className='text-blue-100 text-sm flex items-center justify-center gap-1.5 mb-3 font-medium'>
-                                            <Stethoscope className='w-4 h-4' />
-                                            {doctor.specialization}
-                                        </p>
-
-                                        {/* Rating and Experience */}
-                                        <div className='flex items-center justify-center gap-2 mb-3'>
-                                            <div className='flex items-center gap-1 bg-white/15 backdrop-blur-sm px-2.5 py-1 rounded-full'>
-                                                <Star className='w-4 h-4 text-yellow-300 fill-current' />
-                                                <span className='text-sm font-bold'>
-                                                    {mockData.rating}
-                                                </span>
-                                                <span className='text-xs text-blue-200 font-medium'>
-                                                    ({mockData.totalReviews.toLocaleString()})
-                                                </span>
-                                            </div>
-                                            {doctor.experience && (
-                                                <Badge className='bg-white/20 backdrop-blur-sm text-white text-xs px-2 py-1 border-white/30 font-medium'>
-                                                    <Calendar className='w-3 h-3 mr-1' />
-                                                    {doctor.experience} yrs
-                                                </Badge>
-                                            )}
-                                        </div>
-
-                                        {/* Languages */}
-                                        <div className='flex flex-wrap justify-center gap-1.5 mb-4'>
-                                            {mockData.languages.map((lang, index) => (
-                                                <Badge
-                                                    key={index}
-                                                    className='bg-white/15 backdrop-blur-sm text-white text-xs px-2 py-0.5 border-white/20 font-medium'
-                                                >
-                                                    {lang}
-                                                </Badge>
-                                            ))}
-                                        </div>
+                                    {/* Languages */}
+                                    <div className='flex justify-center gap-1.5 flex-wrap'>
+                                        {mockData.languages.map((lang, index) => (
+                                            <span
+                                                key={index}
+                                                className='text-xs bg-white/15 backdrop-blur-sm px-2.5 py-1 rounded-full border border-white/20'
+                                            >
+                                                {lang}
+                                            </span>
+                                        ))}
                                     </div>
+
+                                    {/* View Details Button */}
+                                    <button
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            setIsFlipped(true);
+                                        }}
+                                        className='w-full bg-white text-blue-700 py-2.5 rounded-xl font-semibold flex items-center justify-center gap-2 hover:bg-blue-50 transition-all shadow-lg text-sm'
+                                    >
+                                        <RotateCcw className='w-4 h-4' />
+                                        View Details
+                                    </button>
                                 </div>
-
-                                {/* Flip indicator */}
-                                <button
-                                    onClick={(e) => {
-                                        e.stopPropagation();
-                                        setIsFlipped(!isFlipped);
-                                    }}
-                                    className='w-full text-white/80 text-xs flex items-center justify-center gap-1.5 bg-black/20 backdrop-blur-sm px-3 py-2 rounded-full border border-white/20 font-medium hover:bg-black/30 transition-colors'
-                                >
-                                    <RotateCcw className='w-3.5 h-3.5' />
-                                    <span>Flip for Details</span>
-                                </button>
                             </div>
-                        </div>
 
-                        {/* Right Side - Main Content */}
-                        <div className='flex-1 p-5 flex flex-col justify-between overflow-hidden'>
-                            <div className='space-y-3 flex-1'>
-                                {/* Hospital Info */}
+                            {/* RIGHT - Information */}
+                            <div className='flex-1 p-4 sm:p-6 space-y-3 sm:space-y-4'>
+                                {/* Hospital */}
                                 {doctor.hospitalInfo && (
-                                    <div className='bg-gradient-to-br from-gray-50 to-gray-100/50 rounded-xl p-3 border border-gray-200/50 shadow-sm'>
-                                        <div className='flex items-start gap-2.5'>
-                                            <div className='bg-blue-600 p-2 rounded-lg shadow-md flex-shrink-0'>
+                                    <div className='bg-blue-50 rounded-xl p-3 sm:p-3.5 border border-blue-200'>
+                                        <div className='flex items-start gap-2.5 sm:gap-3'>
+                                            <div className='bg-blue-600 p-2 rounded-lg shadow flex-shrink-0'>
                                                 <MapPin className='w-4 h-4 text-white' />
                                             </div>
                                             <div className='flex-1 min-w-0'>
-                                                <p className='font-bold text-gray-900 text-xs mb-0.5'>
+                                                <p className='font-semibold text-gray-900 text-sm mb-0.5'>
                                                     {doctor.hospitalInfo.name}
                                                 </p>
-                                                <p className='text-gray-600 text-[10px] leading-tight'>
+                                                <p className='text-gray-600 text-xs'>
                                                     {doctor.hospitalInfo.address}, {doctor.hospitalInfo.city}
                                                 </p>
                                             </div>
@@ -199,280 +190,260 @@ const DoctorProfileCard: React.FC<DoctorProfileCardProps> = ({
                                 {/* Categories */}
                                 {doctor.category && doctor.category.length > 0 && (
                                     <div className='flex flex-wrap gap-1.5'>
-                                        {doctor.category.slice(0, 2).map((cat, index) => (
+                                        {doctor.category.slice(0, 4).map((cat, index) => (
                                             <Badge
                                                 key={index}
-                                                className='bg-blue-50 text-blue-700 border border-blue-200 px-2 py-1 text-[10px] font-semibold'
+                                                className='bg-blue-100 text-blue-700 border border-blue-200 px-2.5 py-0.5 text-xs'
                                             >
                                                 {cat}
                                             </Badge>
                                         ))}
-                                        {doctor.category.length > 2 && (
-                                            <Badge className='bg-gray-100 text-gray-700 border-gray-300/50 px-2 py-1 text-[10px] font-medium'>
-                                                +{doctor.category.length - 2}
+                                        {doctor.category.length > 4 && (
+                                            <Badge className='bg-gray-100 text-gray-700 px-2.5 py-0.5 text-xs'>
+                                                +{doctor.category.length - 4}
                                             </Badge>
                                         )}
                                     </div>
                                 )}
 
-                                {/* Fees and Availability */}
-                                <div className='bg-gradient-to-br from-emerald-50 via-green-50 to-teal-50 rounded-xl p-3 border-2 border-emerald-200/50'>
-                                    <div className='flex items-center justify-between mb-2'>
-                                        <div>
-                                            <span className='text-xl font-extrabold text-emerald-700'>
-                                                {formatFees(doctor.fees)}
-                                            </span>
-                                            <p className='text-[10px] text-emerald-600 font-semibold'>
-                                                per consultation
-                                            </p>
-                                        </div>
-                                        {doctor.dailyTimeRanges && doctor.dailyTimeRanges.length > 0 && (
-                                            <div className='text-right bg-white/60 backdrop-blur-sm rounded-lg px-2 py-1 border border-emerald-200/50'>
-                                                <div className='flex items-center gap-1 text-[10px] text-emerald-700 font-bold'>
-                                                    <Clock className='w-3 h-3' />
-                                                    <span>Available</span>
-                                                </div>
-                                                <p className='text-[10px] text-emerald-600 font-semibold'>
-                                                    {formatTime(doctor.dailyTimeRanges[0].start)} - {formatTime(doctor.dailyTimeRanges[0].end)}
-                                                </p>
-                                            </div>
-                                        )}
+                                {/* Fees & Availability */}
+                                <div className='grid grid-cols-2 gap-2.5 sm:gap-3'>
+                                    <div className='bg-gradient-to-br from-blue-600 to-blue-700 rounded-xl p-3 sm:p-4 text-white shadow-md'>
+                                        <div className='text-xs text-blue-100 mb-1'>Consultation</div>
+                                        <div className='text-xl sm:text-2xl font-bold'>{formatFees(doctor.fees)}</div>
                                     </div>
+
+                                    {doctor.dailyTimeRanges && doctor.dailyTimeRanges.length > 0 && (
+                                        <div className='bg-gradient-to-br from-green-500 to-green-600 rounded-xl p-3 sm:p-4 text-white shadow-md'>
+                                            <div className='flex items-center gap-1 text-xs text-green-100 mb-1'>
+                                                <Clock className='w-3 h-3' />
+                                                Available
+                                            </div>
+                                            <div className='text-lg sm:text-xl font-bold'>
+                                                {formatTime(doctor.dailyTimeRanges[0].start)}
+                                            </div>
+                                        </div>
+                                    )}
                                 </div>
 
-                                {/* Quick Stats */}
-                                <div className='grid grid-cols-3 gap-1.5'>
-                                    <div className='bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg p-2 text-center border border-blue-200/50'>
-                                        <Users className='w-3.5 h-3.5 text-blue-600 mx-auto mb-1' />
-                                        <p className='text-[10px] font-extrabold text-blue-700'>
+                                {/* Stats */}
+                                <div className='grid grid-cols-3 gap-2 sm:gap-2.5'>
+                                    <div className='bg-white border border-blue-100 rounded-xl p-2.5 sm:p-3 text-center shadow-sm'>
+                                        <Users className='w-4 h-4 text-blue-600 mx-auto mb-1' />
+                                        <div className='text-sm sm:text-base font-bold text-gray-900'>
                                             {mockData.totalPatients.toLocaleString()}+
-                                        </p>
-                                        <p className='text-[9px] text-blue-600 font-medium'>Patients</p>
+                                        </div>
+                                        <div className='text-[10px] sm:text-xs text-gray-600'>Patients</div>
                                     </div>
-                                    <div className='bg-gradient-to-br from-emerald-50 to-green-100 rounded-lg p-2 text-center border border-emerald-200/50'>
-                                        <Heart className='w-3.5 h-3.5 text-emerald-600 fill-current mx-auto mb-1' />
-                                        <p className='text-[10px] font-extrabold text-emerald-700'>
+                                    <div className='bg-white border border-red-100 rounded-xl p-2.5 sm:p-3 text-center shadow-sm'>
+                                        <Heart className='w-4 h-4 text-red-500 fill-red-500 mx-auto mb-1' />
+                                        <div className='text-sm sm:text-base font-bold text-gray-900'>
                                             {mockData.satisfaction}%
-                                        </p>
-                                        <p className='text-[9px] text-emerald-600 font-medium'>Satisfied</p>
+                                        </div>
+                                        <div className='text-[10px] sm:text-xs text-gray-600'>Happy</div>
                                     </div>
-                                    <div className='bg-gradient-to-br from-purple-50 to-violet-100 rounded-lg p-2 text-center border border-purple-200/50'>
-                                        <Timer className='w-3.5 h-3.5 text-purple-600 mx-auto mb-1' />
-                                        <p className='text-[10px] font-extrabold text-purple-700'>
+                                    <div className='bg-white border border-purple-100 rounded-xl p-2.5 sm:p-3 text-center shadow-sm'>
+                                        <Timer className='w-4 h-4 text-purple-600 mx-auto mb-1' />
+                                        <div className='text-sm sm:text-base font-bold text-gray-900'>
                                             {mockData.avgConsultationTime}m
-                                        </p>
-                                        <p className='text-[9px] text-purple-600 font-medium'>Avg</p>
-                                    </div>
-                                </div>
-                            </div>
-
-                            {/* Action Button */}
-                            <Button
-                                className='w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2.5 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-[1.02] active:scale-[0.98]'
-                                onClick={(e) => {
-                                    e.stopPropagation();
-                                    onBookAppointment?.(doctor);
-                                }}
-                            >
-                                <Calendar className='w-4 h-4 mr-2' />
-                                Book Appointment
-                            </Button>
-                        </div>
-                    </CardContent>
-                </Card>
-
-                {/* Enhanced Back Side - Horizontal Layout */}
-                <Card className='absolute w-full h-full [backface-visibility:hidden] [transform:rotateY(180deg)] border-0 shadow-2xl bg-gradient-to-br from-blue-600 to-blue-700 text-white overflow-hidden rounded-3xl'>
-                    <CardContent className='p-0 h-full flex'>
-                        {/* Left Side - Header */}
-                        <div className='relative w-2/5 overflow-hidden flex-shrink-0'>
-                            {/* Animated Background Pattern */}
-                            <div className='absolute inset-0 opacity-10'>
-                                <div className='absolute top-2 right-6 w-20 h-20 bg-white/20 rounded-full blur-xl animate-pulse'></div>
-                                <div className='absolute bottom-4 left-8 w-12 h-12 bg-white/15 rounded-full blur-lg'></div>
-                                <div className='absolute top-1/3 left-1/4 w-6 h-6 bg-white/10 rounded-full'></div>
-                            </div>
-
-                            {/* Decorative grid pattern */}
-                            <div className='absolute inset-0 opacity-5' style={{
-                                backgroundImage: 'radial-gradient(circle, white 1px, transparent 1px)',
-                                backgroundSize: '20px 20px'
-                            }}></div>
-
-                            <div className='relative h-full flex flex-col justify-between p-6'>
-                                <div>
-                                    <div className='flex items-center justify-between mb-4'>
-                                        <div>
-                                            <h3 className='font-bold text-lg mb-1 tracking-tight'>
-                                                Dr. {doctor.name.split(" ")[0]}
-                                            </h3>
-                                            <p className='text-blue-200 text-xs font-medium'>
-                                                {doctor.specialization}
-                                            </p>
                                         </div>
-                                        <Button
-                                            variant='ghost'
-                                            size='sm'
-                                            className='text-white/80 hover:text-white hover:bg-white/20 p-1.5 rounded-full transition-all duration-300'
-                                            onClick={(e) => {
-                                                e.stopPropagation();
-                                                setIsFlipped(false);
-                                            }}
-                                        >
-                                            <RotateCcw className='w-4 h-4' />
-                                        </Button>
-                                    </div>
-
-                                    {/* Key Details Grid */}
-                                    <div className='grid grid-cols-2 gap-2 mb-4'>
-                                        {doctor.qualification && (
-                                            <div className='bg-white/15 backdrop-blur-sm rounded-lg p-2.5 border border-white/20'>
-                                                <div className='bg-gradient-to-br from-blue-400/30 to-indigo-500/30 rounded-lg p-1 w-fit mb-1'>
-                                                    <GraduationCap className='w-3.5 h-3.5 text-blue-200' />
-                                                </div>
-                                                <p className='font-semibold text-[9px] text-blue-200 mb-0.5 uppercase'>Qualification</p>
-                                                <p className='text-white text-[10px] font-medium line-clamp-2'>{doctor.qualification}</p>
-                                            </div>
-                                        )}
-
-                                        <div className='bg-white/15 backdrop-blur-sm rounded-lg p-2.5 border border-white/20'>
-                                            <div className='bg-gradient-to-br from-purple-400/30 to-pink-500/30 rounded-lg p-1 w-fit mb-1'>
-                                                <Mail className='w-3.5 h-3.5 text-purple-200' />
-                                            </div>
-                                            <p className='font-semibold text-[9px] text-purple-200 mb-0.5 uppercase'>Email</p>
-                                            <p className='text-white text-[9px] font-medium truncate'>{doctor.email}</p>
-                                        </div>
-
-                                        {doctor.experience && (
-                                            <div className='bg-white/15 backdrop-blur-sm rounded-lg p-2.5 border border-white/20'>
-                                                <div className='bg-gradient-to-br from-amber-400/30 to-orange-500/30 rounded-lg p-1 w-fit mb-1'>
-                                                    <Award className='w-3.5 h-3.5 text-amber-200' />
-                                                </div>
-                                                <p className='font-semibold text-[9px] text-amber-200 mb-0.5 uppercase'>Experience</p>
-                                                <p className='text-white text-xs font-bold'>{doctor.experience} yrs</p>
-                                            </div>
-                                        )}
-
-                                        <div className='bg-white/15 backdrop-blur-sm rounded-lg p-2.5 border border-white/20'>
-                                            <div className='bg-gradient-to-br from-emerald-400/30 to-teal-500/30 rounded-lg p-1 w-fit mb-1'>
-                                                <Users className='w-3.5 h-3.5 text-emerald-200' />
-                                            </div>
-                                            <p className='font-semibold text-[9px] text-emerald-200 mb-0.5 uppercase'>Patients</p>
-                                            <p className='text-white text-xs font-bold'>
-                                                {mockData.totalPatients.toLocaleString()}+
-                                            </p>
-                                        </div>
+                                        <div className='text-[10px] sm:text-xs text-gray-600'>Time</div>
                                     </div>
                                 </div>
 
-                                <button
-                                    onClick={(e) => {
-                                        e.stopPropagation();
-                                        setIsFlipped(false);
-                                    }}
-                                    className='w-full text-white/80 text-xs flex items-center justify-center gap-1.5 bg-black/20 backdrop-blur-sm px-3 py-2 rounded-full border border-white/20 font-medium hover:bg-black/30 transition-colors'
-                                >
-                                    <RotateCcw className='w-3.5 h-3.5' />
-                                    <span>Flip Back</span>
-                                </button>
-                            </div>
-                        </div>
-
-                        {/* Right Side - Content */}
-                        <div className='flex-1 p-5 flex flex-col justify-between overflow-hidden'>
-                            <div className='space-y-2.5 flex-1'>
-                                {/* About Section */}
-                                <div className='bg-white/10 backdrop-blur-sm rounded-xl p-3 border border-white/20'>
-                                    <h4 className='font-bold mb-1.5 text-blue-100 flex items-center gap-1.5 text-[10px] uppercase'>
-                                        <MessageCircle className='w-3 h-3' />
-                                        About
-                                    </h4>
-                                    <p className='text-[10px] text-white/95 leading-relaxed font-medium line-clamp-3'>
-                                        {doctor.about ||
-                                            "Experienced healthcare professional dedicated to providing quality medical care."}
-                                    </p>
-                                </div>
-
-                                {/* Appointment Details */}
-                                <div className='grid grid-cols-2 gap-2'>
-                                    <div className='bg-white/15 backdrop-blur-sm rounded-lg p-2.5 border border-white/20'>
-                                        <div className='bg-gradient-to-br from-orange-400/30 to-amber-500/30 rounded-lg p-1 w-fit mb-1'>
-                                            <Timer className='w-3.5 h-3.5 text-orange-200' />
-                                        </div>
-                                        <p className='font-semibold text-[9px] text-orange-200 mb-0.5 uppercase'>Waiting</p>
-                                        <p className='text-white font-bold text-[10px]'>
-                                            {mockData.avgWaitingTime}
-                                        </p>
-                                    </div>
-
-                                    <div className='bg-white/15 backdrop-blur-sm rounded-lg p-2.5 border border-white/20'>
-                                        <div className='bg-gradient-to-br from-emerald-400/30 to-teal-500/30 rounded-lg p-1 w-fit mb-1'>
-                                            <Clock className='w-3.5 h-3.5 text-emerald-200' />
-                                        </div>
-                                        <p className='font-semibold text-[9px] text-emerald-200 mb-0.5 uppercase'>Consult</p>
-                                        <p className='text-white font-bold text-[10px]'>
-                                            {mockData.avgConsultationTime}m
-                                        </p>
-                                    </div>
-                                </div>
-
-                                {/* Schedule */}
-                                {doctor.dailyTimeRanges && doctor.dailyTimeRanges.length > 0 && (
-                                    <div className='bg-white/15 backdrop-blur-sm rounded-lg p-2.5 border border-white/20'>
-                                        <h5 className='font-bold text-[9px] text-blue-200 mb-1.5 uppercase'>Schedule</h5>
-                                        <div className='flex items-center gap-1.5 text-[10px] mb-1 bg-white/10 rounded-lg px-2 py-1'>
-                                            <Clock className='w-3 h-3 text-blue-300' />
-                                            <span className='font-semibold'>
-                                                {formatTime(doctor.dailyTimeRanges[0].start)} - {formatTime(doctor.dailyTimeRanges[0].end)}
-                                            </span>
-                                        </div>
-                                        <p className='text-[9px] text-white/80 font-medium'>
-                                            {doctor.slotDurationMinutes || 30} min slots
-                                        </p>
-                                    </div>
-                                )}
-
-                                {/* Satisfaction */}
-                                <div className='bg-gradient-to-br from-emerald-500/25 via-green-500/20 to-teal-500/25 rounded-lg p-2.5 border-2 border-emerald-400/40'>
-                                    <div className='flex items-center justify-between'>
-                                        <div>
-                                            <p className='font-bold text-[10px] text-emerald-100 mb-0.5'>Satisfaction</p>
-                                            <p className='text-[9px] text-emerald-200'>{mockData.totalReviews.toLocaleString()} reviews</p>
-                                        </div>
-                                        <div className='text-right bg-white/20 rounded-lg px-2 py-1 border border-white/30'>
-                                            <p className='text-base font-extrabold text-emerald-100'>{mockData.satisfaction}%</p>
-                                            <div className='flex items-center justify-end gap-0.5'>
-                                                <Star className='w-2.5 h-2.5 text-yellow-300 fill-current' />
-                                                <span className='text-[10px] text-emerald-100 font-bold'>{mockData.rating}</span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            {/* Action Buttons */}
-                            <div className='space-y-2'>
+                                {/* Book Button */}
                                 <Button
-                                    className='w-full bg-white text-blue-700 hover:bg-gray-50 font-bold py-2 rounded-xl shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-[1.02] active:scale-[0.98] text-xs'
-                                    onClick={(e) => {
-                                        e.stopPropagation();
-                                        onViewProfile?.(doctor);
-                                    }}
-                                >
-                                    <Users className='w-3.5 h-3.5 mr-1.5' />
-                                    View Profile
-                                </Button>
-                                <Button
-                                    variant='outline'
-                                    className='w-full border-2 border-white/50 text-white hover:bg-white/20 hover:border-white/70 font-bold py-2 rounded-xl backdrop-blur-sm transition-all duration-300 transform hover:scale-[1.02] active:scale-[0.98] text-xs'
+                                    className='w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-xl shadow-lg hover:shadow-xl transition-all'
                                     onClick={(e) => {
                                         e.stopPropagation();
                                         onBookAppointment?.(doctor);
                                     }}
                                 >
-                                    <Calendar className='w-3.5 h-3.5 mr-1.5' />
-                                    Book Now
+                                    <Calendar className='w-4 h-4 mr-2' />
+                                    Book Appointment
                                 </Button>
+                            </div>
+                        </div>
+                    </CardContent>
+                </Card>
+
+                {/* ==================== BACK SIDE ==================== */}
+                <Card className='absolute inset-0 [backface-visibility:hidden] [transform:rotateY(180deg)] border-0 shadow-xl bg-gradient-to-br from-blue-600 via-blue-700 to-blue-800 text-white rounded-2xl overflow-hidden'>
+                    <CardContent className='p-0 h-full'>
+                        <div className='flex flex-col md:flex-row h-full'>
+                            {/* LEFT - Quick Info */}
+                            <div className='md:w-[38%] p-4 sm:p-6 flex flex-col justify-between bg-gradient-to-br from-blue-700 to-blue-800 relative overflow-hidden border-r border-white/10'>
+                                {/* Background Pattern */}
+                                <div className='absolute inset-0 opacity-5'>
+                                    <div className='absolute top-8 right-8 w-24 h-24 bg-white rounded-full blur-2xl'></div>
+                                    <div className='absolute bottom-8 left-8 w-20 h-20 bg-white rounded-full blur-xl'></div>
+                                </div>
+
+                                <div className='relative z-10 space-y-3 sm:space-y-4'>
+                                    {/* Header */}
+                                    <div className='flex items-start justify-between'>
+                                        <div>
+                                            <h3 className='font-bold text-base sm:text-lg mb-0.5'>
+                                                Dr. {doctor.name.split(" ")[doctor.name.split(" ").length - 1]}
+                                            </h3>
+                                            <p className='text-blue-200 text-xs'>{doctor.specialization}</p>
+                                        </div>
+                                        <button
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                setIsFlipped(false);
+                                            }}
+                                            className='bg-white/10 hover:bg-white/20 p-2 rounded-lg transition-all backdrop-blur-sm border border-white/20'
+                                        >
+                                            <RotateCcw className='w-4 h-4' />
+                                        </button>
+                                    </div>
+
+                                    {/* Info Cards */}
+                                    <div className='space-y-2 sm:space-y-2.5'>
+                                        {doctor.qualification && (
+                                            <div className='bg-white/10 backdrop-blur-sm rounded-lg p-2.5 sm:p-3 border border-white/20'>
+                                                <div className='flex items-center gap-2 mb-1.5'>
+                                                    <GraduationCap className='w-4 h-4 text-blue-300' />
+                                                    <span className='text-xs font-semibold text-blue-200 uppercase'>
+                                                        Qualification
+                                                    </span>
+                                                </div>
+                                                <p className='text-sm font-medium'>{doctor.qualification}</p>
+                                            </div>
+                                        )}
+
+                                        {doctor.experience && (
+                                            <div className='bg-white/10 backdrop-blur-sm rounded-lg p-2.5 sm:p-3 border border-white/20'>
+                                                <div className='flex items-center gap-2 mb-1.5'>
+                                                    <Award className='w-4 h-4 text-amber-300' />
+                                                    <span className='text-xs font-semibold text-amber-200 uppercase'>
+                                                        Experience
+                                                    </span>
+                                                </div>
+                                                <p className='text-lg sm:text-xl font-bold'>{doctor.experience} Years</p>
+                                            </div>
+                                        )}
+
+                                        <div className='bg-white/10 backdrop-blur-sm rounded-lg p-2.5 sm:p-3 border border-white/20'>
+                                            <div className='flex items-center gap-2 mb-1.5'>
+                                                <Mail className='w-4 h-4 text-purple-300' />
+                                                <span className='text-xs font-semibold text-purple-200 uppercase'>
+                                                    Email
+                                                </span>
+                                            </div>
+                                            <p className='text-sm font-medium truncate'>{doctor.email}</p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* Back Button */}
+                                <button
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        setIsFlipped(false);
+                                    }}
+                                    className='relative z-10 w-full bg-white text-blue-700 py-2.5 rounded-xl font-semibold flex items-center justify-center gap-2 hover:bg-blue-50 transition-all shadow-lg text-sm mt-4 sm:mt-0'
+                                >
+                                    <RotateCcw className='w-4 h-4' />
+                                    Back
+                                </button>
+                            </div>
+
+                            {/* RIGHT - Detailed Info */}
+                            <div className='flex-1 p-4 sm:p-6 space-y-3 sm:space-y-3.5 flex flex-col'>
+                                {/* About */}
+                                <div className='bg-white/10 backdrop-blur-sm rounded-xl p-3 sm:p-4 border border-white/20'>
+                                    <div className='flex items-center gap-2 mb-2'>
+                                        <MessageCircle className='w-4 h-4 text-blue-200' />
+                                        <h4 className='font-bold text-sm uppercase'>About</h4>
+                                    </div>
+                                    <p className='text-xs sm:text-sm text-white/90 leading-relaxed line-clamp-3'>
+                                        {doctor.about ||
+                                            "Experienced healthcare professional committed to delivering exceptional patient care with expertise and compassion."}
+                                    </p>
+                                </div>
+
+                                {/* Practice Details */}
+                                <div className='grid grid-cols-2 gap-2.5 sm:gap-3'>
+                                    <div className='bg-white/10 backdrop-blur-sm rounded-lg p-2.5 sm:p-3 border border-white/20'>
+                                        <Timer className='w-4 h-4 text-orange-300 mb-1.5' />
+                                        <span className='text-xs text-orange-200 block mb-1'>Waiting</span>
+                                        <p className='text-base sm:text-lg font-bold'>{mockData.avgWaitingTime}</p>
+                                    </div>
+
+                                    <div className='bg-white/10 backdrop-blur-sm rounded-lg p-2.5 sm:p-3 border border-white/20'>
+                                        <Clock className='w-4 h-4 text-emerald-300 mb-1.5' />
+                                        <span className='text-xs text-emerald-200 block mb-1'>Consult</span>
+                                        <p className='text-base sm:text-lg font-bold'>{mockData.avgConsultationTime}m</p>
+                                    </div>
+                                </div>
+
+                                {/* Schedule */}
+                                {doctor.dailyTimeRanges && doctor.dailyTimeRanges.length > 0 && (
+                                    <div className='bg-white/10 backdrop-blur-sm rounded-xl p-3 sm:p-4 border border-white/20'>
+                                        <h5 className='font-bold text-xs uppercase mb-2 text-blue-200'>
+                                            Schedule
+                                        </h5>
+                                        <div className='bg-white/10 rounded-lg p-2.5 sm:p-3 border border-white/10 flex items-center justify-between'>
+                                            <div>
+                                                <p className='text-lg sm:text-xl font-bold'>
+                                                    {formatTime(doctor.dailyTimeRanges[0].start)}
+                                                </p>
+                                                <p className='text-xs text-white/60'>Start</p>
+                                            </div>
+                                            <div className='text-white/40'>→</div>
+                                            <div className='text-right'>
+                                                <p className='text-lg sm:text-xl font-bold'>
+                                                    {formatTime(doctor.dailyTimeRanges[0].end)}
+                                                </p>
+                                                <p className='text-xs text-white/60'>End</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                )}
+
+                                {/* Satisfaction */}
+                                <div className='bg-gradient-to-br from-green-500/30 to-emerald-500/30 rounded-xl p-3 sm:p-4 border-2 border-green-400/50 flex-1'>
+                                    <div className='flex items-center justify-between'>
+                                        <div>
+                                            <h5 className='font-bold text-sm uppercase mb-0.5'>Satisfaction</h5>
+                                            <p className='text-xs text-white/80'>
+                                                {mockData.totalReviews.toLocaleString()} reviews
+                                            </p>
+                                        </div>
+                                        <div className='text-right'>
+                                            <div className='text-2xl sm:text-3xl font-extrabold'>{mockData.satisfaction}%</div>
+                                            <div className='flex items-center justify-end gap-1'>
+                                                <Star className='w-4 h-4 text-yellow-300 fill-yellow-300' />
+                                                <span className='text-sm font-bold'>{mockData.rating}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* Action Buttons */}
+                                <div className='grid grid-cols-2 gap-2.5 sm:gap-3'>
+                                    <Button
+                                        className='bg-white text-blue-700 hover:bg-blue-50 font-semibold py-2.5 rounded-xl text-sm'
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            onViewProfile?.(doctor);
+                                        }}
+                                    >
+                                        Profile
+                                    </Button>
+                                    <Button
+                                        className='bg-green-500 hover:bg-green-600 text-white font-semibold py-2.5 rounded-xl text-sm'
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            onBookAppointment?.(doctor);
+                                        }}
+                                    >
+                                        <Calendar className='w-4 h-4 mr-1.5' />
+                                        Book
+                                    </Button>
+                                </div>
                             </div>
                         </div>
                     </CardContent>
