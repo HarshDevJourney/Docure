@@ -67,7 +67,7 @@ export const Header: FC<HeaderProps> = ({ showDashboardNav = false }) => {
   };
 
   return (
-    <header className="bg-white border-b rounded-b-2xl border-b-gray-400 fixed top-0 left-0 right-0 backdrop-blur-sm z-50 shadow-md">
+    <header className="bg-white border-b border-b-gray-400 fixed top-0 left-0 right-0 backdrop-blur-sm z-50 shadow-md">
       <div className="container mx-auto h-16 px-4 flex items-center justify-between ">
         <div className="flex items-center justify-between space-x-12">
           <Logo />

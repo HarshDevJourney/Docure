@@ -12,6 +12,7 @@ const responseMiddleware = require("./middlewares/response");
 const authRouter = require('./routes/auth')
 const docRouter = require('./routes/doctorRoute');
 const patientRouter = require('./routes/patientRoute');
+const appointmentRouter = require('./routes/appointmentRoute')
 
 const app = express();
 connectDB();
@@ -37,6 +38,7 @@ app.get('/health',(req, res, next) => res.ok('Api is Running, no need to worry B
 app.use('/api/auth', authRouter);
 app.use('/api/doctor', docRouter);
 app.use('/api/patient', patientRouter);
+app.use('/api/appointment', appointmentRouter);
 
 
 const PORT = process.env.PORT;

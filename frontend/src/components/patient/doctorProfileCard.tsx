@@ -1,4 +1,7 @@
+"use client";
+
 import React, { useState } from "react";
+import { useRouter } from "next/navigation";
 import { Doctor } from "@/lib/types";
 import { Card, CardContent } from "../ui/card";
 import { Badge } from "../ui/badge";
@@ -32,6 +35,7 @@ const DoctorProfileCard: React.FC<DoctorProfileCardProps> = ({
     onViewProfile,
     onBookAppointment,
 }) => {
+    const router = useRouter();
     const [isFlipped, setIsFlipped] = useState(false);
 
     const getInitials = (name: string) => {
@@ -73,7 +77,7 @@ const DoctorProfileCard: React.FC<DoctorProfileCardProps> = ({
     return (
         <div className='w-[95%] max-w-[340px] md:max-w-3xl mx-auto [perspective:1500px]'>
             <div
-                className={`relative transition-all duration-700 [transform-style:preserve-3d] ${
+                className={`relative transition-all duration-1100 [transform-style:preserve-3d] ${
                     isFlipped ? "[transform:rotateY(180deg)]" : ""
                 }`}
             >
@@ -128,7 +132,9 @@ const DoctorProfileCard: React.FC<DoctorProfileCardProps> = ({
                                     <div className='flex items-center justify-center gap-2 flex-wrap'>
                                         <div className='bg-white/20 backdrop-blur-sm px-3 py-1.5 rounded-full border border-white/30 flex items-center gap-1.5'>
                                             <Star className='w-3.5 h-3.5 text-yellow-300 fill-yellow-300' />
-                                            <span className='font-semibold text-sm'>{mockData.rating}</span>
+                                            <span className='font-semibold text-sm'>
+                                                {mockData.rating}
+                                            </span>
                                             <span className='text-xs text-blue-100'>
                                                 ({mockData.totalReviews.toLocaleString()})
                                             </span>
@@ -180,7 +186,8 @@ const DoctorProfileCard: React.FC<DoctorProfileCardProps> = ({
                                                     {doctor.hospitalInfo.name}
                                                 </p>
                                                 <p className='text-gray-600 text-xs'>
-                                                    {doctor.hospitalInfo.address}, {doctor.hospitalInfo.city}
+                                                    {doctor.hospitalInfo.address},{" "}
+                                                    {doctor.hospitalInfo.city}
                                                 </p>
                                             </div>
                                         </div>
@@ -209,21 +216,26 @@ const DoctorProfileCard: React.FC<DoctorProfileCardProps> = ({
                                 {/* Fees & Availability */}
                                 <div className='grid grid-cols-2 gap-2.5 sm:gap-3'>
                                     <div className='bg-gradient-to-br from-blue-600 to-blue-700 rounded-xl p-3 sm:p-4 text-white shadow-md'>
-                                        <div className='text-xs text-blue-100 mb-1'>Consultation</div>
-                                        <div className='text-xl sm:text-2xl font-bold'>{formatFees(doctor.fees)}</div>
+                                        <div className='text-xs text-blue-100 mb-1'>
+                                            Consultation
+                                        </div>
+                                        <div className='text-xl sm:text-2xl font-bold'>
+                                            {formatFees(doctor.fees)}
+                                        </div>
                                     </div>
 
-                                    {doctor.dailyTimeRanges && doctor.dailyTimeRanges.length > 0 && (
-                                        <div className='bg-gradient-to-br from-green-500 to-green-600 rounded-xl p-3 sm:p-4 text-white shadow-md'>
-                                            <div className='flex items-center gap-1 text-xs text-green-100 mb-1'>
-                                                <Clock className='w-3 h-3' />
-                                                Available
+                                    {doctor.dailyTimeRanges &&
+                                        doctor.dailyTimeRanges.length > 0 && (
+                                            <div className='bg-gradient-to-br from-green-500 to-green-600 rounded-xl p-3 sm:p-4 text-white shadow-md'>
+                                                <div className='flex items-center gap-1 text-xs text-green-100 mb-1'>
+                                                    <Clock className='w-3 h-3' />
+                                                    Available
+                                                </div>
+                                                <div className='text-lg sm:text-xl font-bold'>
+                                                    {formatTime(doctor.dailyTimeRanges[0].start)}
+                                                </div>
                                             </div>
-                                            <div className='text-lg sm:text-xl font-bold'>
-                                                {formatTime(doctor.dailyTimeRanges[0].start)}
-                                            </div>
-                                        </div>
-                                    )}
+                                        )}
                                 </div>
 
                                 {/* Stats */}
@@ -233,21 +245,27 @@ const DoctorProfileCard: React.FC<DoctorProfileCardProps> = ({
                                         <div className='text-sm sm:text-base font-bold text-gray-900'>
                                             {mockData.totalPatients.toLocaleString()}+
                                         </div>
-                                        <div className='text-[10px] sm:text-xs text-gray-600'>Patients</div>
+                                        <div className='text-[10px] sm:text-xs text-gray-600'>
+                                            Patients
+                                        </div>
                                     </div>
                                     <div className='bg-white border border-red-100 rounded-xl p-2.5 sm:p-3 text-center shadow-sm'>
                                         <Heart className='w-4 h-4 text-red-500 fill-red-500 mx-auto mb-1' />
                                         <div className='text-sm sm:text-base font-bold text-gray-900'>
                                             {mockData.satisfaction}%
                                         </div>
-                                        <div className='text-[10px] sm:text-xs text-gray-600'>Happy</div>
+                                        <div className='text-[10px] sm:text-xs text-gray-600'>
+                                            Happy
+                                        </div>
                                     </div>
                                     <div className='bg-white border border-purple-100 rounded-xl p-2.5 sm:p-3 text-center shadow-sm'>
                                         <Timer className='w-4 h-4 text-purple-600 mx-auto mb-1' />
                                         <div className='text-sm sm:text-base font-bold text-gray-900'>
                                             {mockData.avgConsultationTime}m
                                         </div>
-                                        <div className='text-[10px] sm:text-xs text-gray-600'>Time</div>
+                                        <div className='text-[10px] sm:text-xs text-gray-600'>
+                                            Time
+                                        </div>
                                     </div>
                                 </div>
 
@@ -256,7 +274,7 @@ const DoctorProfileCard: React.FC<DoctorProfileCardProps> = ({
                                     className='w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-xl shadow-lg hover:shadow-xl transition-all'
                                     onClick={(e) => {
                                         e.stopPropagation();
-                                        onBookAppointment?.(doctor);
+                                        router.push(`/patient/booking/${doctor._id}`);
                                     }}
                                 >
                                     <Calendar className='w-4 h-4 mr-2' />
@@ -284,9 +302,16 @@ const DoctorProfileCard: React.FC<DoctorProfileCardProps> = ({
                                     <div className='flex items-start justify-between'>
                                         <div>
                                             <h3 className='font-bold text-base sm:text-lg mb-0.5'>
-                                                Dr. {doctor.name.split(" ")[doctor.name.split(" ").length - 1]}
+                                                Dr.{" "}
+                                                {
+                                                    doctor.name.split(" ")[
+                                                        doctor.name.split(" ").length - 1
+                                                    ]
+                                                }
                                             </h3>
-                                            <p className='text-blue-200 text-xs'>{doctor.specialization}</p>
+                                            <p className='text-blue-200 text-xs'>
+                                                {doctor.specialization}
+                                            </p>
                                         </div>
                                         <button
                                             onClick={(e) => {
@@ -309,7 +334,9 @@ const DoctorProfileCard: React.FC<DoctorProfileCardProps> = ({
                                                         Qualification
                                                     </span>
                                                 </div>
-                                                <p className='text-sm font-medium'>{doctor.qualification}</p>
+                                                <p className='text-sm font-medium'>
+                                                    {doctor.qualification}
+                                                </p>
                                             </div>
                                         )}
 
@@ -321,7 +348,9 @@ const DoctorProfileCard: React.FC<DoctorProfileCardProps> = ({
                                                         Experience
                                                     </span>
                                                 </div>
-                                                <p className='text-lg sm:text-xl font-bold'>{doctor.experience} Years</p>
+                                                <p className='text-lg sm:text-xl font-bold'>
+                                                    {doctor.experience} Years
+                                                </p>
                                             </div>
                                         )}
 
@@ -332,7 +361,9 @@ const DoctorProfileCard: React.FC<DoctorProfileCardProps> = ({
                                                     Email
                                                 </span>
                                             </div>
-                                            <p className='text-sm font-medium truncate'>{doctor.email}</p>
+                                            <p className='text-sm font-medium truncate'>
+                                                {doctor.email}
+                                            </p>
                                         </div>
                                     </div>
                                 </div>
@@ -368,14 +399,22 @@ const DoctorProfileCard: React.FC<DoctorProfileCardProps> = ({
                                 <div className='grid grid-cols-2 gap-2.5 sm:gap-3'>
                                     <div className='bg-white/10 backdrop-blur-sm rounded-lg p-2.5 sm:p-3 border border-white/20'>
                                         <Timer className='w-4 h-4 text-orange-300 mb-1.5' />
-                                        <span className='text-xs text-orange-200 block mb-1'>Waiting</span>
-                                        <p className='text-base sm:text-lg font-bold'>{mockData.avgWaitingTime}</p>
+                                        <span className='text-xs text-orange-200 block mb-1'>
+                                            Waiting
+                                        </span>
+                                        <p className='text-base sm:text-lg font-bold'>
+                                            {mockData.avgWaitingTime}
+                                        </p>
                                     </div>
 
                                     <div className='bg-white/10 backdrop-blur-sm rounded-lg p-2.5 sm:p-3 border border-white/20'>
                                         <Clock className='w-4 h-4 text-emerald-300 mb-1.5' />
-                                        <span className='text-xs text-emerald-200 block mb-1'>Consult</span>
-                                        <p className='text-base sm:text-lg font-bold'>{mockData.avgConsultationTime}m</p>
+                                        <span className='text-xs text-emerald-200 block mb-1'>
+                                            Consult
+                                        </span>
+                                        <p className='text-base sm:text-lg font-bold'>
+                                            {mockData.avgConsultationTime}m
+                                        </p>
                                     </div>
                                 </div>
 
@@ -407,16 +446,22 @@ const DoctorProfileCard: React.FC<DoctorProfileCardProps> = ({
                                 <div className='bg-gradient-to-br from-green-500/30 to-emerald-500/30 rounded-xl p-3 sm:p-4 border-2 border-green-400/50 flex-1'>
                                     <div className='flex items-center justify-between'>
                                         <div>
-                                            <h5 className='font-bold text-sm uppercase mb-0.5'>Satisfaction</h5>
+                                            <h5 className='font-bold text-sm uppercase mb-0.5'>
+                                                Satisfaction
+                                            </h5>
                                             <p className='text-xs text-white/80'>
                                                 {mockData.totalReviews.toLocaleString()} reviews
                                             </p>
                                         </div>
                                         <div className='text-right'>
-                                            <div className='text-2xl sm:text-3xl font-extrabold'>{mockData.satisfaction}%</div>
+                                            <div className='text-2xl sm:text-3xl font-extrabold'>
+                                                {mockData.satisfaction}%
+                                            </div>
                                             <div className='flex items-center justify-end gap-1'>
                                                 <Star className='w-4 h-4 text-yellow-300 fill-yellow-300' />
-                                                <span className='text-sm font-bold'>{mockData.rating}</span>
+                                                <span className='text-sm font-bold'>
+                                                    {mockData.rating}
+                                                </span>
                                             </div>
                                         </div>
                                     </div>

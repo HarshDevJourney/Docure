@@ -13,7 +13,7 @@ import { toast } from 'sonner';
 import DoctorOnboardForm1 from './doctorOnboardForm1';
 import DoctorOnboardForm2 from './doctorOnboardForm2';
 import DoctorOnboardForm3 from './doctorOnboardForm3';
-import { useRouter } from 'next/router';
+import { useRouter } from 'next/navigation';
 
 function Step({ activeStep }: { activeStep: number }) {
   return (

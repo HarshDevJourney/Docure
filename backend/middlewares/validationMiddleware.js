@@ -102,3 +102,57 @@ exports.updatePatientProfileValidator = [
   body("medicalHistory.currentMedications").optional().isString().notEmpty(),
   body("medicalHistory.chronicConditions").optional().isString().notEmpty(),
 ];
+
+exports.appointmentStatusValidator = [
+  query('status').optional().isArray().withMessage('Status can be an Array'),
+  query('status.*').optional().isString().withMessage('Each Status must be string')
+]
+
+exports.bookAppointmentValidator = [
+  body("doctorID")
+    .isMongoId()
+    .withMessage("Valid doctor ID is required"),
+
+  body("date")
+    .isISO8601()
+    .withMessage("Valid appointment date is required"),
+
+  body("slotStart")
+    .isString()
+    .notEmpty()
+    .withMessage("Valid start time is required"),
+
+  body("slotEnd")
+    .isString()
+    .notEmpty()
+    .withMessage("Valid end time is required"),
+
+  body("consultationType")
+    .isIn(["video", "audio"])
+    .withMessage("Valid consultation type required"),
+
+  body("symptoms")
+    .optional()
+    .isString()
+    .withMessage("Symptoms must be a string"),
+
+  body("paymentDetails.doctorFees")
+    .isNumeric()
+    .withMessage("Doctor fees is required"),
+
+  body("paymentDetails.platformFees")
+    .isNumeric()
+    .withMessage("Platform fees is required"),
+
+  body("paymentDetails.totalFees")
+    .isNumeric()
+    .withMessage("Total amount is required"),
+];
+
+exports.rescheduleValidator = [
+
+]
+
+exports.updateStatusValidator = [
+
+]

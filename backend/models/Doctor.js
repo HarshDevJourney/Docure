@@ -93,8 +93,8 @@ const DoctorSchema = new Schema({
     address: String,
     city: String,
   },
-  avaliabiltyRange : avaliabilityRangeSchema,
-  dailyTimeSlot : dailyTimeStrapSchema,
+  availabilityRange : avaliabilityRangeSchema,
+  dailyTimeRange : [dailyTimeStrapSchema],
   slotDurationMinutes : {
     type : Number,
     default : 30

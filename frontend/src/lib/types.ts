@@ -5,8 +5,8 @@ export interface TimeRange {
 }
 
 export interface AvailabilityRange {
-  startDate: string;
-  endDate: string;
+  startDate: Date;
+  endDate: Date;
   excludedWeekdays: number[];
 }
 
@@ -102,7 +102,7 @@ export interface Doctor {
     endDate: Date;
     excludedWeekdays: number[];
   };
-  dailyTimeRanges: {
+  dailyTimeRange: {
     start: string; // e.g., "09:00"
     end: string; // e.g., "12:00"
   }[];
@@ -183,3 +183,35 @@ export interface ReportData {
     count: number;
   }>;
 }
+
+export interface BookingFormData {
+    appointmentType: "video" | "phone";
+    date: string;
+    time: string;
+    symptoms: string;
+    medicalHistory: string;
+}
+
+export interface PaymentFees {
+    consultationFee: number;
+    platformFee: number;
+    gst: number;
+    totalAmount: number;
+}
+
+export const TIME_SLOTS = [
+    "09:00",
+    "09:30",
+    "10:00",
+    "10:30",
+    "11:00",
+    "11:30",
+    "14:00",
+    "14:30",
+    "15:00",
+    "15:30",
+    "16:00",
+    "16:30",
+];
+
+export const BOOKED_SLOTS = ["09:30", "11:00", "14:00", "15:30"];
