@@ -76,7 +76,8 @@ const AuthForm = ({ type, userRole }: AuthFormProp) => {
   };
 
   const handleGoogleAuth = () => {
-    window.location.href = `${process.env.NEXT_PUBLIC_API_URL}/auth/google?type=${userRole}`;
+    const intent = type === "login" ? "login" : "signup";
+    window.location.href = `${process.env.NEXT_PUBLIC_API_URL}/auth/google?type=${userRole}&intent=${intent}`;
   };
 
   const islogin = type === "login";

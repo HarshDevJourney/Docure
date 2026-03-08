@@ -118,8 +118,8 @@ export interface DoctorFilters {
   specialization?: string;
   category?: string;
   city?: string;
-  minFees?: number;
-  maxFees?: number;
+  minFees?: string;
+  maxFees?: string;
   sortBy?: "fees" | "experience" | "name" | "createdAt";
   sortOrder?: "asc" | "desc";
   page?: number;
@@ -185,7 +185,7 @@ export interface ReportData {
 }
 
 export interface BookingFormData {
-    appointmentType: "video" | "phone";
+    appointmentType: "video" | "audio";
     date: string;
     time: string;
     symptoms: string;

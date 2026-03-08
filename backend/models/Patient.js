@@ -94,4 +94,4 @@ PatientSchema.pre("save", (next) => {
     next();
 });
 
-module.exports = model("patient", PatientSchema);
+module.exports = model("Patient", PatientSchema);

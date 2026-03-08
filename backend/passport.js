@@ -11,7 +11,11 @@ passport.use('google', new GoogleStrategy({
 
 }, async(req, accessToken, refreshToken, profile, done) => {
     try{
-        const userType = req.query.state || 'patient';
+        // Decode state parameter which is in format "userType:intent"
+        const stateData = (req.query.state || 'patient:signup').split(':');
+        const userType = stateData[0] || 'patient';
+        const intent = stateData[1] || 'signup';
+        
         const { emails, displayName, photos } = profile;
 
         const email = emails?.[0]?.value;
@@ -19,13 +23,21 @@ passport.use('google', new GoogleStrategy({
 
         if(userType === 'doctor'){
             let user = await Doctor.findOne({ email });
+            let isNewUser = false;
+            
             if(!user){
+                // If login intent and user doesn't exist, return error
+                if (intent === 'login') {
+                    return done(new Error('USER_NOT_FOUND'));
+                }
+                
+                isNewUser = true;
                 user = await Doctor.create({
                     googleId : profile.id,
                     email,
                     name : displayName,
                     profilePic : photo,
-                    isVerified : true
+                    isVerified : false  // New users need to complete onboarding
                 })
             }
             else{
@@ -36,17 +48,25 @@ passport.use('google', new GoogleStrategy({
                 }
             }
 
-            return done(null, { user, type : 'doctor' })
+            return done(null, { user, type : 'doctor', isNewUser })
         }
         else if(userType === 'patient'){
             let user = await Patient.findOne({ email });
+            let isNewUser = false;
+            
             if (!user) {
+              // If login intent and user doesn't exist, return error
+              if (intent === 'login') {
+                  return done(new Error('USER_NOT_FOUND'));
+              }
+              
+              isNewUser = true;
               user = await Patient.create({
                 googleId: profile.id,
                 email,
                 name: displayName,
                 profilePic: photo,
-                isVerified: true,
+                isVerified: false,  // New users don't need onboarding
               });
             } else {
               if (!user.googleId) {
@@ -56,7 +76,7 @@ passport.use('google', new GoogleStrategy({
               }
             }
 
-            return done(null, { user, type: "patient" });
+            return done(null, { user, type: "patient", isNewUser });
         }
 
     }

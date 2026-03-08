@@ -6,6 +6,19 @@ import DoctorCard from "./DoctorCard";
 import BookingStep1 from "./BookingStep1";
 import BookingStep2 from "./BookingStep2";
 import PaymentStep from "./PaymentStep";
+import { useAppointmentStore } from "@/store/appointmentStore";
+import { useRouter } from "next/navigation";
+import { httpService } from "@/service/httpService";
+import { userAuthStore } from "@/store/authStore";
+import { toast } from "sonner";
+
+declare global {
+    interface Window {
+        Razorpay: any;
+    }
+}
+
+type PaymentStatus = 'idle' | 'processing' | 'success' | 'fail';
 
 // Razorpay script loading function
 const loadRazorpayScript = () => {
@@ -27,10 +40,27 @@ const BookingPage: React.FC<{ doctor: Doctor }> = ({ doctor }) => {
         medicalHistory: "",
     });
 
+    const router = useRouter()
+
+    // Calculate fees
+    const consultationFee = doctor.fees;
+    const platformFee = doctor.fees * 0.1;
+    const gst = Math.round((consultationFee + platformFee) * 0.18);
+    const totalAmount = consultationFee + platformFee + gst;
+
+    const docTiming = doctor.dailyTimeRange
+    const docAvailability = doctor.availabilityRange
+    const consultationSpan = doctor.slotDurationMinutes
+
     const [currentMonth, setCurrentMonth] = useState(new Date());
+    const [patientName, setPatientName] = useState('')
+    const [appointmentID, setAppointmentID] = useState<string | null>(null)
     const [loading, setLoading] = useState(false);
     const [paymentLoading, setPaymentLoading] = useState(false);
+    const [paymentStatus, setPaymentStatus] = useState<PaymentStatus>('idle')
     const [step, setStep] = useState(1);
+    const { bookAppointment } = useAppointmentStore()
+    const { user } = userAuthStore()
 
     const getDaysInMonth = (date: Date) => {
         return new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate();
@@ -82,6 +112,17 @@ const BookingPage: React.FC<{ doctor: Doctor }> = ({ doctor }) => {
         return days;
     };
 
+    const calSlotEnd = (start : string, duration : number) => {
+        const [hours, minutes] = start.split(":").map(Number);
+
+        const totalMinutes = hours * 60 + minutes + duration;
+
+        const endHours = Math.floor(totalMinutes / 60) % 24;
+        const endMinutes = totalMinutes % 60;
+
+        return `${String(endHours).padStart(2, "0")}:${String(endMinutes).padStart(2, "0")}`;
+    }
+
     const handleDateSelect = (day: number) => {
         const selectedDate = formatDate(day, currentMonth);
         setFormData({ ...formData, date: selectedDate, time: "" });
@@ -103,109 +144,137 @@ const BookingPage: React.FC<{ doctor: Doctor }> = ({ doctor }) => {
             alert("Please describe your symptoms before proceeding to payment.");
             return;
         }
-        console.log(formData)
-        setStep(3); // Move to payment step
+        
+        setLoading(true)
+        try {
+            const expiresAt = new Date(Date.now() + 60 * 60 * 1000); // 60 minutes
+
+            const booking = await bookAppointment({
+                doctorID: doctor._id,
+                date: formData.date,
+                slotStart: formData.time,
+                slotEnd: calSlotEnd(formData.time, doctor.slotDurationMinutes),
+                consultationType: formData.appointmentType,
+                symptoms: formData.symptoms,
+                medicalHistory: formData.medicalHistory,
+                paymentDetails: {
+                    doctorFees: consultationFee,
+                    platformFees: platformFee,
+                    totalFees: totalAmount,
+                    paymentStatus: "Pending",
+                },
+                paymentExpiresAt : expiresAt
+            });
+
+
+            if(booking && booking._id){
+                setAppointmentID(booking._id)
+                setPatientName(booking.patientID.name)
+                setStep(3)
+            }
+            else{
+                toast.error("Failed to create appointment. Please try again.");
+                await new Promise((resolve) => setTimeout(resolve, 3000))
+                router.push('/patient/dashboard')
+            }
+
+        } catch (error: any) {
+            alert(error.message);
+        } finally {
+            setLoading(false);
+        }
+        
     };
 
     const handlePayment = async () => {
+        if (!appointmentID) return;
         setPaymentLoading(true);
+        setPaymentStatus('processing')
+
+        toast.loading("Opening payment window...")
         
         try {
-            const isScriptLoaded = await loadRazorpayScript();
-            
-            if (!isScriptLoaded) {
-                alert("Failed to load payment gateway. Please try again.");
-                setPaymentLoading(false);
+            const scriptLoaded = await loadRazorpayScript();
+
+            if (!scriptLoaded) {
+                alert("Razorpay failed to load");
                 return;
             }
 
-            // Calculate fees
-            const consultationFee = doctor.fees;
-            const platformFee = 49;
-            const gst = Math.round((consultationFee + platformFee) * 0.18);
-            const totalAmount = consultationFee + platformFee + gst;
+            const orderResponse = await httpService.postWithAuth('payment/create-order', { appointmentID })
 
-            const paymentData = {
-                amount: Math.round(totalAmount * 100),
-                currency: "INR",
-                receipt: `receipt_${Date.now()}`,
-                notes: {
-                    doctorId: doctor._id,
-                    doctorName: doctor.name,
-                    appointmentType: formData.appointmentType,
-                    appointmentDate: formData.date,
-                    appointmentTime: formData.time,
-                    symptoms: formData.symptoms,
-                },
-            };
+            if(!orderResponse.success){
+                throw new Error(orderResponse.message || 'Failed to create Payment Order')
+            }
 
-            // Mock order creation
-            const orderResponse = await createRazorpayOrder(paymentData);
-
+            const { orderID, amount, currency, key_id } = orderResponse.data
+            
             const options = {
-                key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID || "YOUR_RAZORPAY_KEY_ID",
-                amount: paymentData.amount,
-                currency: paymentData.currency,
-                name: "MediConnect Healthcare",
-                description: `Consultation with Dr. ${doctor.name}`,
-                image: "https://example.com/your-logo.png",
-                order_id: orderResponse.id,
-                handler: async function (response: any) {
-                    console.log("Payment successful:", response);
-                    
-                    const verificationResponse = await verifyPayment({
-                        razorpay_order_id: response.razorpay_order_id,
-                        razorpay_payment_id: response.razorpay_payment_id,
-                        razorpay_signature: response.razorpay_signature,
-                    });
+                key: key_id,
+                amount : amount * 100,
+                currency,
+                order_id: orderID,
+                name: "Docure",
+                description: "Doctor Consultation",
 
-                    if (verificationResponse.success) {
-                        alert("Payment successful! Your appointment has been confirmed.");
-                    } else {
-                        alert("Payment verification failed. Please contact support.");
+                handler: async (response: any) => {
+                    try{
+
+                        const verifyRes = await httpService.postWithAuth('payment/verify-payment',{
+                            appointmentID,
+                            razorpay_order_id: response.razorpay_order_id,
+                            razorpay_payment_id: response.razorpay_payment_id,
+                            razorpay_signature: response.razorpay_signature,
+                        });
+    
+                        if (verifyRes.success) {
+                            setPaymentStatus("success");
+                            toast.success("Payment successful 🎉")
+                            router.push("/patient/dashboard");
+                        } else {
+                            throw new Error("Verification failed");
+                        }
+
+                    }
+                    catch(err){
+                        toast.error("Payment verification failed. You can retry.");
                     }
                 },
+
                 prefill: {
-                    name: "John Doe",
-                    email: "john.doe@example.com",
-                    contact: "9999999999",
+                    name: patientName,
+                    email : user?.email,
+                    phone : user?.phone
                 },
-                notes: paymentData.notes,
-                theme: {
-                    color: "#3B82F6",
+                notes : {
+                    appointmentID,
+                    patientName
                 },
-                modal: {
-                    ondismiss: function() {
-                        setPaymentLoading(false);
-                    },
-                },
+
+                theme: { color: "#2563eb" },
+                modal : {
+                    ondismiss : () => {
+                        setPaymentStatus('idle')
+                        toast("Payment window closed. You can pay within 1hr.", {
+                            action: {
+                                label: "Retry",
+                                onClick: () => handlePayment() // Allow retry
+                            }
+                        });
+                    }
+                }
             };
 
-            const razorpay = new (window as any).Razorpay(options);
-            razorpay.open();
-            
+            const rzp = new window.Razorpay(options);
+            rzp.open();
+ 
         } catch (error) {
             console.error("Payment error:", error);
-            alert("Payment failed. Please try again.");
+            toast.error("Payment failed. Please try again.");
+            setPaymentStatus('fail')
         } finally {
             setPaymentLoading(false);
         }
-    };
-
-    // Mock function to create Razorpay order
-    const createRazorpayOrder = async (paymentData: any) => {
-        await new Promise(resolve => setTimeout(resolve, 1000));
-        return {
-            id: `order_${Date.now()}`,
-            amount: paymentData.amount,
-            currency: paymentData.currency,
-        };
-    };
-
-    // Mock function to verify payment
-    const verifyPayment = async (paymentData: any) => {
-        await new Promise(resolve => setTimeout(resolve, 1000));
-        return { success: true };
     };
 
     const selectedDateObj = formData.date
@@ -223,17 +292,6 @@ const BookingPage: React.FC<{ doctor: Doctor }> = ({ doctor }) => {
         year: "numeric",
         })
     : "No date selected";
-
-    // Calculate fees
-    const consultationFee = doctor.fees;
-    const platformFee = doctor.fees / 10;
-    const gst = Math.round((consultationFee + platformFee) * 0.18);
-    const totalAmount = consultationFee + platformFee + gst;
-
-    
-    const docTiming = doctor.dailyTimeRange
-    const docAvailability = doctor.availabilityRange
-    const consultationSpan = doctor.slotDurationMinutes
 
 
     return (

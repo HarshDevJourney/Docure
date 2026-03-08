@@ -2,7 +2,15 @@ const express = require('express');
 const { registerValidator, loginValidator } = require('../middlewares/validationMiddleware');
 const validate = require('../middlewares/validate');
 const passport = require('../passport');
-const { doctorRegistration, doctorLogin, patientLogin, patientRegistration, googleAuth, googleCallback } = require('../middlewares/authMiddleware');
+const {
+    doctorRegistration,
+    doctorLogin,
+    patientLogin,
+    patientRegistration,
+    googleAuth,
+    googleCallback,
+    googleCallbackErrorHandler,
+} = require("../middlewares/authMiddleware");
 
 
 const router = express.Router();
@@ -16,9 +24,7 @@ router.post("/patient/login", loginValidator, validate, patientLogin);
 // handling google auth routes
 router.get('/google', googleAuth);
 
-router.get('/google/callback', passport.authenticate('google', { 
-    failureRedirect: '/auth/failure', session: false 
-}), googleCallback)
+router.get('/google/callback', googleCallbackErrorHandler, googleCallback);
 
 router.get('/failure', (req, res) => res.badRequest('Google Authentication Failed'));
 

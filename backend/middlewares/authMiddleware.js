@@ -149,11 +149,15 @@ exports.patientLogin = async (req, res, next) => {
             return res.badRequest("Bad Request", ["email or password is missing"]);
 
         console.time("findPatient");
-        const patient = await Patient.findOne({ email });
+        const normalizedEmail = String(email).trim().toLowerCase();
+        const patient = await Patient.findOne({ email: normalizedEmail })
+            .select("_id name email password isVerified profilePic phone")
+            .lean();
         console.timeEnd("findPatient");
         if (!patient) return res.unauthorized("Invalid credential");
 
         console.time("bcryptCompare");
+        if (!patient.password) return res.unauthorized("Invalid credential");
         const match = await bcrypt.compare(password, patient.password);
         console.timeEnd("bcryptCompare");
         if (!match) return res.unauthorized("Invalid credential");
@@ -182,34 +186,61 @@ exports.patientLogin = async (req, res, next) => {
 
 exports.googleAuth = (req, res, next) => {
     const userType = req.query.type;
+    const intent = req.query.intent || 'signup';
+
+    // Encode both userType and intent in the state parameter
+    const state = `${userType}:${intent}`;
 
     passport.authenticate("google", {
         scope: ["profile", "email"],
-        state: userType,
+        state: state,
         prompt: "select_account",
     })(req, res, next);
 };
 
+exports.googleCallbackErrorHandler = (req, res, next) => {
+    passport.authenticate("google", {
+        session: false,
+    })(req, res, (err) => {
+        if (err && err.message === "USER_NOT_FOUND") {
+            // Decode state parameter which is in format "userType:intent"
+            const stateData = (req.query.state || "patient:signup").split(":");
+            const userType = stateData[0] || "patient";
+            // Redirect to signup page for the user type
+            return res.redirect(`${process.env.CLIENT_URL}/signup/${userType}`);
+        }
+        if (err) {
+            return res.redirect(
+                `${process.env.CLIENT_URL}/error?message=${encodeURIComponent(err.message)}`,
+            );
+        }
+        // No error, proceed to callback
+        next();
+    });
+};
+
+
 exports.googleCallback = (req, res) => {
     try {
-        const { user, type } = req.user;
+        const { user, type, isNewUser } = req.user;
         const token = generateJwtToken(user._id, type);
 
         const redirectURL = `${
             process.env.CLIENT_URL
-        }/auth/success?token=${token}&type=${type}&user=${encodeURIComponent(
+        }/success?token=${token}&type=${type}&isNewUser=${isNewUser}&user=${encodeURIComponent(
             JSON.stringify({
                 id: user._id,
                 name: user.name,
                 email: user.email,
                 profilePic: user.profilePic,
+                isVerified: user.isVerified,
             }),
         )}`;
 
         res.redirect(redirectURL);
     } catch (err) {
         res.redirect(
-            `${process.env.CLIENT_URL}/auth/error?message=${encodeURIComponent(err.message)}`,
+            `${process.env.CLIENT_URL}/error?message=${encodeURIComponent(err.message)}`,
         );
     }
 };

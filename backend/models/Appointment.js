@@ -44,7 +44,8 @@ const PaymentDetailSchema = new Schema({
         type : String,
         enum : ['Pending', 'Paid', 'Refunded', 'Failed'],
         default : 'Pending'
-    }
+    },
+
 },
 { _id: false, timestamps: true })
 
@@ -87,6 +88,10 @@ const AppointmentSchema = new Schema({
         type : String,
         default : ''
     },
+    medicalHistory : {
+        type : String,
+        default : ''
+    },
     zegocloudRoomID : {
         type : String,
         default : ''
@@ -116,6 +121,10 @@ const AppointmentSchema = new Schema({
     },
     paymentDate : {
         type : Date
+    },
+    paymentExpiresAt : {
+        type : Date,
+        default: null
     }
 
 }, { timestamps : true })

@@ -16,9 +16,6 @@ function layout({ children } : { children : React.ReactNode }) {
 
   return (
     <div>
-        <header>
-            <h1>docuer doc</h1>
-        </header>
         <main>
             {children}
         </main>

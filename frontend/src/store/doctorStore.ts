@@ -44,8 +44,8 @@ export const useDoctorState = create<DoctorState>((set, get) => ({
             const queryParam = new URLSearchParams()
 
             Object.entries(filters).forEach(([key, value]) => {
-                if(!value){
-                    queryParam.append(key, value.toString())
+                if (value !== undefined && value !== null && value !== "") {
+                    queryParam.append(key, String(value));
                 }
             })
 

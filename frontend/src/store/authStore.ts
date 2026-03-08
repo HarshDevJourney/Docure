@@ -7,7 +7,7 @@ import { persist } from "zustand/middleware";
 import { toast } from "sonner";
 
 interface AuthState {
-    user: User | null;
+    user: User;
     token: string | null;
     isloading: boolean;
     error: string | null;

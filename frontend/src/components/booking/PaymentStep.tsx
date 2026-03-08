@@ -166,7 +166,7 @@ const PaymentStep: React.FC<PaymentStepProps> = ({
                                 <span className='text-xs sm:text-sm'>Duration</span>
                             </div>
                             <span className='font-semibold text-gray-900 text-xs sm:text-sm'>
-                                15-20 minutes
+                                {doctor.slotDurationMinutes} minutes
                             </span>
                         </div>
                     </div>

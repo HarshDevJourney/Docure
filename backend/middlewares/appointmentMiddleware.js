@@ -54,6 +54,7 @@ exports.getPatientAppointmentList = async(req, res) => {
 exports.getBookedSlotDoctor = async(req, res) => {
     try{
         const { doctorID, date } = req.params;
+        const now = new Date();
         const dayStart = new Date(date)
         dayStart.setHours(0,0,0,0)
 
@@ -63,7 +64,11 @@ exports.getBookedSlotDoctor = async(req, res) => {
         const bookedAppointment = await Appointment.find({
             doctorID,
             slotStart : { $gte : dayStart, $lte : dayEnd },
-            status : { $ne : 'Cancelled' }
+            status : { $ne : 'Cancelled' },
+            $or: [
+                { "paymentDetails.paymentStatus": "Paid" },
+                { paymentExpiresAt: { $gt: now } }
+            ]
         }).select('slotStart slotEnd')
 
         const bookedSlot = bookedAppointment.map(slt => {
@@ -84,13 +89,27 @@ exports.getBookedSlotDoctor = async(req, res) => {
 
 exports.bookAppointment = async(req, res) => {
     try{
-        const { doctorID, date, slotStart, slotEnd, consultationType, symptoms, paymentDetails } = req.body;
+        const { doctorID, date, medicalHistory, slotStart, slotEnd, consultationType, symptoms, paymentDetails } = req.body;
+        const now = new Date();
+
+        const [year, month, day] = date.split('-').map(Number);
+        const [startHour, startMinute] = slotStart.split(':').map(Number);
+        const [endHour, endMinute] = slotEnd.split(':').map(Number);
+        
+        // Create proper Date objects (local timezone - IST)
+        const slotStartDate = new Date(year, month - 1, day, startHour, startMinute, 0);
+        const slotEndDate = new Date(year, month - 1, day, endHour, endMinute, 0);
+        const appointmentDate = new Date(year, month - 1, day); 
 
         const conflictingAppointment = await Appointment.findOne({
             doctorID,
-            status: { $in: ["Scheduled", "In Progress"] },
-            slotStart : { $lt: new Date(slotEnd) },
-            slotEnd :   { $gt: new Date(slotStart) }
+            status: { $in: ["Scheduled", "Progress"] },
+            slotStart : { $lt: slotEndDate },
+            slotEnd :   { $gt: slotStartDate },
+            $or: [
+                { "paymentDetails.paymentStatus": "Paid" },
+                { paymentExpiresAt: { $gt: now } }
+            ]
         })
 
         if(conflictingAppointment){
@@ -103,29 +122,35 @@ exports.bookAppointment = async(req, res) => {
             patientID : req.auth.id,
             doctorID,
             date : new Date(date),
-            slotStart : new Date(slotStart),
-            slotEnd : new Date(slotEnd),
+            slotStart : slotStartDate,
+            slotEnd : slotEndDate,
             consultationType,
             status : 'Scheduled',
             symptoms,
+            medicalHistory,
             zegocloudRoomID,
             paymentDetails : {...paymentDetails, paymentStatus : 'Pending'},
             payoutDetails : {
                 payoutStatus : 'Pending',
-                payoutDate : Date.now()
-            }
+                payoutDate : null
+            },
+            paymentDate : null,
+            paymentExpiresAt : new Date(Date.now() + 60 * 60 * 1000) // 1 hour to complete payment
         })
 
         await appointment.save()
+        
         await appointment
-            .populate('doctorID', 'name profilePic hospitalInfo specialization fees')
+            .populate('doctorID', 'name hospitalInfo specialization fees')
+            
+        await appointment    
             .populate('patientID', 'name email')
         
         return res.ok(appointment, "Appointment booked successfully");
     }
     catch(err){
         console.error("Appointment Booking Failed", err);
-        res.serverError("Appointment Booking Failed", [err.message]);
+        res.serverError("Appointment Booking Failed vgbthbt", [err.message]);
     }
 }
 

@@ -19,8 +19,8 @@ interface Prescription {
   uploadedAt: string;
 }
 
-interface Appointment {
-  _id: string;
+export interface Appointment {
+  _id : string;
 
   patientID: any;
   doctorID: any;
@@ -46,6 +46,8 @@ interface Appointment {
     payoutDate: string;
   };
 
+  paymentExpiresAt?: string;
+
   createdAt: string;
   updatedAt: string;
 }
@@ -62,13 +64,15 @@ interface AppointmentFilters {
 
 
 interface BookingData {
-    doctorID: any;
+    doctorID: unknown;
     date: string;
     slotStart: string;
     slotEnd: string;
     consultationType: "video" | "audio";
     symptoms: string;
-    paymentDetails: PaymentDetails;
+    medicalHistory : string,
+    paymentDetails: PaymentDetails,
+    paymentExpiresAt : Date
 }
 
 interface Slot {
@@ -93,7 +97,7 @@ interface appointmentStore {
     fetchBookedSlot : (doctorID : string, date : string) => Promise<void>,
     fetchAppointmentByID : (appointmentID : string) => Promise<Appointment | null>,
 
-    bookAppointment : (data : BookingData) => Promise<void>,
+    bookAppointment : (data : BookingData) => Promise<any>,
     cancelConsultation : (appointmentID : string) => Promise<void>,
     rescheduleAppointment?: (appointmentID: string, newSlotStart: string, newSlotEnd: string) => Promise<void>,
 

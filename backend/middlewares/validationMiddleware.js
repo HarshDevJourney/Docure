@@ -37,17 +37,7 @@ exports.loginValidator = [
 
   body("password")
     .notEmpty()
-    .withMessage("Password is required")
-    .isLength({ min: 8 })
-    .withMessage("Password must be at least 8 characters long")
-    .matches(/[A-Z]/)
-    .withMessage("Password must contain at least one uppercase letter")
-    .matches(/[a-z]/)
-    .withMessage("Password must contain at least one lowercase letter")
-    .matches(/[0-9]/)
-    .withMessage("Password must contain at least one number")
-    .matches(/[\W_]/)
-    .withMessage("Password must contain at least one special character"),
+    .withMessage("Password is required"),
 ];
 
 exports.doctorListValidator = [
@@ -149,9 +139,29 @@ exports.bookAppointmentValidator = [
     .withMessage("Total amount is required"),
 ];
 
+exports.paymentVerifyValidator = [
+  body("appointmentID")
+    .isMongoId()
+    .withMessage('valid appointment id is required'),
+
+  body('razorpay_orderID')
+    .isString()
+    .withMessage('order ID is required'),
+
+  body("razorpay_paymentID")
+    .isString()
+    .notEmpty()
+    .withMessage("Payment ID is required"),
+
+  body('razorpay_signature')
+    .isString()
+    .notEmpty()
+    .withMessage('razorpay signature is required')
+]
+
 exports.rescheduleValidator = [
 
-]
+];
 
 exports.updateStatusValidator = [
 

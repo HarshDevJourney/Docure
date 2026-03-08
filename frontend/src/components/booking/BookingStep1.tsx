@@ -146,6 +146,33 @@ const BookingStep1: React.FC<BookingStep1Props> = ({
     const availableSlots = getAvailableSlotsForDate();
     const availableSlotsCount = availableSlots.filter(slot => !booked.includes(slot)).length;
 
+    const isSlotInPast = (slot: string) => {
+        if (!formData.date) return false;
+
+        const selectedDate = new Date(formData.date);
+        const now = new Date();
+
+        // Normalize both dates (remove time part)
+        const selectedDay = new Date(selectedDate);
+        selectedDay.setHours(0, 0, 0, 0);
+
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+
+        // Only check time if selected date is today
+        if (selectedDay.getTime() !== today.getTime()) {
+            return false;
+        }
+
+        // Convert slot time (HH:mm) into Date object
+        const [hour, minute] = slot.split(":").map(Number);
+
+        const slotDateTime = new Date(selectedDate);
+        slotDateTime.setHours(hour, minute, 0, 0);
+
+        return slotDateTime <= now;
+    };
+
     // Get unique dates from docTiming for display
     const getUniqueDatesFromTiming = () => {
         if (!docTiming || docTiming.length === 0) return [];
@@ -462,19 +489,21 @@ const BookingStep1: React.FC<BookingStep1Props> = ({
                                 <div className='grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2 sm:gap-3 mb-4 sm:mb-5'>
                                     {availableSlots.map((slot) => {
                                         const isBooked = booked.includes(slot);
+                                        const isPastTime = isSlotInPast(slot)
                                         const isSelected = formData.time === slot;
 
                                         return (
                                             <button
                                                 key={slot}
                                                 onClick={() => !isBooked && handleSlotSelect(slot)}
-                                                disabled={isBooked}
+                                                disabled={isBooked || isPastTime}
                                                 className={`relative p-3 sm:p-4 rounded-lg sm:rounded-xl font-semibold text-xs sm:text-sm transition-all duration-200 ${
                                                     isBooked
                                                         ? "bg-red-50 text-red-400 border-2 border-red-200 cursor-not-allowed opacity-60"
-                                                        : isSelected
-                                                          ? "bg-gradient-to-br from-blue-600 to-blue-700 text-white shadow-lg border-2 border-blue-600 scale-105"
-                                                          : "bg-gray-50 text-gray-700 hover:bg-blue-50 hover:text-blue-600 border-2 border-gray-200 hover:border-blue-300 hover:scale-105"
+                                                        :
+                                                            isPastTime ? "bg-gray-100 text-gray-400 border-2 border-gray-200 cursor-not-allowed opacity-70"
+                                                            :   isSelected ? "bg-gradient-to-br from-blue-600 to-blue-700 text-white shadow-lg border-2 border-blue-600 scale-105"
+                                                                : "bg-gray-50 text-gray-700 hover:bg-blue-50 hover:text-blue-600 border-2 border-gray-200 hover:border-blue-300 hover:scale-105"
                                                 }`}
                                             >
                                                 <div className='flex flex-col items-center gap-1'>
