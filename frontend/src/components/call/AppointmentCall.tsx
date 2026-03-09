@@ -34,7 +34,7 @@ const AppointmentCall = ({
 
     const initializeCall = useCallback(
         async (container: HTMLDivElement) => {
-            if (!isCompMountedRef.current || !initializationRef.current || !zpRef.current) return;
+            if (!isCompMountedRef.current || initializationRef.current || !zpRef.current) return;
             if (!container || !container.isConnected) return;
 
             try {
@@ -163,9 +163,11 @@ const AppointmentCall = ({
             currentUser.id &&
             currentUser.name
         ) {
+            isCompMountedRef.current = true;
             initializeCall(containerRef.current);
         }
         return () => {
+            isCompMountedRef.current = false;
             if (zpRef.current) {
                 try {
                     zpRef.current.destroy();
