@@ -7,6 +7,8 @@ import { Settings, User } from "lucide-react";
 import { Button } from '../ui/button';
 import Link from 'next/link';
 import { userAuthStore } from '@/store/authStore';
+import Router from 'next/router';
+import { useRouter } from 'next/navigation';
 
 interface UserProfile {
     type : string,
@@ -20,6 +22,7 @@ interface ProfileNavProps {
 }
 
 export const ProfileNav: FC<ProfileNavProps> = ({ user } : ProfileNavProps ) => {
+  const router = useRouter()
   const { logout } = userAuthStore()
   return (
     <DropdownMenu>
@@ -89,7 +92,7 @@ export const ProfileNav: FC<ProfileNavProps> = ({ user } : ProfileNavProps ) => 
             
           >
             <span className="bg-red-500 hover:bg-red-400 px-4 py-1.5 rounded-lg font-semibold font-mono">
-              <Button onClick={() => logout()}>Logout</Button>
+              <Button onClick={() => {logout(); router.push('/')}}>Logout</Button>
             </span>
           </button>
         </div>

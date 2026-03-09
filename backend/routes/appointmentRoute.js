@@ -1,7 +1,7 @@
 const express = require('express')
 const { requiredRole, protect } = require('../middlewares/authMiddleware')
 const { appointmentStatusValidator, bookAppointmentValidator, rescheduleValidator, updateStatusValidator } = require('../middlewares/validationMiddleware')
-const { 
+const {
     getBookedSlotDoctor,
     getDoctorAppointmentList,
     getPatientAppointmentList,
@@ -12,7 +12,8 @@ const {
     uploadPrescription,
     updateAppointmentStatus,
     cancelAppointment,
-    rescheduleConsultation 
+    rescheduleConsultation,
+    markAsFollowUp
 } = require('../middlewares/appointmentMiddleware')
 const validate = require('../middlewares/validate');
 
@@ -34,6 +35,7 @@ router.put('/prescription/:id', requiredRole('doctor'), uploadPrescription)
 // router.put('/status/:id', requiredRole('doctor'),updateStatusValidator, validate, updateAppointmentStatus)
 
 router.post('/book-slot', requiredRole('patient'), bookAppointmentValidator, validate, bookAppointment)
+router.put('/follow-up/:id', requiredRole('doctor'), markAsFollowUp)
 // router.put('/cancel/:id', cancelAppointment)
 // router.put('/reschedule/:id', rescheduleValidator, validate, rescheduleConsultation)
 

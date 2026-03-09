@@ -1,10 +1,10 @@
-import DoctorDashboard from '@/components/dashboard/doctorDashboard'
+import DoctorAppointment from '@/components/appointment/doctorAppointment'
 import React from 'react'
 
 const page = () => {
   return (
     <div>
-      <DoctorDashboard />
+        <DoctorAppointment />
     </div>
   )
 }

@@ -101,6 +101,10 @@ const AppointmentSchema = new Schema({
         type : String,
         default : ''
     },
+    isFollowUp : {
+        type : Boolean,
+        default : false
+    },
     paymentDetails : PaymentDetailSchema,
     payoutDetails : {
         payoutStatus : {

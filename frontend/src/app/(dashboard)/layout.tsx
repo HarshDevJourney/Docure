@@ -1,3 +1,4 @@
+import { Header } from '@/components/landing/Header'
 import { userAuthStore } from '@/store/authStore'
 import { redirect } from 'next/navigation'
 // import React, { useEffect } from 'react'
@@ -16,7 +17,10 @@ function layout({ children } : { children : React.ReactNode }) {
 
   return (
     <div>
-        <main>
+      <header>
+        <Header showDashboardNav={true} />
+      </header>
+        <main className='mt-16'>
             {children}
         </main>
     </div>

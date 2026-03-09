@@ -47,7 +47,7 @@ export interface Appointment {
   };
 
   paymentExpiresAt?: string;
-
+  isFollowUp : boolean;
   createdAt: string;
   updatedAt: string;
 }
@@ -106,6 +106,7 @@ interface appointmentStore {
 
     updateAppointmentStatus : (appointmentID : string, status : "Scheduled" | "Completed" | "Cancelled" | "Progress") => Promise<void>,
     updatePrecription : (appointmentId : string, prescription : Prescription) => Promise<void>,
+    markAsFollowUp : (appointmentID : string) => Promise<void>,
 
 }
 
@@ -317,7 +318,7 @@ export const useAppointmentStore = create<appointmentStore>((set, get) => ({
 
         try{
             await putWithAuth(`appointment/prescription/${appointmentID}`, { prescription })
-            set((state) => ({ 
+            set((state) => ({
                 appointments : state.appointments.map(apt => apt._id === appointmentID ? {...apt, prescription} : apt),
                 currentAppointment : state.currentAppointment?._id === appointmentID ? {...state.currentAppointment, prescription} : state.currentAppointment
             }))
@@ -326,6 +327,27 @@ export const useAppointmentStore = create<appointmentStore>((set, get) => ({
         catch(err : any){
             set({ error : err.message })
             toast.error("Failed to update prescription");
+            throw err;
+        }
+        finally{
+            set({ loading : false })
+        }
+    },
+
+    markAsFollowUp : async(appointmentID) => {
+        set({ loading : true, error : null })
+
+        try{
+            const res = await putWithAuth(`appointment/follow-up/${appointmentID}`, {})
+            set((state) => ({
+                appointments : state.appointments.map(apt => apt._id === appointmentID ? {...apt, isFollowUp: true} : apt),
+                currentAppointment : state.currentAppointment?._id === appointmentID ? {...state.currentAppointment, isFollowUp: true} : state.currentAppointment
+            }))
+            toast.success("Appointment marked as follow-up");
+        }
+        catch(err : any){
+            set({ error : err.message })
+            toast.error("Failed to mark as follow-up");
             throw err;
         }
         finally{

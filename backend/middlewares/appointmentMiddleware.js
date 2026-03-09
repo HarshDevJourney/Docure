@@ -239,5 +239,29 @@ exports.endRoom = async(req, res) => {
 
 
 exports.uploadPrescription = async(req, res) => {
-    
+
+}
+
+
+exports.markAsFollowUp = async(req, res) => {
+    try{
+        const { id } = req.params;
+
+        const appointment = await Appointment.findByIdAndUpdate(id, {
+            isFollowUp : true,
+            updatedAt : new Date()
+        }, { new : true })
+            .populate('patientID', 'name email profilePic phone dob age gender')
+            .populate('doctorID', 'name profilePic specialization fees')
+
+        if(!appointment){
+            return res.notFound('Appointment not found')
+        }
+
+        return res.ok({ appointment }, 'Appointment marked as follow-up successfully')
+    }
+    catch(err){
+        console.error('Failed to mark as follow-up', err)
+        res.serverError('Failed to mark as follow-up', [err?.message])
+    }
 }
