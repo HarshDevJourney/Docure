@@ -1280,7 +1280,7 @@ const PatientAppointments: React.FC = () => {
     const { appointments, fetchAppointment, cancelAppointment } = useAppointmentStore();
 
     useEffect(() => {
-        if (user.type === "patient") fetchAppointment("patient", activeTab);
+        if (user?.type === "patient") fetchAppointment("patient", activeTab);
     }, [user, activeTab, fetchAppointment]);
 
     useEffect(() => {
@@ -1288,7 +1288,8 @@ const PatientAppointments: React.FC = () => {
         const ongoingApt = appointments.filter((apt) => {
             const aptDate = new Date(apt.slotStart);
             const aptEndDate = new Date(apt.slotEnd);
-            return (now >= aptDate && now <= aptEndDate) || apt.status === "Progress";
+            const isTimeOngoing = now >= aptDate && now <= aptEndDate;
+            return isTimeOngoing && (apt.status === "Scheduled" || apt.status === "Progress");
         });
         const ongoingIds = new Set(ongoingApt.map((a) => a._id));
         const upcomingApt = appointments.filter((apt) => {

@@ -43,12 +43,18 @@ const AppointmentCall = ({
             try {
                 initializationRef.current = true;
 
+                // Mark appointment as "Progress" on the backend
+                try {
+                    await memorizedJoinConsultation(appointment._id);
+                } catch (err: any) {
+                    console.error("joinConsultation error:", err);
+                }
+
                 const appID = process.env.NEXT_PUBLIC_ZEGOCLOUD_APP_ID;
-                // ✅ FIX: must be NEXT_PUBLIC_ prefix to be available on client
-                const serverSecret = process.env.ZEGOCLOUD_SERVER_SECRET;
+                const serverSecret = process.env.NEXT_PUBLIC_ZEGOCLOUD_SERVER_SECRET;
 
                 if (!appID || !serverSecret) {
-                    throw new Error("ZegoCloud app credentials are not configured");
+                    throw new Error("ZegoCloud credentials are not configured");
                 }
 
                 const numericAppID = parseInt(appID);
@@ -56,21 +62,16 @@ const AppointmentCall = ({
                     throw new Error("Invalid ZegoCloud app ID");
                 }
 
-                try {
-                    await memorizedJoinConsultation(appointment._id);
-                } catch (err: any) {
-                    console.error("joinConsultation error:", err);
-                }
+                const roomID = appointment.zegocloudRoomID || appointment._id;
 
                 const kitToken = ZegoUIKitPrebuilt.generateKitTokenForTest(
                     numericAppID,
                     serverSecret,
-                    appointment._id,
+                    roomID,
                     currentUser.id,
                     currentUser.name,
                 );
 
-                // ✅ FIX: create zp first, then assign to ref, then call joinRoom
                 const zp = ZegoUIKitPrebuilt.create(kitToken);
                 zpRef.current = zp;
 

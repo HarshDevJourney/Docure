@@ -1373,7 +1373,8 @@ const DoctorAppointments: React.FC = () => {
         const ongoingApt = appointments.filter((apt) => {
             const aptDate = new Date(apt.slotStart);
             const aptEndDate = new Date(apt.slotEnd);
-            return (now >= aptDate && now <= aptEndDate) || apt.status === "Progress";
+            const isTimeOngoing = now >= aptDate && now <= aptEndDate;
+            return isTimeOngoing && (apt.status === "Scheduled" || apt.status === "Progress");
         });
         setUpcoming(upcomingApt);
         setPast(pastApt);

@@ -1,4 +1,4 @@
-import { getWithAuth, getWithoutAuth, postWithAuth, putWithAuth } from "@/service/httpService";
+import { getWithAuth, getWithoutAuth, postWithAuth, putWithAuth, putFileWithAuth } from "@/service/httpService";
 import { toast } from "sonner";
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
@@ -105,7 +105,7 @@ interface appointmentStore {
     endConsultation : (appointmentID : string, notes ?: string) => Promise<void>,
 
     updateAppointmentStatus : (appointmentID : string, status : "Scheduled" | "Completed" | "Cancelled" | "Progress") => Promise<void>,
-    updatePrecription : (appointmentId : string, prescription : Prescription) => Promise<void>,
+    updatePrecription : (appointmentId : string, file : File) => Promise<void>,
     markAsFollowUp : (appointmentID : string) => Promise<void>,
 
 }
@@ -315,20 +315,27 @@ export const useAppointmentStore = create<appointmentStore>((set, get) => ({
         }
     },
 
-    updatePrecription : async(appointmentID, prescription) => {
+    updatePrecription : async(appointmentID, file) => {
         set({ loading : true, error : null })
 
         try{
-            await putWithAuth(`appointment/prescription/${appointmentID}`, { prescription })
-            set((state) => ({
-                appointments : state.appointments.map(apt => apt._id === appointmentID ? {...apt, prescription} : apt),
-                currentAppointment : state.currentAppointment?._id === appointmentID ? {...state.currentAppointment, prescription} : state.currentAppointment
-            }))
-            toast.success("Prescription updated successfully");
+            const formData = new FormData()
+            formData.append('file', file)
+
+            const res = await putFileWithAuth(`appointment/prescription/${appointmentID}`, formData)
+            const pescription = res.data?.pescription
+
+            if(pescription) {
+                set((state) => ({
+                    appointments : state.appointments.map(apt => apt._id === appointmentID ? {...apt, pescription: pescription} : apt),
+                    currentAppointment : state.currentAppointment?._id === appointmentID ? {...state.currentAppointment, pescription: pescription} : state.currentAppointment
+                }))
+            }
+            toast.success("Prescription uploaded successfully");
         }
         catch(err : any){
             set({ error : err.message })
-            toast.error("Failed to update prescription");
+            toast.error("Failed to upload prescription");
             throw err;
         }
         finally{

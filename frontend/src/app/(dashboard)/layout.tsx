@@ -1,10 +1,8 @@
-import { Header } from '@/components/landing/Header'
-import { userAuthStore } from '@/store/authStore'
-import { redirect } from 'next/navigation'
+import { Header } from "@/components/landing/Header";
+import { HideHeaderOnCall, CallAwareMain } from "./HideHeaderOnCall";
 // import React, { useEffect } from 'react'
 
-function layout({ children } : { children : React.ReactNode }) {
-
+function layout({ children }: { children: React.ReactNode }) {
     // const { isAuthenticated } = userAuthStore()
     // useEffect(() => {
 
@@ -15,16 +13,16 @@ function layout({ children } : { children : React.ReactNode }) {
 
     // if(!isAuthenticated) return null;
 
-  return (
-    <div>
-      <header>
-        <Header showDashboardNav={true} />
-      </header>
-        <main className='mt-16'>
-            {children}
-        </main>
-    </div>
-  )
+    return (
+        <div>
+            <HideHeaderOnCall>
+                <header>
+                    <Header showDashboardNav={true} />
+                </header>
+            </HideHeaderOnCall>
+            <CallAwareMain>{children}</CallAwareMain>
+        </div>
+    );
 }
 
-export default layout
+export default layout;
