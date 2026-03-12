@@ -250,9 +250,11 @@ export const useAppointmentStore = create<appointmentStore>((set, get) => ({
 
     joinConsultation : async(appointmentID) => {
         set({ loading : true, error : null })
+        console.log(appointmentID)
 
         try{
             const res = await getWithAuth(`appointment/join/${appointmentID}`)
+            console.log(res)
             set((state) => ({ 
                 appointments : state.appointments.map(apt => apt._id === appointmentID ? {...apt, status : 'Progress' as const} : apt),
                 currentAppointment : state.currentAppointment?._id === appointmentID ? {...state.currentAppointment, status : 'Progress' as const} : state.currentAppointment

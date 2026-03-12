@@ -7,7 +7,7 @@ import { persist } from "zustand/middleware";
 import { toast } from "sonner";
 
 interface AuthState {
-    user: User;
+    user: User | null;
     token: string | null;
     isloading: boolean;
     error: string | null;
@@ -60,6 +60,7 @@ export const userAuthStore = create<AuthState>()(
                     error: null,
                 });
                 toast.success("Logout Done Successfully")
+                window.location.href = "/";
             },
 
             loginDoctor: async (email, password) => {
@@ -182,7 +183,7 @@ export const userAuthStore = create<AuthState>()(
                 user: state.user,
                 token: state.token,
                 isAuthenticated: state.isAuthenticated,
-            }),
+            })
         }
     )
 );

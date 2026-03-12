@@ -164,7 +164,7 @@ const DoctorProfileCard: React.FC<DoctorProfileCardProps> = ({
                                             e.stopPropagation();
                                             setIsFlipped(true);
                                         }}
-                                        className='w-full bg-white text-blue-700 py-2.5 rounded-xl font-semibold flex items-center justify-center gap-2 hover:bg-blue-50 transition-all shadow-lg text-sm'
+                                        className='w-full bg-white cursor-pointer text-blue-700 py-2.5 rounded-xl font-semibold flex items-center justify-center gap-2 hover:bg-blue-50 transition-all shadow-lg text-sm'
                                     >
                                         <RotateCcw className='w-4 h-4' />
                                         View Details
@@ -271,7 +271,7 @@ const DoctorProfileCard: React.FC<DoctorProfileCardProps> = ({
 
                                 {/* Book Button */}
                                 <Button
-                                    className='w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-xl shadow-lg hover:shadow-xl transition-all'
+                                    className='w-full bg-blue-600 cursor-pointer hover:bg-blue-700 text-white font-semibold py-3 rounded-xl shadow-lg hover:shadow-xl transition-all'
                                     onClick={(e) => {
                                         e.stopPropagation();
                                         router.push(`/patient/booking/${doctor._id}`);
@@ -318,7 +318,7 @@ const DoctorProfileCard: React.FC<DoctorProfileCardProps> = ({
                                                 e.stopPropagation();
                                                 setIsFlipped(false);
                                             }}
-                                            className='bg-white/10 hover:bg-white/20 p-2 rounded-lg transition-all backdrop-blur-sm border border-white/20'
+                                            className='bg-white/10 cursor-pointer hover:bg-white/20 p-2 rounded-lg transition-all backdrop-blur-sm border border-white/20'
                                         >
                                             <RotateCcw className='w-4 h-4' />
                                         </button>
@@ -374,7 +374,7 @@ const DoctorProfileCard: React.FC<DoctorProfileCardProps> = ({
                                         e.stopPropagation();
                                         setIsFlipped(false);
                                     }}
-                                    className='relative z-10 w-full bg-white text-blue-700 py-2.5 rounded-xl font-semibold flex items-center justify-center gap-2 hover:bg-blue-50 transition-all shadow-lg text-sm mt-4 sm:mt-0'
+                                    className='relative z-10 cursor-pointer w-full bg-white text-blue-700 py-2.5 rounded-xl font-semibold flex items-center justify-center gap-2 hover:bg-blue-50 transition-all shadow-lg text-sm mt-4 sm:mt-0'
                                 >
                                     <RotateCcw className='w-4 h-4' />
                                     Back
@@ -470,7 +470,7 @@ const DoctorProfileCard: React.FC<DoctorProfileCardProps> = ({
                                 {/* Action Buttons */}
                                 <div className='grid grid-cols-2 gap-2.5 sm:gap-3'>
                                     <Button
-                                        className='bg-white text-blue-700 hover:bg-blue-50 font-semibold py-2.5 rounded-xl text-sm'
+                                        className='bg-white cursor-pointer text-blue-700 hover:bg-blue-50 font-semibold py-2.5 rounded-xl text-sm'
                                         onClick={(e) => {
                                             e.stopPropagation();
                                             onViewProfile?.(doctor);
@@ -479,7 +479,7 @@ const DoctorProfileCard: React.FC<DoctorProfileCardProps> = ({
                                         Profile
                                     </Button>
                                     <Button
-                                        className='bg-green-500 hover:bg-green-600 text-white font-semibold py-2.5 rounded-xl text-sm'
+                                        className='bg-green-500 cursor-pointer hover:bg-green-600 text-white font-semibold py-2.5 rounded-xl text-sm'
                                         onClick={(e) => {
                                             e.stopPropagation();
                                             onBookAppointment?.(doctor);

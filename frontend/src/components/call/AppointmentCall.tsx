@@ -1,5 +1,5 @@
 import { Appointment } from "@/store/appointmentStore";
-import React, { useCallback, useEffect, useRef } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { ZegoUIKitPrebuilt } from "@zegocloud/zego-uikit-prebuilt";
 import { toast } from "sonner";
 
@@ -24,6 +24,7 @@ const AppointmentCall = ({
     const containerRef = useRef<HTMLDivElement>(null);
     const isCompMountedRef = useRef(false);
     const initializationRef = useRef(false);
+    const [isInitialized, setIsInitialized] = useState(false);
 
     const memorizedJoinConsultation = useCallback(
         async (appointmentID: string) => {
@@ -34,12 +35,16 @@ const AppointmentCall = ({
 
     const initializeCall = useCallback(
         async (container: HTMLDivElement) => {
-            if (!isCompMountedRef.current || initializationRef.current || !zpRef.current) return;
+            if (!appointment?._id) return;
+            // ✅ FIX: removed !zpRef.current — it's null on first run by design
+            if (!isCompMountedRef.current || initializationRef.current) return;
             if (!container || !container.isConnected) return;
 
             try {
                 initializationRef.current = true;
+
                 const appID = process.env.NEXT_PUBLIC_ZEGOCLOUD_APP_ID;
+                // ✅ FIX: must be NEXT_PUBLIC_ prefix to be available on client
                 const serverSecret = process.env.ZEGOCLOUD_SERVER_SECRET;
 
                 if (!appID || !serverSecret) {
@@ -52,19 +57,20 @@ const AppointmentCall = ({
                 }
 
                 try {
-                    await memorizedJoinConsultation(appointment?._id);
+                    await memorizedJoinConsultation(appointment._id);
                 } catch (err: any) {
-                    console.error(err);
+                    console.error("joinConsultation error:", err);
                 }
 
                 const kitToken = ZegoUIKitPrebuilt.generateKitTokenForTest(
                     numericAppID,
                     serverSecret,
-                    appointment?._id,
+                    appointment._id,
                     currentUser.id,
                     currentUser.name,
                 );
 
+                // ✅ FIX: create zp first, then assign to ref, then call joinRoom
                 const zp = ZegoUIKitPrebuilt.create(kitToken);
                 zpRef.current = zp;
 
@@ -96,6 +102,7 @@ const AppointmentCall = ({
                             console.log(
                                 `Joined ${appointment.consultationType} call : ${appointment.zegocloudRoomID}`,
                             );
+                            setIsInitialized(true);
                             toast.success("Consultation Call Joined Successfully");
                         }
                     },
@@ -117,7 +124,7 @@ const AppointmentCall = ({
                             toast.success("Participant joined the consultation");
                         }
                     },
-                    onUserLeave: (users) => {
+                    onUserLeave: (users: any[]) => {
                         if (isCompMountedRef.current) {
                             console.log("User left:", users);
                             toast.info("Participant left the consultation");
@@ -137,7 +144,7 @@ const AppointmentCall = ({
                     },
                 });
             } catch (err: any) {
-                console.error("failed to join consultation", err);
+                console.error("Failed to join consultation:", err);
                 initializationRef.current = false;
                 if (isCompMountedRef.current) {
                     zpRef.current = null;
@@ -161,11 +168,13 @@ const AppointmentCall = ({
             containerRef.current &&
             !initializationRef.current &&
             currentUser.id &&
-            currentUser.name
+            currentUser.name &&
+            appointment?._id
         ) {
             isCompMountedRef.current = true;
             initializeCall(containerRef.current);
         }
+
         return () => {
             isCompMountedRef.current = false;
             if (zpRef.current) {
@@ -178,7 +187,7 @@ const AppointmentCall = ({
                 }
             }
         };
-    }, [currentUser.id, currentUser.name, initializeCall]);
+    }, [currentUser.id, currentUser.name, initializeCall, appointment?._id]);
 
     const isVideoCall = appointment?.consultationType === "video";
 
@@ -188,7 +197,6 @@ const AppointmentCall = ({
             <header className='flex items-center justify-between px-6 py-4 bg-gradient-to-r from-[#0f1729] via-[#131c2e] to-[#0f1729] border-b border-blue-500/10 z-20 shrink-0 backdrop-blur-sm'>
                 {/* Brand + call info */}
                 <div className='flex items-center gap-4'>
-                    {/* Logo mark — blue healthcare accent */}
                     <div className='relative w-10 h-10 rounded-2xl bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center shadow-lg shadow-blue-500/25 shrink-0 ring-1 ring-blue-400/20'>
                         <svg
                             width='20'
@@ -330,14 +338,7 @@ const AppointmentCall = ({
                                                 className='text-blue-400'
                                             >
                                                 <path d='M23 7l-7 5 7 5V7z' />
-                                                <rect
-                                                    x='1'
-                                                    y='5'
-                                                    width='15'
-                                                    height='14'
-                                                    rx='2'
-                                                    ry='2'
-                                                />
+                                                <rect x='1' y='5' width='15' height='14' rx='2' ry='2' />
                                             </svg>{" "}
                                             Video
                                         </>
@@ -519,64 +520,67 @@ const AppointmentCall = ({
                         }}
                     />
 
-                    {/* Connecting / idle placeholder */}
-                    <div className='absolute inset-0 z-10 flex flex-col items-center justify-center gap-8 pointer-events-none'>
-                        <div className='relative flex items-center justify-center'>
-                            <span className='absolute w-40 h-40 rounded-full border border-blue-500/30 animate-ping [animation-duration:3s]' />
-                            <span className='absolute w-28 h-28 rounded-full border border-blue-500/45 animate-ping [animation-duration:2.2s] [animation-delay:0.2s]' />
-                            <span className='absolute w-20 h-20 rounded-full border border-blue-500/70 animate-ping [animation-duration:1.8s] [animation-delay:0.4s]' />
+                    {/* Show overlay ONLY while initializing */}
+                    {!isInitialized && (
+                        <div className='absolute inset-0 z-10 flex flex-col items-center justify-center gap-8'>
+                            <div className='relative flex items-center justify-center'>
+                                <span className='absolute w-40 h-40 rounded-full border border-blue-500/30 animate-ping [animation-duration:3s]' />
+                                <span className='absolute w-28 h-28 rounded-full border border-blue-500/45 animate-ping [animation-duration:2.2s] [animation-delay:0.2s]' />
+                                <span className='absolute w-20 h-20 rounded-full border border-blue-500/70 animate-ping [animation-duration:1.8s] [animation-delay:0.4s]' />
 
-                            <div className='w-16 h-16 rounded-2xl bg-gradient-to-br from-blue-500/25 to-blue-500/20 border border-blue-500/30 flex items-center justify-center backdrop-blur-sm shadow-xl shadow-blue-500/10'>
-                                {isVideoCall ? (
-                                    <svg
-                                        width='26'
-                                        height='26'
-                                        viewBox='0 0 24 24'
-                                        fill='none'
-                                        stroke='currentColor'
-                                        strokeWidth='1.5'
-                                        className='text-blue-400'
-                                    >
-                                        <path d='M23 7l-7 5 7 5V7z' />
-                                        <rect x='1' y='5' width='15' height='14' rx='2' ry='2' />
-                                    </svg>
-                                ) : (
-                                    <svg
-                                        width='26'
-                                        height='26'
-                                        viewBox='0 0 24 24'
-                                        fill='none'
-                                        stroke='currentColor'
-                                        strokeWidth='1.5'
-                                        className='text-blue-400'
-                                    >
-                                        <path d='M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z' />
-                                        <path d='M19 10v2a7 7 0 0 1-14 0v-2' />
-                                        <line x1='12' y1='19' x2='12' y2='23' />
-                                        <line x1='8' y1='23' x2='16' y2='23' />
-                                    </svg>
-                                )}
+                                <div className='w-16 h-16 rounded-2xl bg-gradient-to-br from-blue-500/25 to-blue-500/20 border border-blue-500/30 flex items-center justify-center backdrop-blur-sm shadow-xl shadow-blue-500/10'>
+                                    {isVideoCall ? (
+                                        <svg
+                                            width='26'
+                                            height='26'
+                                            viewBox='0 0 24 24'
+                                            fill='none'
+                                            stroke='currentColor'
+                                            strokeWidth='1.5'
+                                            className='text-blue-400'
+                                        >
+                                            <path d='M23 7l-7 5 7 5V7z' />
+                                            <rect x='1' y='5' width='15' height='14' rx='2' ry='2' />
+                                        </svg>
+                                    ) : (
+                                        <svg
+                                            width='26'
+                                            height='26'
+                                            viewBox='0 0 24 24'
+                                            fill='none'
+                                            stroke='currentColor'
+                                            strokeWidth='1.5'
+                                            className='text-blue-400'
+                                        >
+                                            <path d='M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z' />
+                                            <path d='M19 10v2a7 7 0 0 1-14 0v-2' />
+                                            <line x1='12' y1='19' x2='12' y2='23' />
+                                            <line x1='8' y1='23' x2='16' y2='23' />
+                                        </svg>
+                                    )}
+                                </div>
+                            </div>
+
+                            <div className='text-center'>
+                                <p className='text-slate-100 text-lg font-semibold tracking-tight'>
+                                    Initialising session…
+                                </p>
+                                <p className='text-slate-500 text-sm mt-1.5'>Connecting you securely</p>
+                            </div>
+
+                            <div className='flex gap-2'>
+                                {[0, 1, 2, 3].map((i) => (
+                                    <span
+                                        key={i}
+                                        className='w-2 h-2 rounded-full bg-blue-500 animate-bounce'
+                                        style={{ animationDelay: `${i * 150}ms` }}
+                                    />
+                                ))}
                             </div>
                         </div>
+                    )}
 
-                        <div className='text-center'>
-                            <p className='text-slate-100 text-lg font-semibold tracking-tight'>
-                                Initialising session…
-                            </p>
-                            <p className='text-slate-500 text-sm mt-1.5'>Connecting you securely</p>
-                        </div>
-
-                        <div className='flex gap-2'>
-                            {[0, 1, 2, 3].map((i) => (
-                                <span
-                                    key={i}
-                                    className='w-2 h-2 rounded-full bg-blue-500 animate-bounce'
-                                    style={{ animationDelay: `${i * 150}ms` }}
-                                />
-                            ))}
-                        </div>
-                    </div>
-
+                    {/* ZegoCloud container - always present in DOM */}
                     <div ref={containerRef} className='absolute inset-0 z-20 w-full h-full' />
                 </div>
             </div>

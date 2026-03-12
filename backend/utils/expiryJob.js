@@ -39,3 +39,48 @@ cron.schedule("*/5 * * * *", async () => {
         console.error("❌ Expiry job error:", err);
     }
 });
+
+// Runs every 5 minutes to mark no-show appointments as cancelled
+// If neither doctor nor patient joins before slotEnd, appointment is marked as cancelled
+cron.schedule("*/5 * * * *", async () => {
+    try {
+        const now = new Date();
+
+        const noShowAppointments = await Appointment.find({
+            status: "Scheduled",
+            slotEnd: { $lte: now },
+        }).select('_id patientID doctorID slotStart slotEnd');
+
+        if (noShowAppointments.length === 0) {
+            return;
+        }
+
+        console.log(`Found ${noShowAppointments.length} no-show appointments to process:`);
+        noShowAppointments.forEach(apt => {
+            console.log(`- Appointment ${apt._id}: Patient ${apt.patientID}, Doctor ${apt.doctorID}, Slot: ${apt.slotStart} to ${apt.slotEnd}`);
+        });
+
+        const result = await Appointment.updateMany(
+            {
+                _id: { $in: noShowAppointments.map(apt => apt._id) },
+                status: "Scheduled",
+            },
+            {
+                $set: {
+                    status: "Cancelled",
+                    cancelledReason: "NoShow",
+                    updatedAt: new Date()
+                }
+            }
+        );
+
+        if (result.modifiedCount > 0) {
+            console.log(`✅ Successfully marked ${result.modifiedCount} no-show appointments as cancelled`);
+        } else {
+            console.log(`⚠️ Found ${noShowAppointments.length} no-show appointments but none were updated (status may have changed)`);
+        }
+
+    } catch (err) {
+        console.error("❌ No-show job error:", err);
+    }
+});

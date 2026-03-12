@@ -77,6 +77,8 @@ const ArrowLeft  = ({ className }: { className?: string }) => <svg width="14" he
 const SearchIcon = ({ className }: { className?: string }) => <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>;
 const ChevronDown = ({ className }: { className?: string }) => <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" className={className}><polyline points="6 9 12 15 18 9"/></svg>;
 const LightningIcon = ({ className }: { className?: string }) => <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor" className={className}><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>;
+const LiveIcon = ({ className }: { className?: string }) => <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" className={className}><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="3" fill="white"/></svg>;
+const WaveIcon = ({ className }: { className?: string }) => <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className={className}><path d="M2 12h2c1.5 0 3-1 4-2s2.5-2 4-2 3 1 4 2 2.5 2 4 2h2"/><path d="M2 16h2c1.5 0 3-1 4-2s2.5-2 4-2 3 1 4 2 2.5 2 4 2h2"/></svg>;
 
 /* ─────────────────────────────────────────────────────────
    NOTES EXPAND
@@ -451,6 +453,135 @@ const PastCard: React.FC<PastCardProps> = ({ apt, onUpload, onDelete, isUploadin
 };
 
 /* ─────────────────────────────────────────────────────────
+   CURRENT CONSULTATION SECTION
+───────────────────────────────────────────────────────── */
+const CurrentConsultationSection = ({ currentConsultations, onJoin, onProfile }: { 
+  currentConsultations: Appointment[]; 
+  onJoin: (id: string) => void; 
+  onProfile: (id: string) => void;
+}) => {
+  if (currentConsultations.length === 0) return null;
+
+  return (
+    <div className="mb-6 animate-fadeIn">
+      <div className="flex items-center gap-2 mb-3">
+        <div className="w-6 h-6 rounded-lg bg-blue-600 flex items-center justify-center shadow-sm shadow-blue-200">
+          <LiveIcon className="text-white w-3.5 h-3.5" />
+        </div>
+        <h2 className="text-sm font-black uppercase tracking-wider text-blue-600">Current Consultation{currentConsultations.length > 1 ? 's' : ''}</h2>
+        <div className="flex-1 h-px bg-gradient-to-r from-blue-200 to-transparent" />
+      </div>
+
+      <div className="grid gap-3">
+        {currentConsultations.map((apt) => {
+          const grad = avatarGradients[apt.patientID?.avatarColor] ?? "from-blue-400 to-blue-600";
+          const isVideo = apt.consultationType === "video";
+          
+          return (
+            <div key={apt._id} className="group relative overflow-hidden">
+              {/* Animated background gradient */}
+              <div className="absolute inset-0 bg-gradient-to-r from-blue-600 via-blue-500 to-blue-600 animate-gradient-x" />
+              
+              {/* Glowing orbs */}
+              <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full blur-3xl translate-x-1/3 -translate-y-1/3" />
+              <div className="absolute bottom-0 left-0 w-48 h-48 bg-blue-400/20 rounded-full blur-2xl -translate-x-1/4 translate-y-1/4" />
+              
+              {/* Sound wave animation */}
+              <div className="absolute right-0 top-0 bottom-0 flex items-center opacity-20">
+                <WaveIcon className="w-24 h-full text-white" />
+              </div>
+
+              {/* Main content */}
+              <div className="relative backdrop-blur-sm bg-white/5 border border-white/20 rounded-2xl p-5">
+                <div className="flex items-start gap-4">
+                  {/* Live indicator with pulse */}
+                  <div className="relative">
+                    <div className="absolute inset-0 bg-white rounded-full animate-ping opacity-30" />
+                    <div className="relative w-3 h-3 bg-white rounded-full" />
+                  </div>
+
+                  {/* Patient info */}
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-3 mb-2">
+                      <div className={`w-12 h-12 rounded-full bg-gradient-to-br ${grad} flex items-center justify-center text-white text-lg font-black shadow-xl ring-4 ring-white/30`}>
+                        {apt.patientID?.avatar ?? apt.patientID?.name?.slice(0,2).toUpperCase()}
+                      </div>
+                      <div>
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <span className="text-white font-black text-lg">{apt.patientID?.name}</span>
+                          <span className="px-2 py-0.5 bg-white/20 rounded-full text-white text-[10px] font-bold uppercase tracking-wider border border-white/30">
+                            Live Now
+                          </span>
+                        </div>
+                        <div className="flex items-center gap-2 mt-1">
+                          <span className="text-white/80 text-xs font-medium">{apt.patientID?.age}y · {apt.patientID?.gender}</span>
+                          <span className="w-1 h-1 rounded-full bg-white/40" />
+                          <span className="flex items-center gap-1 text-white/80 text-xs">
+                            <ClockIcon className="text-white/60" />
+                            Started {formatTime(apt.slotStart)}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Symptoms & actions */}
+                    <div className="flex flex-wrap items-center justify-between gap-3 mt-2">
+                      <div className="flex items-center gap-3">
+                        {apt.symptoms && (
+                          <div className="bg-white/10 backdrop-blur-sm rounded-xl px-3 py-1.5 border border-white/20">
+                            <p className="text-white/70 text-[10px] font-bold uppercase tracking-wider mb-0.5">Chief Complaint</p>
+                            <p className="text-white text-xs font-medium">{apt.symptoms}</p>
+                          </div>
+                        )}
+                        <div className={`flex items-center gap-1 px-3 py-1.5 rounded-xl backdrop-blur-sm border ${
+                          isVideo 
+                            ? "bg-blue-500/20 border-blue-400/30" 
+                            : "bg-white/10 border-white/20"
+                        }`}>
+                          {isVideo ? (
+                            <VideoIcon className="text-white w-3.5 h-3.5" />
+                          ) : (
+                            <AudioIcon className="text-white w-3.5 h-3.5" />
+                          )}
+                          <span className="text-white text-[10px] font-bold uppercase">
+                            {isVideo ? "Video Call" : "Audio Call"}
+                          </span>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center gap-2">
+                        <button
+                          onClick={() => onJoin(apt._id)}
+                          className="flex items-center gap-2 bg-white text-blue-600 hover:bg-blue-50 px-4 py-2 rounded-xl text-xs font-bold shadow-lg shadow-blue-900/20 transition-all duration-200 hover:scale-105 active:scale-95 group-hover:shadow-xl"
+                        >
+                          <LightningIcon className="w-3.5 h-3.5" />
+                          Resume Consultation
+                          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" className="group-hover:translate-x-0.5 transition-transform">
+                            <path d="M5 12h14M12 5l7 7-7 7"/>
+                          </svg>
+                        </button>
+                        
+                        <button
+                          onClick={() => onProfile(apt.patientID?._id)}
+                          className="flex items-center gap-1.5 bg-white/10 hover:bg-white/20 backdrop-blur-sm border border-white/30 text-white px-3 py-2 rounded-xl text-xs font-semibold transition-all duration-200"
+                        >
+                          <UserIcon className="text-white/80" />
+                          History
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+};
+
+/* ─────────────────────────────────────────────────────────
    TODAY TIMELINE HEADER
 ───────────────────────────────────────────────────────── */
 const TodayStrip = ({ apts }: { apts: Appointment[] }) => {
@@ -513,27 +644,34 @@ const DoctorAppointments: React.FC = () => {
   const [search, setSearch]       = useState("");
   const [upcoming, setUpcoming]   = useState<Appointment[]>([]);
   const [past, setPast]           = useState<Appointment[]>([]);
+  const [ongoing, setOngoing] = useState<Appointment[]>([])
   const [uploading, setUploading] = useState<Record<string, boolean>>({});
 
   const { user } = userAuthStore();
   const { appointments, fetchAppointment, markAsFollowUp } = useAppointmentStore();
 
   useEffect(() => {
-    if (user.type === 'doctor') fetchAppointment('doctor', activeTab);
+    if (user && user.type === 'doctor') fetchAppointment('doctor', activeTab);
   }, [user, activeTab, fetchAppointment]);
 
   useEffect(() => {
     const now = new Date();
     const upcomingApt = appointments.filter(apt => {
       const aptDate = new Date(apt.slotStart);
-      return (now <= aptDate || apt.status === 'Progress') && (apt.status === 'Progress' || apt.status === 'Scheduled');
+      return aptDate >= now && apt.status === 'Scheduled';
     });
     const pastApt = appointments.filter(apt => {
-      const aptDate = new Date(apt.slotStart);
-      return (now > aptDate) && (apt.status === 'Completed' || apt.status === 'Cancelled');
+      const aptEndDate = new Date(apt.slotEnd)
+      return (now > aptEndDate) && (apt.status === 'Completed' || apt.status === 'Cancelled');
     });
+    const ongoingApt = appointments.filter(apt => {
+      const aptDate = new Date(apt.slotStart);
+      const aptEndDate = new Date(apt.slotEnd)
+      return (now >= aptDate && now <= aptEndDate) || apt.status === 'Progress'
+    })
     setUpcoming(upcomingApt);
     setPast(pastApt);
+    setOngoing(ongoingApt)
     setTabCount({ upcoming: upcomingApt.length, past: pastApt.length });
   }, [appointments]);
 
@@ -598,6 +736,21 @@ const DoctorAppointments: React.FC = () => {
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap');
         .appt-root { font-family: 'Plus Jakarta Sans', sans-serif; }
+        @keyframes gradient-x {
+          0%, 100% { background-position: 0% 50%; }
+          50% { background-position: 100% 50%; }
+        }
+        .animate-gradient-x {
+          background-size: 200% 200%;
+          animation: gradient-x 5s ease infinite;
+        }
+        .animate-fadeIn {
+          animation: fadeIn 0.5s ease-out;
+        }
+        @keyframes fadeIn {
+          from { opacity: 0; transform: translateY(-10px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
       `}</style>
 
       <div className="pointer-events-none fixed inset-0 overflow-hidden">
@@ -625,6 +778,13 @@ const DoctorAppointments: React.FC = () => {
             </div>
           </div>
         </div>
+
+        {/* Current Consultation Section - Shows when there are live consultations */}
+        <CurrentConsultationSection 
+          currentConsultations={ongoing}
+          onJoin={(id) => router.push(`/call/${id}`)}
+          onProfile={(id) => router.push(`/doctor/patients/${id}`)}
+        />
 
         {activeTab === "upcoming" && !search && <TodayStrip apts={upcoming} />}
 

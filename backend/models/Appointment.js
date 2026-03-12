@@ -129,6 +129,11 @@ const AppointmentSchema = new Schema({
     paymentExpiresAt : {
         type : Date,
         default: null
+    },
+    cancelledReason : {
+        type : String,
+        enum : ['UserCancellation', 'NoShow', 'PaymentFailed'],
+        default: null
     }
 
 }, { timestamps : true })

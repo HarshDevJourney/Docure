@@ -187,8 +187,8 @@ const avatarGradients: Record<string, string> = {
 /* ─────────────────────────────────────────────────────────
    UPCOMING CARD (patient view)
 ───────────────────────────────────────────────────────── */
-interface UpcomingCardProps { apt: Appointment; onJoin: (id: string) => void; onCancel: (id: string) => void; canJoinCall: boolean; }
-const UpcomingCard: React.FC<UpcomingCardProps> = ({ apt, onJoin, onCancel, canJoinCall }) => {
+interface UpcomingCardProps { apt: Appointment; onJoin: (id: string) => void; onCancel: (id: string) => void; canJoinCall: boolean; onDoctorProfile: (id: string) => void; }
+const UpcomingCard: React.FC<UpcomingCardProps> = ({ apt, onJoin, onCancel, canJoinCall, onDoctorProfile }) => {
   const [showCancel, setShowCancel] = useState(false);
   const isLive = apt.status === "Progress";
   const isScheduled = apt.status === "Scheduled";
@@ -206,32 +206,42 @@ const UpcomingCard: React.FC<UpcomingCardProps> = ({ apt, onJoin, onCancel, canJ
 
       <div className={`group relative rounded-2xl border overflow-hidden transition-all duration-300 hover:shadow-lg hover:-translate-y-0.5 ${
         isLive
-          ? "border-emerald-200 bg-gradient-to-br from-emerald-50/60 via-white to-white shadow-md shadow-emerald-100/80 ring-1 ring-emerald-200/60"
+          ? "border-blue-300 bg-gradient-to-br from-blue-50/80 via-blue-50/40 to-white shadow-lg shadow-blue-200/60 ring-2 ring-blue-400/40"
           : "border-blue-200 bg-gradient-to-br from-blue-50/40 via-white to-white shadow-md shadow-blue-100/60 ring-1 ring-blue-200/40"
       }`}>
 
-        {/* Top shimmer */}
-        <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-blue-400 to-transparent pointer-events-none" />
+        {/* Animated glow for ongoing meeting */}
+        <div className="absolute inset-0 pointer-events-none">
+          {isLive && (
+            <>
+              <div className="absolute inset-x-0 top-0 h-0.5 bg-gradient-to-r from-transparent via-blue-400 to-transparent animate-pulse" />
+              <div className="absolute inset-0 bg-gradient-to-r from-blue-500/0 via-blue-300/5 to-blue-500/0 pointer-events-none" />
+            </>
+          )}
+          {!isLive && (
+            <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-blue-400 to-transparent" />
+          )}
+        </div>
 
         <div className="flex">
           {/* ── Time Sidebar ── */}
           <div className={`flex flex-col items-center justify-between px-3 py-4 border-r min-w-[72px] ${
-            isLive ? "border-emerald-200 bg-emerald-50/70" : "border-blue-100 bg-blue-50/60"
+            isLive ? "border-blue-300 bg-gradient-to-b from-blue-100/60 to-blue-50/40" : "border-blue-100 bg-blue-50/60"
           }`}>
             <div className="flex flex-col items-center gap-1.5">
-              <div className={`w-2 h-2 rounded-full ${isLive ? "bg-emerald-500 animate-pulse" : "bg-blue-500"}`} />
-              <span className={`text-[9px] font-bold tracking-wider uppercase ${isLive ? "text-emerald-600" : "text-blue-500"}`}>
+              <div className={`w-2 h-2 rounded-full ${isLive ? "bg-blue-600 animate-pulse" : "bg-blue-500"}`} />
+              <span className={`text-[9px] font-bold tracking-wider uppercase ${isLive ? "text-blue-700" : "text-blue-500"}`}>
                 {isLive ? "LIVE" : isToday ? "TODAY" : relDate.toUpperCase()}
               </span>
             </div>
             <div className="flex flex-col items-center gap-0.5 mt-3">
-              <span className={`text-[15px] font-black tabular-nums leading-none ${isLive ? "text-emerald-700" : "text-blue-700"}`}>{startTime}</span>
-              <span className={`text-[9px] font-bold uppercase ${isLive ? "text-emerald-500" : "text-blue-400"}`}>{startPeriod}</span>
-              <div className="w-px h-3 bg-blue-100 my-0.5" />
+              <span className={`text-[15px] font-black tabular-nums leading-none ${isLive ? "text-blue-800" : "text-blue-700"}`}>{startTime}</span>
+              <span className={`text-[9px] font-bold uppercase ${isLive ? "text-blue-600" : "text-blue-400"}`}>{startPeriod}</span>
+              <div className={`w-px h-3 ${isLive ? "bg-blue-300" : "bg-blue-100"} my-0.5`} />
               <span className="text-[10px] font-semibold text-slate-400 tabular-nums">{endTime}</span>
               <span className="text-[9px] text-slate-300 uppercase">{endPeriod}</span>
             </div>
-            <div className={`mt-3 w-7 h-7 rounded-xl flex items-center justify-center ${isVideo ? "bg-blue-100 text-blue-600" : "bg-blue-50 text-blue-400"}`}>
+            <div className={`mt-3 w-7 h-7 rounded-xl flex items-center justify-center ${isVideo ? "bg-blue-200 text-blue-600" : "bg-blue-100 text-blue-500"}`}>
               {isVideo ? <VideoIcon /> : <AudioIcon />}
             </div>
           </div>
@@ -241,12 +251,14 @@ const UpcomingCard: React.FC<UpcomingCardProps> = ({ apt, onJoin, onCancel, canJ
             <div className="flex items-start justify-between gap-3 mb-3">
               <div className="flex items-center gap-2.5">
                 {/* Doctor avatar */}
-                <div className={`w-11 h-11 rounded-full bg-gradient-to-br ${grad} flex items-center justify-center text-white text-sm font-black shadow-md ring-2 ring-white shrink-0`}>
-                  {apt.doctorID?.avatar ?? apt.doctorID?.name?.slice(0, 2).toUpperCase()}
-                </div>
+                <button onClick={() => onDoctorProfile(apt.doctorID?._id)} className="shrink-0 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-1 transition-transform hover:scale-105 active:scale-95">
+                  <div className={`w-11 h-11 rounded-full bg-gradient-to-br ${grad} flex items-center justify-center text-white text-sm font-black shadow-md ring-2 ring-white`}>
+                    {apt.doctorID?.avatar ?? apt.doctorID?.name?.slice(0, 2).toUpperCase()}
+                  </div>
+                </button>
                 <div>
                   <div className="flex items-center gap-1.5 flex-wrap">
-                    <p className="text-[14px] font-bold text-slate-800 leading-tight">{apt.doctorID?.name}</p>
+                    <button onClick={() => onDoctorProfile(apt.doctorID?._id)} className="text-[14px] font-bold text-slate-800 hover:text-blue-600 hover:underline underline-offset-2 transition-colors leading-tight">{apt.doctorID?.name}</button>
                     {apt.isFollowUp && (
                       <span className="inline-flex items-center gap-0.5 rounded-full bg-violet-50 border border-violet-200 px-1.5 py-0.5 text-[9px] font-bold text-violet-600 uppercase tracking-wide">
                         <RepeatIcon /> Follow-up
@@ -265,15 +277,23 @@ const UpcomingCard: React.FC<UpcomingCardProps> = ({ apt, onJoin, onCancel, canJ
             </div>
 
             {apt.symptoms && (
-              <div className={`rounded-xl px-3 py-2 mb-3 ${isLive ? "bg-emerald-50 border border-emerald-100" : "bg-blue-50/60 border border-blue-100"}`}>
-                <p className={`text-[10px] font-bold uppercase tracking-wider mb-0.5 ${isLive ? "text-emerald-500" : "text-blue-400"}`}>Your Complaint</p>
+              <div className={`rounded-xl px-3 py-2 mb-3 ${isLive ? "bg-blue-100/60 border border-blue-200 shadow-sm shadow-blue-100" : "bg-blue-50/60 border border-blue-100"}`}>
+                <p className={`text-[10px] font-bold uppercase tracking-wider mb-0.5 ${isLive ? "text-blue-600" : "text-blue-400"}`}>Your Complaint</p>
                 <p className="text-xs text-slate-600 leading-relaxed line-clamp-2">{apt.symptoms}</p>
+              </div>
+            )}
+
+            {/* Meeting Ongoing Badge - Prominent positioning */}
+            {isLive && (
+              <div className="mb-3 inline-flex items-center gap-1.5 rounded-xl bg-gradient-to-r from-blue-500 to-blue-600 px-3 py-2 text-xs font-bold text-white shadow-md shadow-blue-200 animate-pulse">
+                <span className="w-2 h-2 rounded-full bg-white animate-pulse" />
+                Meeting Ongoing Now
               </div>
             )}
 
             <div className="flex items-center gap-1.5 flex-wrap mb-3">
               <span className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[10px] font-bold border ${
-                isLive ? "bg-emerald-500 text-white border-emerald-600 shadow-sm shadow-emerald-200" : "bg-blue-600 text-white border-blue-700 shadow-sm shadow-blue-200"
+                isLive ? "bg-blue-600 text-white border-blue-700 shadow-sm shadow-blue-200" : "bg-blue-600 text-white border-blue-700 shadow-sm shadow-blue-200"
               }`}>
                 <span className={`w-1.5 h-1.5 rounded-full ${isLive ? "bg-white animate-pulse" : "bg-blue-200"}`} />
                 {isLive ? "In Progress" : "Scheduled"}
@@ -294,7 +314,7 @@ const UpcomingCard: React.FC<UpcomingCardProps> = ({ apt, onJoin, onCancel, canJ
                 onClick={() => onJoin(apt._id)}
                 disabled={!canJoinCall && !isLive}
                 className={`flex items-center gap-2 rounded-xl px-4 py-2 text-xs font-bold text-white shadow-md transition-all duration-200 active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed ${
-                  isLive ? "bg-emerald-500 hover:bg-emerald-600 shadow-emerald-200" : "bg-blue-600 hover:bg-blue-700 shadow-blue-200"
+                  isLive ? "bg-blue-600 hover:bg-blue-700 shadow-blue-200" : "bg-blue-600 hover:bg-blue-700 shadow-blue-200"
                 }`}
               >
                 {isLive
@@ -303,7 +323,14 @@ const UpcomingCard: React.FC<UpcomingCardProps> = ({ apt, onJoin, onCancel, canJ
                 }
               </button>
 
-              
+              {isScheduled && (
+                <button
+                  onClick={() => setShowCancel(true)}
+                  className="flex items-center gap-1.5 rounded-xl border border-rose-200 bg-rose-50 hover:bg-rose-100 px-3 py-2 text-xs font-semibold text-rose-600 transition-all duration-150"
+                >
+                  <XIcon className="text-rose-500" /> Cancel
+                </button>
+              )}
             </div>
           </div>
         </div>
@@ -315,8 +342,8 @@ const UpcomingCard: React.FC<UpcomingCardProps> = ({ apt, onJoin, onCancel, canJ
 /* ─────────────────────────────────────────────────────────
    PAST CARD (patient view)
 ───────────────────────────────────────────────────────── */
-interface PastCardProps { apt: Appointment; onRate: (id: string, rating: number) => void; }
-const PastCard: React.FC<PastCardProps> = ({ apt, onRate }) => {
+interface PastCardProps { apt: Appointment; onRate: (id: string, rating: number) => void; onDoctorProfile: (id: string) => void; }
+const PastCard: React.FC<PastCardProps> = ({ apt, onRate, onDoctorProfile }) => {
   const statusMeta = {
     Scheduled: { dot: "bg-blue-500",    pill: "bg-blue-50 text-blue-700 border-blue-200",           label: "Scheduled"   },
     Progress:  { dot: "bg-emerald-500", pill: "bg-emerald-50 text-emerald-700 border-emerald-200",   label: "In Progress" },
@@ -338,12 +365,14 @@ const PastCard: React.FC<PastCardProps> = ({ apt, onRate }) => {
       <div className="px-5 py-4">
         {/* Doctor info row */}
         <div className="flex items-start gap-3 mb-3">
-          <div className={`w-10 h-10 rounded-full bg-gradient-to-br ${grad} flex items-center justify-center text-white text-sm font-black ring-2 ring-white shadow-sm shrink-0`}>
-            {apt.doctorID?.avatar ?? apt.doctorID?.name?.slice(0, 2).toUpperCase()}
-          </div>
+          <button onClick={() => onDoctorProfile(apt.doctorID?._id)} className="shrink-0 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-1 transition-transform hover:scale-105 active:scale-95">
+            <div className={`w-10 h-10 rounded-full bg-gradient-to-br ${grad} flex items-center justify-center text-white text-sm font-black ring-2 ring-white shadow-sm`}>
+              {apt.doctorID?.avatar ?? apt.doctorID?.name?.slice(0, 2).toUpperCase()}
+            </div>
+          </button>
           <div className="flex-1 min-w-0">
             <div className="flex flex-wrap items-center gap-2 mb-0.5">
-              <p className="text-sm font-bold text-slate-800 leading-tight">{apt.doctorID?.name}</p>
+              <button onClick={() => onDoctorProfile(apt.doctorID?._id)} className="text-sm font-bold text-slate-800 hover:text-blue-600 hover:underline underline-offset-2 transition-colors leading-tight">{apt.doctorID?.name}</button>
               <span className="text-[11px] text-blue-500 font-semibold">{apt.doctorID?.specialization ?? "General Physician"}</span>
             </div>
             <div className="flex items-center gap-1 text-[11px] text-slate-400">
@@ -696,6 +725,7 @@ const PatientAppointments: React.FC = () => {
                           canJoinCall={canJoinCall(apt)}
                           onJoin={id => router.push(`/call/${id}`)}
                           onCancel={handleCancel}
+                          onDoctorProfile={id => router.push(`/doctor/${id}`)}
                         />
                       ))}
                     </div>
@@ -708,7 +738,7 @@ const PatientAppointments: React.FC = () => {
             {activeTab === "past" && (
               <div className="space-y-3">
                 {filtered.map(apt => (
-                  <PastCard key={apt._id} apt={apt} onRate={handleRate} />
+                  <PastCard key={apt._id} apt={apt} onRate={handleRate} onDoctorProfile={id => router.push(`/patient/doctors/${id}`)} />
                 ))}
               </div>
             )}
