@@ -59,7 +59,7 @@ const BookingPage: React.FC<{ doctor: Doctor }> = ({ doctor }) => {
     const [paymentLoading, setPaymentLoading] = useState(false);
     const [paymentStatus, setPaymentStatus] = useState<PaymentStatus>('idle')
     const [step, setStep] = useState(1);
-    const { bookAppointment } = useAppointmentStore()
+    const { bookAppointment, fetchBookedSlot } = useAppointmentStore()
     const { user } = userAuthStore()
 
     const getDaysInMonth = (date: Date) => {
@@ -126,6 +126,7 @@ const BookingPage: React.FC<{ doctor: Doctor }> = ({ doctor }) => {
     const handleDateSelect = (day: number) => {
         const selectedDate = formatDate(day, currentMonth);
         setFormData({ ...formData, date: selectedDate, time: "" });
+        fetchBookedSlot(doctor._id, selectedDate);
     };
 
     const handleSlotSelect = (slot: string) => {

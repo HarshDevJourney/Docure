@@ -1,5 +1,6 @@
 const express = require('express')
 const { requiredRole, protect } = require('../middlewares/authMiddleware')
+const upload = require('../middlewares/upload');
 const { appointmentStatusValidator, bookAppointmentValidator, rescheduleValidator, updateStatusValidator } = require('../middlewares/validationMiddleware')
 const {
     getBookedSlotDoctor,
@@ -31,12 +32,12 @@ router.get('/patient', requiredRole('patient'), appointmentStatusValidator, vali
 router.get('/join/:id', getRoomJoinInfo)
 router.put('/end/:id', endRoom)
 
-router.put('/prescription/:id', requiredRole('doctor'), uploadPrescription)
+router.put('/prescription/:id', requiredRole('doctor'), upload.single('file'), uploadPrescription)
 // router.put('/status/:id', requiredRole('doctor'),updateStatusValidator, validate, updateAppointmentStatus)
 
 router.post('/book-slot', requiredRole('patient'), bookAppointmentValidator, validate, bookAppointment)
 router.put('/follow-up/:id', requiredRole('doctor'), markAsFollowUp)
-// router.put('/cancel/:id', cancelAppointment)
+router.put('/cancel/:id', cancelAppointment)
 // router.put('/reschedule/:id', rescheduleValidator, validate, rescheduleConsultation)
 
 module.exports = router;

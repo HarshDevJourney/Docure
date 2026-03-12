@@ -50,6 +50,10 @@ exports.getPatientAppointmentList = async(req, res) => {
     }
 }
 
+exports.cancelAppointment = async(req, res) => {
+
+}
+
 
 exports.getBookedSlotDoctor = async(req, res) => {
     try{
@@ -239,7 +243,34 @@ exports.endRoom = async(req, res) => {
 
 
 exports.uploadPrescription = async(req, res) => {
+    try {
+        const { id } = req.params;
+        const file = req.file;
 
+        if (!file) return res.badRequest('No file uploaded');
+        const fileType = file.mimetype === 'application/pdf' ? 'pdf' : 'image';
+
+        const appointment = await Appointment.findByIdAndUpdate(
+            id,
+            {
+                pescription: {
+                    fileUrl: file.path,
+                    fileType,
+                    fileName: file.originalname,
+                    uploadedBy: req.auth.id,
+                    uploadedAt: new Date(),
+                },
+                updatedAt: new Date()
+            },
+            { new: true }
+        )
+        if (!appointment) return res.notFound('Appointment not found');
+
+        res.ok({ pescription : appointment.pescription }, 'Prescription uploaded successfully');
+    } catch(err) {
+        console.error('Prescription upload failed', err);
+        res.serverError('Prescription upload failed', [err?.message]);
+    }
 }
 
 

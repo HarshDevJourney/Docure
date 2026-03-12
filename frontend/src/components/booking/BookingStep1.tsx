@@ -65,73 +65,47 @@ const BookingStep1: React.FC<BookingStep1Props> = ({
     today.setHours(0, 0, 0, 0);
 
     const isPastDate = (day: number) => {
-        const dateToCheck = new Date(
-            currentMonth.getFullYear(),
-            currentMonth.getMonth(),
-            day,
-        );
+        const dateToCheck = new Date(currentMonth.getFullYear(), currentMonth.getMonth(), day);
         dateToCheck.setHours(0, 0, 0, 0);
         return dateToCheck < today;
     };
 
-    // Check if date is within doctor's availability range
     const isDateAvailable = (day: number) => {
-        const dateToCheck = new Date(
-            currentMonth.getFullYear(),
-            currentMonth.getMonth(),
-            day,
-        );
+        const dateToCheck = new Date(currentMonth.getFullYear(), currentMonth.getMonth(), day);
         dateToCheck.setHours(0, 0, 0, 0);
-        
-        // Check if date is within availability range
+
         if (docAvailability) {
             const startDate = new Date(docAvailability.startDate);
             startDate.setHours(0, 0, 0, 0);
             const endDate = new Date(docAvailability.endDate);
             endDate.setHours(0, 0, 0, 0);
-            
-            if (dateToCheck < startDate || dateToCheck > endDate) {
-                return false;
-            }
-            
-            // Check if day of week is excluded
-            const dayOfWeek = dateToCheck.getDay(); // 0 = Sunday, 1 = Monday, etc.
-            if (docAvailability.excludedWeekdays && docAvailability.excludedWeekdays.map(Number).includes(dayOfWeek)) {
-                return false;
-            }
+
+            if (dateToCheck < startDate || dateToCheck > endDate) return false;
+
+            const dayOfWeek = dateToCheck.getDay();
+            if (docAvailability.excludedWeekdays?.map(Number).includes(dayOfWeek)) return false;
         }
-        
+
         return true;
     };
 
-    // Get available slots for selected date based on docTiming
     const getAvailableSlotsForDate = () => {
-        if (!formData.date || !docTiming || docTiming.length === 0) {
-            return [];
-        }
+        if (!formData.date || !docTiming || docTiming.length === 0) return [];
 
         const slots: string[] = [];
 
-        // docTiming contains {start: "11:00", end: "15:00"} objects
         docTiming.forEach(timing => {
-            // Parse start and end times
             const [startHour, startMin] = timing.start.split(':').map(Number);
             const [endHour, endMin] = timing.end.split(':').map(Number);
 
             let currentTime = startHour * 60 + startMin;
             const endTime = endHour * 60 + endMin;
 
-            // Generate slots based on consultation span
             while (currentTime + consultationSpan <= endTime) {
                 const hours = Math.floor(currentTime / 60);
                 const mins = currentTime % 60;
                 const timeString = `${hours.toString().padStart(2, '0')}:${mins.toString().padStart(2, '0')}`;
-                
-                // Avoid duplicate slots
-                if (!slots.includes(timeString)) {
-                    slots.push(timeString);
-                }
-                
+                if (!slots.includes(timeString)) slots.push(timeString);
                 currentTime += consultationSpan;
             }
         });
@@ -140,8 +114,30 @@ const BookingStep1: React.FC<BookingStep1Props> = ({
     };
 
     const { bookedSlot } = useAppointmentStore();
-    const booked = bookedSlot
-        .map(slot => slot.slotStart);
+
+    // ✅ Normalize booked slots to "HH:mm" regardless of what format API returns
+    const booked = bookedSlot.map(slot => {
+        const slotStart = slot.slotStart;
+        if (!slotStart) return '';
+
+        // ISO datetime string e.g. "2024-01-15T11:00:00.000Z"
+        if (typeof slotStart === 'string' && slotStart.includes('T')) {
+            const date = new Date(slotStart);
+            return `${date.getHours().toString().padStart(2, '0')}:${date.getMinutes().toString().padStart(2, '0')}`;
+        }
+
+        // Already "HH:mm" or "HH:mm:ss"
+        if (typeof slotStart === 'string' && slotStart.includes(':')) {
+            return slotStart.slice(0, 5);
+        }
+
+        // Date object
+        if (slotStart instanceof Date) {
+            return `${slotStart.getHours().toString().padStart(2, '0')}:${slotStart.getMinutes().toString().padStart(2, '0')}`;
+        }
+
+        return '';
+    }).filter(Boolean);
 
     const availableSlots = getAvailableSlotsForDate();
     const availableSlotsCount = availableSlots.filter(slot => !booked.includes(slot)).length;
@@ -150,39 +146,27 @@ const BookingStep1: React.FC<BookingStep1Props> = ({
         if (!formData.date) return false;
 
         const selectedDate = new Date(formData.date);
-        const now = new Date();
-
-        // Normalize both dates (remove time part)
         const selectedDay = new Date(selectedDate);
         selectedDay.setHours(0, 0, 0, 0);
 
-        const today = new Date();
-        today.setHours(0, 0, 0, 0);
+        const todayCheck = new Date();
+        todayCheck.setHours(0, 0, 0, 0);
 
-        // Only check time if selected date is today
-        if (selectedDay.getTime() !== today.getTime()) {
-            return false;
-        }
+        if (selectedDay.getTime() !== todayCheck.getTime()) return false;
 
-        // Convert slot time (HH:mm) into Date object
         const [hour, minute] = slot.split(":").map(Number);
-
         const slotDateTime = new Date(selectedDate);
         slotDateTime.setHours(hour, minute, 0, 0);
 
-        return slotDateTime <= now;
+        return slotDateTime <= new Date();
     };
 
-    // Get unique dates from docTiming for display
     const getUniqueDatesFromTiming = () => {
         if (!docTiming || docTiming.length === 0) return [];
-        
-        // Since docTiming has {start: "11:00", end: "15:00"}, we'll just show the time ranges
-        // Limited to first 5 entries
         return docTiming.slice(0, 5).map((timing, idx) => ({
             id: idx,
             start: timing.start,
-            end: timing.end
+            end: timing.end,
         }));
     };
 
@@ -193,30 +177,18 @@ const BookingStep1: React.FC<BookingStep1Props> = ({
             {/* Progress Indicator */}
             <div className='flex items-center justify-center gap-2 sm:gap-3 mb-2 sm:mb-4'>
                 <div className='flex items-center gap-1.5 sm:gap-2'>
-                    <div className='w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-blue-600 text-white flex items-center justify-center text-xs sm:text-sm font-semibold shadow-md'>
-                        1
-                    </div>
-                    <span className='text-xs sm:text-sm font-semibold text-gray-900 whitespace-nowrap'>
-                        Date & Time
-                    </span>
+                    <div className='w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-blue-600 text-white flex items-center justify-center text-xs sm:text-sm font-semibold shadow-md'>1</div>
+                    <span className='text-xs sm:text-sm font-semibold text-gray-900 whitespace-nowrap'>Date & Time</span>
                 </div>
                 <div className='w-8 sm:w-12 md:w-16 h-0.5 bg-gray-300'></div>
                 <div className='flex items-center gap-1.5 sm:gap-2'>
-                    <div className='w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-gray-200 text-gray-500 flex items-center justify-center text-xs sm:text-sm font-semibold'>
-                        2
-                    </div>
-                    <span className='text-xs sm:text-sm font-medium text-gray-500 whitespace-nowrap'>
-                        Details
-                    </span>
+                    <div className='w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-gray-200 text-gray-500 flex items-center justify-center text-xs sm:text-sm font-semibold'>2</div>
+                    <span className='text-xs sm:text-sm font-medium text-gray-500 whitespace-nowrap'>Details</span>
                 </div>
                 <div className='w-8 sm:w-12 md:w-16 h-0.5 bg-gray-300'></div>
                 <div className='flex items-center gap-1.5 sm:gap-2'>
-                    <div className='w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-gray-200 text-gray-500 flex items-center justify-center text-xs sm:text-sm font-semibold'>
-                        3
-                    </div>
-                    <span className='text-xs sm:text-sm font-medium text-gray-500 whitespace-nowrap'>
-                        Payment
-                    </span>
+                    <div className='w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-gray-200 text-gray-500 flex items-center justify-center text-xs sm:text-sm font-semibold'>3</div>
+                    <span className='text-xs sm:text-sm font-medium text-gray-500 whitespace-nowrap'>Payment</span>
                 </div>
             </div>
 
@@ -229,33 +201,27 @@ const BookingStep1: React.FC<BookingStep1Props> = ({
                                 <Info size={20} className='text-white' />
                             </div>
                             <div className='flex-1'>
-                                <h3 className='font-bold text-gray-900 text-sm sm:text-base mb-3'>
-                                    Doctor's Availability Schedule
-                                </h3>
-                                
-                                {/* Consultation Duration */}
+                                <h3 className='font-bold text-gray-900 text-sm sm:text-base mb-3'>Doctor's Availability Schedule</h3>
+
                                 {consultationSpan && (
                                     <div className='flex items-center gap-2 text-xs sm:text-sm mb-3 bg-white/70 backdrop-blur-sm rounded-lg px-3 py-2'>
                                         <Clock size={16} className='text-blue-600 flex-shrink-0' />
-                                        <span className='text-gray-700'>
-                                            Each session: <span className='font-bold text-blue-700'>{consultationSpan} minutes</span>
-                                        </span>
+                                        <span className='text-gray-700'>Each session: <span className='font-bold text-blue-700'>{consultationSpan} minutes</span></span>
                                     </div>
                                 )}
 
-                                {/* Availability Range */}
                                 {docAvailability && (
                                     <div className='space-y-2 mb-3'>
                                         <div className='flex items-center gap-2 text-xs sm:text-sm bg-white/70 backdrop-blur-sm rounded-lg px-3 py-2'>
                                             <Calendar size={16} className='text-blue-600 flex-shrink-0' />
                                             <span className='text-gray-700'>
                                                 Booking period: <span className='font-bold text-blue-700'>
-                                                    {new Date(docAvailability.startDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} - {new Date(docAvailability.endDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                                                    {new Date(docAvailability.startDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} -{' '}
+                                                    {new Date(docAvailability.endDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
                                                 </span>
                                             </span>
                                         </div>
-                                        
-                                        {/* Excluded Weekdays */}
+
                                         {docAvailability.excludedWeekdays && docAvailability.excludedWeekdays.length > 0 && (
                                             <div className='flex items-start gap-2 text-xs sm:text-sm bg-amber-50 border border-amber-200 rounded-lg px-3 py-2'>
                                                 <AlertCircle size={16} className='text-amber-600 mt-0.5 flex-shrink-0' />
@@ -273,16 +239,12 @@ const BookingStep1: React.FC<BookingStep1Props> = ({
                                     </div>
                                 )}
 
-                                {/* Available Time Ranges */}
                                 {upcomingDates.length > 0 && (
                                     <div className='mt-3'>
                                         <p className='text-xs font-semibold text-gray-600 mb-2'>Available Time Slots:</p>
                                         <div className='grid grid-cols-1 sm:grid-cols-2 gap-2'>
                                             {upcomingDates.map((timeRange) => (
-                                                <div 
-                                                    key={timeRange.id}
-                                                    className='flex items-center justify-between bg-white/80 backdrop-blur-sm rounded-lg px-3 py-2 border border-gray-200'
-                                                >
+                                                <div key={timeRange.id} className='flex items-center justify-between bg-white/80 backdrop-blur-sm rounded-lg px-3 py-2 border border-gray-200'>
                                                     <div className='flex items-center gap-2'>
                                                         <Clock size={14} className='text-blue-600' />
                                                         <span className='text-xs text-gray-700 font-medium'>
@@ -312,27 +274,12 @@ const BookingStep1: React.FC<BookingStep1Props> = ({
                 <CardContent className='pb-4 sm:pb-5'>
                     <div className='grid grid-cols-2 gap-2 sm:gap-3'>
                         {[
-                            {
-                                id: "video",
-                                icon: Video,
-                                label: "Video Call",
-                                description: "Face-to-face consultation",
-                            },
-                            {
-                                id: "phone",
-                                icon: Phone,
-                                label: "Phone Call",
-                                description: "Voice only consultation",
-                            },
+                            { id: "video", icon: Video, label: "Video Call", description: "Face-to-face consultation" },
+                            { id: "phone", icon: Phone, label: "Phone Call", description: "Voice only consultation" },
                         ].map((type) => (
                             <button
                                 key={type.id}
-                                onClick={() =>
-                                    setFormData({
-                                        ...formData,
-                                        appointmentType: type.id as "video" | "phone",
-                                    })
-                                }
+                                onClick={() => setFormData({ ...formData, appointmentType: type.id as "video" | "phone" })}
                                 className={`relative p-3 sm:p-4 rounded-lg sm:rounded-xl border-2 transition-all duration-200 ${
                                     formData.appointmentType === type.id
                                         ? "border-blue-600 bg-blue-50 shadow-sm sm:shadow-md"
@@ -340,34 +287,16 @@ const BookingStep1: React.FC<BookingStep1Props> = ({
                                 }`}
                             >
                                 <div className='flex flex-col items-center gap-2 sm:gap-3 text-center'>
-                                    <div className={`w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center ${
-                                        formData.appointmentType === type.id
-                                            ? "bg-blue-600"
-                                            : "bg-gray-100"
-                                    }`}>
-                                        <type.icon
-                                            size={18}
-                                            className={`${
-                                                formData.appointmentType === type.id
-                                                    ? "text-white"
-                                                    : "text-gray-400"
-                                            }`}
-                                        />
+                                    <div className={`w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center ${formData.appointmentType === type.id ? "bg-blue-600" : "bg-gray-100"}`}>
+                                        <type.icon size={18} className={formData.appointmentType === type.id ? "text-white" : "text-gray-400"} />
                                     </div>
                                     <div>
-                                        <p className='font-semibold text-gray-900 text-xs sm:text-sm mb-0.5'>
-                                            {type.label}
-                                        </p>
-                                        <p className='text-xs text-gray-600 leading-tight'>
-                                            {type.description}
-                                        </p>
+                                        <p className='font-semibold text-gray-900 text-xs sm:text-sm mb-0.5'>{type.label}</p>
+                                        <p className='text-xs text-gray-600 leading-tight'>{type.description}</p>
                                     </div>
                                 </div>
                                 {formData.appointmentType === type.id && (
-                                    <CheckCircle2
-                                        size={16}
-                                        className='text-blue-600 absolute top-2 right-2 sm:top-3 sm:right-3'
-                                    />
+                                    <CheckCircle2 size={16} className='text-blue-600 absolute top-2 right-2 sm:top-3 sm:right-3' />
                                 )}
                             </button>
                         ))}
@@ -375,7 +304,7 @@ const BookingStep1: React.FC<BookingStep1Props> = ({
                 </CardContent>
             </Card>
 
-            {/* Calendar Selection */}
+            {/* Calendar */}
             <Card className='border-0 shadow-md sm:shadow-lg rounded-lg sm:rounded-xl bg-white'>
                 <CardHeader className='pb-3 sm:pb-4 space-y-0.5 sm:space-y-1'>
                     <div className='flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2'>
@@ -387,19 +316,11 @@ const BookingStep1: React.FC<BookingStep1Props> = ({
                             <p className='text-xs text-gray-500 mt-0.5 sm:mt-1'>Pick your appointment date</p>
                         </div>
                         <div className='flex items-center gap-2 self-start sm:self-center'>
-                            <button
-                                onClick={handlePrevMonth}
-                                className='p-1.5 sm:p-2 hover:bg-gray-100 rounded-lg transition active:scale-95'
-                            >
+                            <button onClick={handlePrevMonth} className='p-1.5 sm:p-2 hover:bg-gray-100 rounded-lg transition active:scale-95'>
                                 <ChevronLeft size={16} className='text-gray-600' />
                             </button>
-                            <span className='text-sm font-semibold text-gray-700 w-24 sm:w-32 text-center'>
-                                {monthName}
-                            </span>
-                            <button
-                                onClick={handleNextMonth}
-                                className='p-1.5 sm:p-2 hover:bg-gray-100 rounded-lg transition active:scale-95'
-                            >
+                            <span className='text-sm font-semibold text-gray-700 w-24 sm:w-32 text-center'>{monthName}</span>
+                            <button onClick={handleNextMonth} className='p-1.5 sm:p-2 hover:bg-gray-100 rounded-lg transition active:scale-95'>
                                 <ChevronRight size={16} className='text-gray-600' />
                             </button>
                         </div>
@@ -407,26 +328,16 @@ const BookingStep1: React.FC<BookingStep1Props> = ({
                 </CardHeader>
                 <CardContent className='pb-4 sm:pb-5'>
                     <div className='grid grid-cols-7 gap-1.5 sm:gap-2 mb-3 sm:mb-4'>
-                        {["S", "M", "T", "W", "T", "F", "S"].map((day, idx) => (
-                            <div
-                                key={idx}
-                                className='text-center text-xs font-semibold text-gray-600 py-1.5 sm:py-2'
-                            >
-                                <span className='hidden sm:inline'>
-                                    {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"][idx]}
-                                </span>
-                                <span className='sm:hidden'>{day}</span>
+                        {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map((day, idx) => (
+                            <div key={idx} className='text-center text-xs font-semibold text-gray-600 py-1.5 sm:py-2'>
+                                <span className='hidden sm:inline'>{day}</span>
+                                <span className='sm:hidden'>{day[0]}</span>
                             </div>
                         ))}
                     </div>
                     <div className='grid grid-cols-7 gap-1.5 sm:gap-2'>
                         {days.map((day, index) => {
-                            const isSelected =
-                                day &&
-                                formData.date ===
-                                    `${currentMonth.getFullYear()}-${(currentMonth.getMonth() + 1)
-                                    .toString()
-                                    .padStart(2, "0")}-${day.toString().padStart(2, "0")}`;
+                            const isSelected = day && formData.date === `${currentMonth.getFullYear()}-${(currentMonth.getMonth() + 1).toString().padStart(2, "0")}-${day.toString().padStart(2, "0")}`;
                             const isPast = day && isPastDate(day);
                             const isAvailable = day && isDateAvailable(day);
 
@@ -434,15 +345,12 @@ const BookingStep1: React.FC<BookingStep1Props> = ({
                                 <button
                                     key={index}
                                     onClick={() => day && !isPast && isAvailable && handleDateSelect(day)}
-                                    disabled={!day || isPast || !isAvailable}
+                                    disabled={!day || !!isPast || !isAvailable}
                                     className={`h-8 sm:h-10 rounded-md sm:rounded-lg font-semibold text-xs sm:text-sm transition-all duration-200 relative ${
-                                        !day
-                                            ? "invisible"
-                                            : isPast || !isAvailable
-                                              ? "bg-gray-50 text-gray-300 cursor-not-allowed"
-                                              : isSelected
-                                                ? "bg-gradient-to-br from-blue-600 to-blue-700 text-white shadow-md sm:shadow-lg"
-                                                : "bg-gray-100 text-gray-700 hover:bg-blue-50 hover:text-blue-600 hover:border hover:border-blue-200"
+                                        !day ? "invisible"
+                                        : isPast || !isAvailable ? "bg-gray-50 text-gray-300 cursor-not-allowed"
+                                        : isSelected ? "bg-gradient-to-br from-blue-600 to-blue-700 text-white shadow-md sm:shadow-lg"
+                                        : "bg-gray-100 text-gray-700 hover:bg-blue-50 hover:text-blue-600 hover:border hover:border-blue-200"
                                     }`}
                                 >
                                     {day}
@@ -489,36 +397,42 @@ const BookingStep1: React.FC<BookingStep1Props> = ({
                                 <div className='grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2 sm:gap-3 mb-4 sm:mb-5'>
                                     {availableSlots.map((slot) => {
                                         const isBooked = booked.includes(slot);
-                                        const isPastTime = isSlotInPast(slot)
+                                        const isPastTime = isSlotInPast(slot);
                                         const isSelected = formData.time === slot;
+                                        const isDisabled = isBooked || isPastTime;
 
                                         return (
                                             <button
                                                 key={slot}
-                                                onClick={() => !isBooked && handleSlotSelect(slot)}
-                                                disabled={isBooked || isPastTime}
+                                                onClick={() => !isDisabled && handleSlotSelect(slot)}
+                                                disabled={isDisabled}
                                                 className={`relative p-3 sm:p-4 rounded-lg sm:rounded-xl font-semibold text-xs sm:text-sm transition-all duration-200 ${
                                                     isBooked
                                                         ? "bg-red-50 text-red-400 border-2 border-red-200 cursor-not-allowed opacity-60"
-                                                        :
-                                                            isPastTime ? "bg-gray-100 text-gray-400 border-2 border-gray-200 cursor-not-allowed opacity-70"
-                                                            :   isSelected ? "bg-gradient-to-br from-blue-600 to-blue-700 text-white shadow-lg border-2 border-blue-600 scale-105"
-                                                                : "bg-gray-50 text-gray-700 hover:bg-blue-50 hover:text-blue-600 border-2 border-gray-200 hover:border-blue-300 hover:scale-105"
+                                                        : isPastTime
+                                                        ? "bg-gray-100 text-gray-400 border-2 border-gray-200 cursor-not-allowed opacity-70"
+                                                        : isSelected
+                                                        ? "bg-gradient-to-br from-blue-600 to-blue-700 text-white shadow-lg border-2 border-blue-600 scale-105"
+                                                        : "bg-gray-50 text-gray-700 hover:bg-blue-50 hover:text-blue-600 border-2 border-gray-200 hover:border-blue-300 hover:scale-105"
                                                 }`}
                                             >
                                                 <div className='flex flex-col items-center gap-1'>
-                                                    <Clock size={14} className={isBooked ? 'text-red-400' : isSelected ? 'text-white' : 'text-gray-500'} />
+                                                    <Clock
+                                                        size={14}
+                                                        className={
+                                                            isBooked ? 'text-red-400'
+                                                            : isPastTime ? 'text-gray-400'
+                                                            : isSelected ? 'text-white'
+                                                            : 'text-gray-500'
+                                                        }
+                                                    />
                                                     <span className='text-sm sm:text-base font-bold'>{formatTime(slot)}</span>
-                                                    {isBooked && (
-                                                        <span className='text-xs font-medium'>Booked</span>
-                                                    )}
+                                                    {isBooked && <span className='text-xs font-medium'>Booked</span>}
+                                                    {isPastTime && !isBooked && <span className='text-xs font-medium'>Past</span>}
                                                 </div>
                                                 {isSelected && (
                                                     <div className='absolute -top-2 -right-2'>
-                                                        <CheckCircle2
-                                                            size={20}
-                                                            className='text-green-400 bg-white rounded-full'
-                                                        />
+                                                        <CheckCircle2 size={20} className='text-green-400 bg-white rounded-full' />
                                                     </div>
                                                 )}
                                             </button>
@@ -541,6 +455,10 @@ const BookingStep1: React.FC<BookingStep1Props> = ({
                                             <div className='flex items-center gap-1.5'>
                                                 <div className='w-4 h-4 rounded bg-red-50 border-2 border-red-200'></div>
                                                 <span className='text-gray-700 font-medium'>Booked</span>
+                                            </div>
+                                            <div className='flex items-center gap-1.5'>
+                                                <div className='w-4 h-4 rounded bg-gray-100 border-2 border-gray-200'></div>
+                                                <span className='text-gray-700 font-medium'>Past</span>
                                             </div>
                                             <div className='flex items-center gap-1.5'>
                                                 <div className='w-4 h-4 rounded bg-gradient-to-br from-blue-600 to-blue-700'></div>
