@@ -1,4 +1,4 @@
-import { getWithAuth, getWithoutAuth, postWithAuth, putWithAuth, putFileWithAuth } from "@/service/httpService";
+import { getWithAuth, getWithoutAuth, postWithAuth, putWithAuth, putFileWithAuth, deleteWithAuth } from "@/service/httpService";
 import { toast } from "sonner";
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
@@ -106,6 +106,7 @@ interface appointmentStore {
 
     updateAppointmentStatus : (appointmentID : string, status : "Scheduled" | "Completed" | "Cancelled" | "Progress") => Promise<void>,
     updatePrecription : (appointmentId : string, file : File) => Promise<void>,
+    deletePrescription : (appointmentId : string) => Promise<void>,
     markAsFollowUp : (appointmentID : string) => Promise<void>,
 
 }
@@ -321,7 +322,7 @@ export const useAppointmentStore = create<appointmentStore>((set, get) => ({
         try{
             const formData = new FormData()
             formData.append('file', file)
-
+            
             const res = await putFileWithAuth(`appointment/prescription/${appointmentID}`, formData)
             const pescription = res.data?.pescription
 
@@ -332,10 +333,33 @@ export const useAppointmentStore = create<appointmentStore>((set, get) => ({
                 }))
             }
             toast.success("Prescription uploaded successfully");
+            return pescription;
         }
         catch(err : any){
             set({ error : err.message })
             toast.error("Failed to upload prescription");
+            throw err;
+        }
+        finally{
+            set({ loading : false })
+        }
+    },
+
+    deletePrescription : async(appointmentID) => {
+        set({ loading : true, error : null })
+
+        try{
+            await deleteWithAuth(`appointment/prescription/${appointmentID}`)
+
+            set((state) => ({
+                appointments : state.appointments.map(apt => apt._id === appointmentID ? {...apt, pescription: undefined} : apt),
+                currentAppointment : state.currentAppointment?._id === appointmentID ? {...state.currentAppointment, pescription: undefined} : state.currentAppointment
+            }))
+            toast.success("Prescription deleted successfully");
+        }
+        catch(err : any){
+            set({ error : err.message })
+            toast.error("Failed to delete prescription");
             throw err;
         }
         finally{

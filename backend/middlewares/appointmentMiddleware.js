@@ -1,4 +1,5 @@
 const Appointment = require("../models/Appointment")
+const cloudinary = require("../cloudinary")
 
 
 exports.getDoctorAppointmentList = async(req, res) => {
@@ -248,28 +249,75 @@ exports.uploadPrescription = async(req, res) => {
         const file = req.file;
 
         if (!file) return res.badRequest('No file uploaded');
-        const fileType = file.mimetype === 'application/pdf' ? 'pdf' : 'image';
 
-        const appointment = await Appointment.findByIdAndUpdate(
-            id,
-            {
-                pescription: {
-                    fileUrl: file.path,
-                    fileType,
-                    fileName: file.originalname,
-                    uploadedBy: req.auth.id,
-                    uploadedAt: new Date(),
-                },
-                updatedAt: new Date()
-            },
-            { new: true }
-        )
+        const appointment = await Appointment.findById(id);
         if (!appointment) return res.notFound('Appointment not found');
+
+        if (appointment.doctorID.toString() !== req.auth.id) {
+            return res.forbidden('You can only upload prescriptions for your own appointments');
+        }
+
+        // multer-storage-cloudinary: file.format has the type, file.mimetype may be undefined
+        const isPdf = file.format === 'pdf' || file.mimetype === 'application/pdf' || (file.originalname && file.originalname.endsWith('.pdf'));
+        const fileType = isPdf ? 'pdf' : 'image';
+
+        appointment.pescription = {
+            fileUrl: file.path,
+            fileType,
+            fileName: file.originalname || file.filename || 'prescription',
+            uploadedBy: req.auth.id,
+            uploadedAt: new Date(),
+        };
+        appointment.updatedAt = new Date();
+        await appointment.save();
 
         res.ok({ pescription : appointment.pescription }, 'Prescription uploaded successfully');
     } catch(err) {
         console.error('Prescription upload failed', err);
         res.serverError('Prescription upload failed', [err?.message]);
+    }
+}
+
+
+exports.deletePrescription = async(req, res) => {
+    try {
+        const { id } = req.params;
+
+        const appointment = await Appointment.findById(id);
+        if (!appointment) return res.notFound('Appointment not found');
+
+        if (appointment.doctorID.toString() !== req.auth.id) {
+            return res.forbidden('You can only delete prescriptions for your own appointments');
+        }
+
+        if (!appointment.pescription) {
+            return res.badRequest('No prescription to delete');
+        }
+
+        // Delete file from Cloudinary
+        const fileUrl = appointment.pescription.fileUrl;
+        if (fileUrl) {
+            const parts = fileUrl.split('/');
+            const folderIdx = parts.indexOf('docure');
+            if (folderIdx !== -1) {
+                const publicIdWithExt = parts.slice(folderIdx).join('/');
+                const resourceType = appointment.pescription.fileType === 'pdf' ? 'raw' : 'image';
+                // For raw (PDF), keep the extension in publicId; for images, strip it
+                const publicId = resourceType === 'raw' ? publicIdWithExt : publicIdWithExt.replace(/\.[^/.]+$/, '');
+                console.log('Deleting from Cloudinary:', { publicId, resourceType, fileUrl });
+                const result = await cloudinary.uploader.destroy(publicId, { resource_type: resourceType });
+                console.log('Cloudinary delete result:', result);
+            }
+        }
+
+        appointment.pescription = undefined;
+        appointment.updatedAt = new Date();
+        await appointment.save();
+
+        res.ok(null, 'Prescription deleted successfully');
+    } catch(err) {
+        console.error('Prescription delete failed', err);
+        res.serverError('Prescription delete failed', [err?.message]);
     }
 }
 

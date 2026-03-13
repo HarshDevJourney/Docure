@@ -429,7 +429,7 @@ const PrescriptionViewer = ({ apt }: { apt: Appointment }) => {
                 </div>
                 <div className='flex items-center gap-1.5 shrink-0'>
                     <a
-                        href={rx.fileUrl}
+                        href={rx.fileType === 'pdf' ? `https://docs.google.com/gview?url=${encodeURIComponent(rx.fileUrl)}&embedded=true` : rx.fileUrl}
                         target='_blank'
                         rel='noopener noreferrer'
                         className='flex items-center gap-1 rounded-lg border border-blue-200 bg-white hover:bg-blue-50 px-2.5 py-1.5 text-[11px] font-semibold text-blue-700 transition-colors shadow-sm'

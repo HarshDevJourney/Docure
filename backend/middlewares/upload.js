@@ -4,10 +4,13 @@ const cloudinary = require('../cloudinary');
 
 const storage = new CloudinaryStorage({
   cloudinary,
-  params: {
-    folder: 'docure/prescriptions',
-    allowed_formats: ['pdf', 'png', 'jpg', 'jpeg'],
-    resource_type: 'auto',
+  params: async (req, file) => {
+    const isPdf = file.mimetype === 'application/pdf';
+    return {
+      folder: 'docure/prescriptions',
+      allowed_formats: ['pdf', 'png', 'jpg', 'jpeg'],
+      resource_type: isPdf ? 'raw' : 'image',
+    };
   },
 });
 
