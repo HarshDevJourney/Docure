@@ -22,6 +22,7 @@ const {
   cancelAppointment,
   rescheduleConsultation,
   markAsFollowUp,
+  updateNotes,
 } = require("../middlewares/appointmentMiddleware");
 const validate = require("../middlewares/validate");
 
@@ -64,6 +65,7 @@ router.post(
   bookAppointment,
 );
 router.put("/follow-up/:id", requiredRole("doctor"), markAsFollowUp);
+router.put("/notes/:id", requiredRole("doctor"), updateNotes);
 router.put("/cancel/:id", cancelAppointment);
 // router.put('/reschedule/:id', rescheduleValidator, validate, rescheduleConsultation)
 

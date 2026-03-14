@@ -74,8 +74,12 @@ class HttpService {
     return this.makeRequest<T>(endPoint, "POST", body, true, options);
   }
 
-  async putWithAuth<T = any>(endPoint: string, options?: RequestOptions): Promise<ApiResponse<T>> {
-    return this.makeRequest<T>(endPoint, "PUT", null, true, options);
+  async putWithAuth<T = any>(
+    endPoint: string,
+    body?: any,
+    options?: RequestOptions,
+  ): Promise<ApiResponse<T>> {
+    return this.makeRequest<T>(endPoint, "PUT", body, true, options);
   }
 
   async deleteWithAuth<T = any>(
@@ -102,9 +106,10 @@ class HttpService {
 
   async putWithoutAuth<T = any>(
     endPoint: string,
+    body?: any,
     options?: RequestOptions,
   ): Promise<ApiResponse<T>> {
-    return this.makeRequest<T>(endPoint, "PUT", null, false, options);
+    return this.makeRequest<T>(endPoint, "PUT", body, false, options);
   }
 
   async deleteWithoutAuth<T = any>(

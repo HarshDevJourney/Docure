@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState, useCallback } from "react";
 import { useParams, useRouter } from "next/navigation";
 import {
   CircleDollarSign,
@@ -23,6 +23,10 @@ import {
   CheckCircle2,
   XCircle,
   CalendarDays,
+  Pen,
+  Save,
+  StickyNote,
+  X,
 } from "lucide-react";
 import { Appointment, useAppointmentStore } from "@/store/appointmentStore";
 
@@ -159,6 +163,10 @@ const StopCard = ({
   side: "left" | "right";
 }) => {
   const [expanded, setExpanded] = useState(isCurrent);
+  const [editingNotes, setEditingNotes] = useState(false);
+  const [noteDraft, setNoteDraft] = useState(appointment.notes || "");
+  const [savingNote, setSavingNote] = useState(false);
+  const updateNotes = useAppointmentStore((s) => s.updateNotes);
   const meta = getStopMeta(isCurrent ? "Upcoming" : appointment.status, isCurrent);
   const doctorName = appointment?.doctorID?.name || "Doctor";
   const hospital = appointment?.doctorID?.hospitalInfo?.name || "Hospital";
@@ -166,6 +174,23 @@ const StopCard = ({
   const paidAt = appointment?.paymentDetails?.paidAt;
   const isOnline = /online|video/i.test(appointment.consultationType || "");
   const aptDate = getAppointmentDate(appointment);
+
+  const handleSaveNotes = useCallback(async () => {
+    setSavingNote(true);
+    try {
+      await updateNotes(appointment._id, noteDraft);
+      setEditingNotes(false);
+    } catch {
+      // error toast handled in store
+    } finally {
+      setSavingNote(false);
+    }
+  }, [appointment._id, noteDraft, updateNotes]);
+
+  const handleCancelNotes = () => {
+    setNoteDraft(appointment.notes || "");
+    setEditingNotes(false);
+  };
 
   return (
     <div
@@ -235,7 +260,7 @@ const StopCard = ({
 
       {/* Expanded details */}
       <div
-        className={`overflow-hidden transition-all duration-500 ease-in-out ${expanded ? "max-h-[640px] opacity-100" : "max-h-0 opacity-0"}`}
+        className={`overflow-hidden transition-all duration-500 ease-in-out ${expanded ? "max-h-[900px] opacity-100" : "max-h-0 opacity-0"}`}
       >
         <div className='grid grid-cols-1 gap-2 px-4 pb-4 md:grid-cols-2'>
           <InfoTile icon={<Clock3 className='h-3.5 w-3.5 text-blue-500' />} title='Time Slot'>
@@ -264,17 +289,68 @@ const StopCard = ({
 
           <InfoTile
             icon={<ClipboardList className='h-3.5 w-3.5 text-amber-500' />}
-            title='Consultation Notes'
-            span2
+            title='Symptoms'
           >
             <p className='text-[11px] leading-relaxed'>
-              <span className='font-bold text-slate-400'>Symptoms: </span>
-              {appointment.symptoms || <span className='italic text-slate-300'>None</span>}
+              {appointment.symptoms || <span className='italic text-slate-300'>None recorded</span>}
             </p>
-            <p className='mt-1.5 text-[11px] leading-relaxed'>
-              <span className='font-bold text-slate-400'>Doctor: </span>
-              {appointment.notes || <span className='italic text-slate-300'>No notes</span>}
-            </p>
+          </InfoTile>
+
+          {/* ── Doctor Notes (editable) ── */}
+          <InfoTile
+            icon={<StickyNote className='h-3.5 w-3.5 text-violet-500' />}
+            title='Doctor Notes'
+            span2
+          >
+            {!editingNotes ? (
+              <div className='flex items-start justify-between gap-3'>
+                <p className='flex-1 text-[11px] leading-relaxed whitespace-pre-line'>
+                  {appointment.notes || <span className='italic text-slate-300'>No notes yet</span>}
+                </p>
+                <button
+                  onClick={() => {
+                    setNoteDraft(appointment.notes || "");
+                    setEditingNotes(true);
+                  }}
+                  className='flex h-7 w-7 shrink-0 items-center justify-center rounded-lg border border-blue-200 bg-blue-50 text-blue-500 transition-all hover:bg-blue-100 hover:text-blue-700'
+                  title='Edit notes'
+                >
+                  <Pen className='h-3 w-3' />
+                </button>
+              </div>
+            ) : (
+              <div className='space-y-2'>
+                <textarea
+                  value={noteDraft}
+                  onChange={(e) => setNoteDraft(e.target.value)}
+                  placeholder='Add notes for future reference…'
+                  rows={3}
+                  className='w-full rounded-xl border border-blue-200 bg-white px-3 py-2 text-[12px] font-medium text-slate-800 outline-none transition-all placeholder:text-slate-300 focus:border-blue-400 focus:ring-2 focus:ring-blue-100 resize-none'
+                  autoFocus
+                />
+                <div className='flex items-center justify-end gap-2'>
+                  <button
+                    onClick={handleCancelNotes}
+                    className='flex items-center gap-1 rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-[11px] font-bold text-slate-500 transition-all hover:bg-slate-50'
+                  >
+                    <X className='h-3 w-3' />
+                    Cancel
+                  </button>
+                  <button
+                    onClick={handleSaveNotes}
+                    disabled={savingNote}
+                    className='flex items-center gap-1 rounded-lg bg-blue-600 px-3 py-1.5 text-[11px] font-bold text-white shadow-sm shadow-blue-200 transition-all hover:bg-blue-700 disabled:opacity-60'
+                  >
+                    {savingNote ? (
+                      <Loader2 className='h-3 w-3 animate-spin' />
+                    ) : (
+                      <Save className='h-3 w-3' />
+                    )}
+                    {savingNote ? "Saving…" : "Save"}
+                  </button>
+                </div>
+              </div>
+            )}
           </InfoTile>
 
           <InfoTile

@@ -125,6 +125,7 @@ interface appointmentStore {
   updatePrecription: (appointmentId: string, file: File) => Promise<void>;
   deletePrescription: (appointmentId: string) => Promise<void>;
   markAsFollowUp: (appointmentID: string) => Promise<void>;
+  updateNotes: (appointmentID: string, notes: string) => Promise<void>;
 }
 
 export const useAppointmentStore = create<appointmentStore>((set, get) => ({
@@ -424,6 +425,25 @@ export const useAppointmentStore = create<appointmentStore>((set, get) => ({
       throw err;
     } finally {
       set({ loading: false });
+    }
+  },
+
+  updateNotes: async (appointmentID, notes) => {
+    try {
+      await putWithAuth(`appointment/notes/${appointmentID}`, { notes });
+      set((state) => ({
+        appointments: state.appointments.map((apt) =>
+          apt._id === appointmentID ? { ...apt, notes } : apt,
+        ),
+        currentAppointment:
+          state.currentAppointment?._id === appointmentID
+            ? { ...state.currentAppointment, notes }
+            : state.currentAppointment,
+      }));
+      toast.success("Notes saved");
+    } catch (err: any) {
+      toast.error("Failed to save notes");
+      throw err;
     }
   },
 }));

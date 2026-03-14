@@ -333,6 +333,29 @@ exports.deletePrescription = async (req, res) => {
   }
 };
 
+exports.updateNotes = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { notes } = req.body;
+
+    const appointment = await Appointment.findById(id);
+    if (!appointment) return res.notFound("Appointment not found");
+
+    if (appointment.doctorID.toString() !== req.auth.id) {
+      return res.forbidden("You can only add notes to your own appointments");
+    }
+
+    appointment.notes = notes || "";
+    appointment.updatedAt = new Date();
+    await appointment.save();
+
+    res.ok({ notes: appointment.notes }, "Notes updated successfully");
+  } catch (err) {
+    console.error("Notes update failed", err);
+    res.serverError("Notes update failed", [err?.message]);
+  }
+};
+
 exports.markAsFollowUp = async (req, res) => {
   try {
     const { id } = req.params;

@@ -363,25 +363,139 @@ const LiveIcon = ({ className }: { className?: string }) => (
 );
 
 /* ─────────────────────────────────────────────────────────
-   NOTES EXPAND
+   EDITABLE NOTES
 ───────────────────────────────────────────────────────── */
-const NotesSection = ({ notes }: { notes: string }) => {
+const PencilIcon = ({ className = "" }: { className?: string }) => (
+  <svg
+    width='12'
+    height='12'
+    viewBox='0 0 24 24'
+    fill='none'
+    stroke='currentColor'
+    strokeWidth='2'
+    strokeLinecap='round'
+    strokeLinejoin='round'
+    className={className}
+  >
+    <path d='M17 3a2.83 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z' />
+    <path d='m15 5 4 4' />
+  </svg>
+);
+
+interface EditableNotesProps {
+  notes?: string;
+  onSave: (notes: string) => Promise<void>;
+}
+
+const EditableNotes: React.FC<EditableNotesProps> = ({ notes, onSave }) => {
   const [open, setOpen] = useState(false);
+  const [editing, setEditing] = useState(false);
+  const [draft, setDraft] = useState(notes || "");
+  const [saving, setSaving] = useState(false);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+  // Keep draft in sync with DB value when not editing
+  useEffect(() => {
+    if (!editing) setDraft(notes || "");
+  }, [notes, editing]);
+
+  useEffect(() => {
+    if (editing && textareaRef.current) {
+      textareaRef.current.focus();
+      textareaRef.current.selectionStart = textareaRef.current.value.length;
+    }
+  }, [editing]);
+
+  const handleSave = async () => {
+    if (!draft.trim() && !notes) return;
+    setSaving(true);
+    try {
+      await onSave(draft.trim());
+      setEditing(false);
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleCancel = () => {
+    setDraft(notes || "");
+    setEditing(false);
+  };
+
+  // No notes yet — show "Add Notes" button
+  if (!notes && !editing) {
+    return (
+      <div className='mt-2'>
+        <button
+          onClick={() => {
+            setEditing(true);
+            setOpen(true);
+          }}
+          className='flex items-center gap-1.5 text-[11px] text-blue-600 font-semibold hover:text-blue-700 transition-colors'
+        >
+          <NoteIcon className='text-blue-500' />
+          Add consultation notes
+          <PencilIcon className='text-blue-400' />
+        </button>
+      </div>
+    );
+  }
+
   return (
     <div className='mt-2'>
-      <button
-        onClick={() => setOpen((o) => !o)}
-        className='flex items-center gap-1 text-[11px] text-blue-600 font-semibold hover:text-blue-700 transition-colors'
-      >
-        <NoteIcon className='text-blue-500' />
-        {open ? "Hide" : "View"} consultation notes
-        <ChevronDown className={`transition-transform duration-200 ${open ? "rotate-180" : ""}`} />
-      </button>
-      {open && (
-        <div className='mt-2 px-3 py-2.5 bg-blue-50 border border-blue-100 rounded-xl text-xs text-slate-600 leading-relaxed'>
-          {notes}
-        </div>
-      )}
+      <div className='flex items-center gap-2'>
+        <button
+          onClick={() => setOpen((o) => !o)}
+          className='flex items-center gap-1 text-[11px] text-blue-600 font-semibold hover:text-blue-700 transition-colors'
+        >
+          <NoteIcon className='text-blue-500' />
+          {open ? "Hide" : "View"} consultation notes
+          <ChevronDown
+            className={`transition-transform duration-200 ${open ? "rotate-180" : ""}`}
+          />
+        </button>
+        {open && !editing && (
+          <button
+            onClick={() => setEditing(true)}
+            className='flex items-center gap-1 text-[11px] text-blue-500 hover:text-blue-700 font-medium transition-colors'
+          >
+            <PencilIcon className='text-blue-400' /> Edit
+          </button>
+        )}
+      </div>
+      {open &&
+        (editing ? (
+          <div className='mt-2'>
+            <textarea
+              ref={textareaRef}
+              value={draft}
+              onChange={(e) => setDraft(e.target.value)}
+              rows={4}
+              placeholder='Write consultation notes...'
+              className='w-full px-3 py-2.5 bg-blue-50 border border-blue-200 rounded-xl text-xs text-slate-700 leading-relaxed resize-none focus:outline-none focus:ring-2 focus:ring-blue-300 focus:border-blue-300 placeholder:text-slate-400'
+            />
+            <div className='flex items-center gap-2 mt-1.5'>
+              <button
+                onClick={handleSave}
+                disabled={saving}
+                className='flex items-center gap-1 rounded-lg bg-blue-600 hover:bg-blue-700 disabled:opacity-50 px-3 py-1 text-[11px] font-semibold text-white transition-colors'
+              >
+                {saving ? "Saving..." : "Save Notes"}
+              </button>
+              <button
+                onClick={handleCancel}
+                disabled={saving}
+                className='flex items-center gap-1 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 disabled:opacity-50 px-3 py-1 text-[11px] font-semibold text-slate-600 transition-colors'
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        ) : (
+          <div className='mt-2 px-3 py-2.5 bg-blue-50 border border-blue-100 rounded-xl text-xs text-slate-600 leading-relaxed'>
+            {notes}
+          </div>
+        ))}
     </div>
   );
 };
@@ -441,7 +555,11 @@ const PrescriptionWidget: React.FC<RxWidgetProps> = ({
           </div>
           <div className='flex items-center gap-1.5 shrink-0'>
             <a
-              href={rx.fileType === 'pdf' ? `https://docs.google.com/gview?url=${encodeURIComponent(rx.fileUrl)}&embedded=true` : rx.fileUrl}
+              href={
+                rx.fileType === "pdf"
+                  ? `https://docs.google.com/gview?url=${encodeURIComponent(rx.fileUrl)}&embedded=true`
+                  : rx.fileUrl
+              }
               target='_blank'
               rel='noopener noreferrer'
               className='flex items-center gap-1 rounded-lg border border-blue-200 bg-white hover:bg-blue-50 px-2.5 py-1.5 text-[11px] font-semibold text-blue-700 transition-colors shadow-sm'
@@ -834,6 +952,7 @@ interface PastCardProps {
   uploadError?: string | null;
   onPatientHistory: (id: string) => void;
   onMarkFollowUp?: (id: string) => void;
+  onSaveNotes?: (id: string, notes: string) => Promise<void>;
 }
 const PastCard: React.FC<PastCardProps> = ({
   apt,
@@ -843,6 +962,7 @@ const PastCard: React.FC<PastCardProps> = ({
   uploadError,
   onPatientHistory,
   onMarkFollowUp,
+  onSaveNotes,
 }) => {
   const meta = {
     Scheduled: {
@@ -966,7 +1086,9 @@ const PastCard: React.FC<PastCardProps> = ({
         {apt.symptoms && (
           <p className='mt-0.5 text-xs text-slate-400 line-clamp-2'>{apt.symptoms}</p>
         )}
-        {apt.status === "Completed" && apt.notes && <NotesSection notes={apt.notes} />}
+        {apt.status === "Completed" && onSaveNotes && (
+          <EditableNotes notes={apt.notes} onSave={(notes) => onSaveNotes(apt._id, notes)} />
+        )}
         {showRx && (
           <PrescriptionWidget
             apt={apt}
@@ -1327,8 +1449,14 @@ const DoctorAppointments: React.FC = () => {
   const [uploadError, setUploadError] = useState<Record<string, string | null>>({});
 
   const { user } = userAuthStore();
-  const { appointments, fetchAppointment, markAsFollowUp, updatePrecription, deletePrescription } =
-    useAppointmentStore();
+  const {
+    appointments,
+    fetchAppointment,
+    markAsFollowUp,
+    updatePrecription,
+    deletePrescription,
+    updateNotes,
+  } = useAppointmentStore();
 
   useEffect(() => {
     if (user && user.type === "doctor") fetchAppointment("doctor", activeTab);
@@ -1386,6 +1514,15 @@ const DoctorAppointments: React.FC = () => {
       setPast((prev) => prev.map((a) => (a._id === aptId ? { ...a, isFollowUp: true } : a)));
     } catch (err) {
       console.error("Failed to mark as follow-up:", err);
+    }
+  };
+
+  const handleSaveNotes = async (aptId: string, notes: string) => {
+    try {
+      await updateNotes(aptId, notes);
+      setPast((prev) => prev.map((a) => (a._id === aptId ? { ...a, notes } : a)));
+    } catch (err) {
+      console.error("Failed to save notes:", err);
     }
   };
 
@@ -1640,6 +1777,7 @@ const DoctorAppointments: React.FC = () => {
                     uploadError={uploadError[apt._id]}
                     onPatientHistory={(id) => router.push(`/patient-history/${id}`)}
                     onMarkFollowUp={handleMarkFollowUp}
+                    onSaveNotes={handleSaveNotes}
                   />
                 ))}
               </div>
