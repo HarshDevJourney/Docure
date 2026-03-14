@@ -14,12 +14,6 @@ type TabCnt = {
   past: number;
 };
 
-interface PrescriptionFile {
-  name: string;
-  size: number;
-  url: string;
-  uploadedAt: string;
-}
 
 /* ─────────────────────────────────────────────────────────
    HELPERS
@@ -717,7 +711,7 @@ const UpcomingCard: React.FC<UpcomingCardProps> = ({ apt, onJoin, onProfile, can
   const relDate = formatRelative(apt.date);
   const isToday = relDate === "Today";
   const paid = apt.paymentDetails?.paymentStatus === "Paid";
-  const grad = avatarGradients[apt.patientID?.avatarColor] ?? "from-blue-400 to-blue-600";
+  const grad = avatarGradients[apt.patientID?.avatarColor ?? ""] ?? "from-blue-400 to-blue-600";
 
   const [startTime, startPeriod] = splitTime(apt.slotStart);
   const [endTime, endPeriod] = splitTime(apt.slotEnd);
@@ -999,7 +993,7 @@ const PastCard: React.FC<PastCardProps> = ({
   const paid = apt.paymentDetails?.paymentStatus === "Paid";
   const showRx = apt.status === "Completed";
   const relDate = formatRelative(apt.date);
-  const grad = avatarGradients[apt.patientID?.avatarColor] ?? "from-blue-400 to-blue-600";
+  const grad = avatarGradients[apt.patientID?.avatarColor ?? ""] ?? "from-blue-400 to-blue-600";
 
   const startFormatted = formatTime(apt.slotStart);
   const endFormatted = formatTime(apt.slotEnd);
@@ -1164,7 +1158,7 @@ const LiveConsultationCard = ({
   onJoin: (id: string) => void;
   onProfile: (id: string) => void;
 }) => {
-  const grad = avatarGradients[apt.patientID?.avatarColor] ?? "from-blue-400 to-blue-600";
+  const grad = avatarGradients[apt.patientID?.avatarColor ?? ""] ?? "from-blue-400 to-blue-600";
   const isVideo = apt.consultationType === "video";
   const elapsed = useElapsed(apt.slotStart);
   const paid = apt.paymentDetails?.paymentStatus === "Paid";
@@ -1390,7 +1384,7 @@ const TodayStrip = ({ apts }: { apts: Appointment[] }) => {
           <div className='flex items-center gap-2 mb-1'>
             <CalIcon className='text-blue-200' />
             <span className='text-xs font-bold uppercase tracking-widest text-blue-200'>
-              Today's Schedule
+              Todays Schedule
             </span>
           </div>
           <p className='text-xl font-black text-white'>
@@ -1488,12 +1482,10 @@ const DoctorAppointments: React.FC = () => {
     setUploading((u) => ({ ...u, [aptId]: true }));
     setUploadError((e) => ({ ...e, [aptId]: null }));
     try {
-      const pescription = await updatePrecription(aptId, file);
-      if (pescription) {
-        setPast((prev) => prev.map((a) => (a._id === aptId ? { ...a, pescription } : a)));
-      }
-    } catch (err: any) {
-      setUploadError((e) => ({ ...e, [aptId]: err?.message || "Something went wrong" }));
+      await updatePrecription(aptId, file);
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : "Something went wrong";
+      setUploadError((e) => ({ ...e, [aptId]: message }));
     } finally {
       setUploading((u) => ({ ...u, [aptId]: false }));
     }

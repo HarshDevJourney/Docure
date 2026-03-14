@@ -19,7 +19,6 @@ import {
   Activity,
   Pill,
   Siren,
-  CheckCircle2,
   ChevronRight,
   UserRound,
   HeartPulse,
@@ -367,7 +366,7 @@ export default function PatientProfilePage() {
   const age =
     dobDate && !isNaN(dobDate.getTime())
       ? Math.floor((Date.now() - dobDate.getTime()) / (1000 * 60 * 60 * 24 * 365.25))
-      : (user as any)?.age || null;
+      : (user as unknown as Record<string, unknown>)?.age as number | null || null;
 
   // Has any medical data?
   const hasMedical =

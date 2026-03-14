@@ -1,6 +1,5 @@
 import {
   getWithAuth,
-  getWithoutAuth,
   postWithAuth,
   putWithAuth,
   putFileWithAuth,
@@ -8,7 +7,6 @@ import {
 } from "@/service/httpService";
 import { toast } from "sonner";
 import { create } from "zustand";
-import { persist } from "zustand/middleware";
 
 interface PaymentDetails {
   doctorFees: number;
@@ -26,11 +24,37 @@ interface Prescription {
   uploadedAt: string;
 }
 
+interface PopulatedPatient {
+  _id: string;
+  name: string;
+  email?: string;
+  phone?: string;
+  avatar?: string;
+  avatarColor?: string;
+  age?: number;
+  gender?: string;
+  profilePic?: string;
+}
+
+interface PopulatedDoctor {
+  _id: string;
+  name: string;
+  email?: string;
+  avatar?: string;
+  avatarColor?: string;
+  specialization?: string;
+  hospital?: string;
+  clinic?: string;
+  fees?: number;
+  profilePic?: string;
+  hospitalInfo?: { name?: string };
+}
+
 export interface Appointment {
   _id: string;
 
-  patientID: any;
-  doctorID: any;
+  patientID: PopulatedPatient;
+  doctorID: PopulatedDoctor;
 
   date: string;
   slotStart: string;
@@ -107,7 +131,7 @@ interface appointmentStore {
   fetchBookedSlot: (doctorID: string, date: string) => Promise<void>;
   fetchAppointmentByID: (appointmentID: string) => Promise<Appointment | null>;
 
-  bookAppointment: (data: BookingData) => Promise<any>;
+  bookAppointment: (data: BookingData) => Promise<Appointment>;
   cancelConsultation: (appointmentID: string) => Promise<void>;
   rescheduleAppointment?: (
     appointmentID: string,
@@ -128,7 +152,7 @@ interface appointmentStore {
   updateNotes: (appointmentID: string, notes: string) => Promise<void>;
 }
 
-export const useAppointmentStore = create<appointmentStore>((set, get) => ({
+export const useAppointmentStore = create<appointmentStore>((set) => ({
   appointments: [],
   bookedSlot: [],
   currentAppointment: null,
@@ -175,8 +199,8 @@ export const useAppointmentStore = create<appointmentStore>((set, get) => ({
       const res = await getWithAuth(`${endPoint}?${queryParam.toString()}`);
       set({ appointments: res.data || [] });
       toast.success("Appointment List Fetched Successfully");
-    } catch (err: any) {
-      set({ error: err.message });
+    } catch (err: unknown) {
+      set({ error: err instanceof Error ? err.message : "Something went wrong" });
       toast.error("Fail to Fetch Appointment List");
       throw err;
     } finally {
@@ -190,8 +214,8 @@ export const useAppointmentStore = create<appointmentStore>((set, get) => ({
     try {
       const res = await getWithAuth(`appointment/patient-history/${patientId}`);
       set({ appointments: res.data || [] });
-    } catch (err: any) {
-      set({ error: err.message });
+    } catch (err: unknown) {
+      set({ error: err instanceof Error ? err.message : "Something went wrong" });
       toast.error("Failed to fetch patient history");
       throw err;
     } finally {
@@ -207,8 +231,8 @@ export const useAppointmentStore = create<appointmentStore>((set, get) => ({
       set({ currentAppointment: res?.data?.appointment });
       toast.success("Appointment Fetched Successfully");
       return res?.data?.appointment;
-    } catch (err: any) {
-      set({ error: err.message });
+    } catch (err: unknown) {
+      set({ error: err instanceof Error ? err.message : "Something went wrong" });
       toast.error("Fail to Fetch Required Appointment Details");
       throw err;
     } finally {
@@ -223,8 +247,8 @@ export const useAppointmentStore = create<appointmentStore>((set, get) => ({
       const res = await getWithAuth(`appointment/booked-slot/${doctorID}/${date}`);
       set({ bookedSlot: res?.data });
       toast.success("Booked Slot Details Fetched Successfully");
-    } catch (err: any) {
-      set({ error: err.message });
+    } catch (err: unknown) {
+      set({ error: err instanceof Error ? err.message : "Something went wrong" });
       toast.error("Fail to Fetch Booked Slot Details");
       throw err;
     } finally {
@@ -242,8 +266,8 @@ export const useAppointmentStore = create<appointmentStore>((set, get) => ({
       }));
       toast.success("Appointment Booked Successfully");
       return res.data;
-    } catch (err: any) {
-      set({ error: err.message });
+    } catch (err: unknown) {
+      set({ error: err instanceof Error ? err.message : "Something went wrong" });
       toast.error("Fail to Appointment Booked");
       throw err;
     } finally {
@@ -262,8 +286,8 @@ export const useAppointmentStore = create<appointmentStore>((set, get) => ({
         ),
       }));
       toast.success("Appointment cancelled");
-    } catch (err: any) {
-      set({ error: err.message });
+    } catch (err: unknown) {
+      set({ error: err instanceof Error ? err.message : "Something went wrong" });
       toast.error("Cancel failed");
       throw err;
     } finally {
@@ -289,8 +313,8 @@ export const useAppointmentStore = create<appointmentStore>((set, get) => ({
       }));
       toast.success("Appointment Joined Successfully");
       return res.data;
-    } catch (err: any) {
-      set({ error: err.message });
+    } catch (err: unknown) {
+      set({ error: err instanceof Error ? err.message : "Something went wrong" });
       toast.error("Fail to Join Appointment");
       throw err;
     } finally {
@@ -314,8 +338,8 @@ export const useAppointmentStore = create<appointmentStore>((set, get) => ({
       }));
       toast.success("Appointment Ended Successfully");
       return res.data;
-    } catch (err: any) {
-      set({ error: err.message });
+    } catch (err: unknown) {
+      set({ error: err instanceof Error ? err.message : "Something went wrong" });
       toast.error("Fail to End Appointment");
       throw err;
     } finally {
@@ -338,8 +362,8 @@ export const useAppointmentStore = create<appointmentStore>((set, get) => ({
             : state.currentAppointment,
       }));
       toast.success("Appointment status updated");
-    } catch (err: any) {
-      set({ error: err.message });
+    } catch (err: unknown) {
+      set({ error: err instanceof Error ? err.message : "Something went wrong" });
       toast.error("Failed to update appointment status");
       throw err;
     } finally {
@@ -370,8 +394,8 @@ export const useAppointmentStore = create<appointmentStore>((set, get) => ({
       }
       toast.success("Prescription uploaded successfully");
       return pescription;
-    } catch (err: any) {
-      set({ error: err.message });
+    } catch (err: unknown) {
+      set({ error: err instanceof Error ? err.message : "Something went wrong" });
       toast.error("Failed to upload prescription");
       throw err;
     } finally {
@@ -395,8 +419,8 @@ export const useAppointmentStore = create<appointmentStore>((set, get) => ({
             : state.currentAppointment,
       }));
       toast.success("Prescription deleted successfully");
-    } catch (err: any) {
-      set({ error: err.message });
+    } catch (err: unknown) {
+      set({ error: err instanceof Error ? err.message : "Something went wrong" });
       toast.error("Failed to delete prescription");
       throw err;
     } finally {
@@ -408,7 +432,7 @@ export const useAppointmentStore = create<appointmentStore>((set, get) => ({
     set({ loading: true, error: null });
 
     try {
-      const res = await putWithAuth(`appointment/follow-up/${appointmentID}`, {});
+      await putWithAuth(`appointment/follow-up/${appointmentID}`, {});
       set((state) => ({
         appointments: state.appointments.map((apt) =>
           apt._id === appointmentID ? { ...apt, isFollowUp: true } : apt,
@@ -419,8 +443,8 @@ export const useAppointmentStore = create<appointmentStore>((set, get) => ({
             : state.currentAppointment,
       }));
       toast.success("Appointment marked as follow-up");
-    } catch (err: any) {
-      set({ error: err.message });
+    } catch (err: unknown) {
+      set({ error: err instanceof Error ? err.message : "Something went wrong" });
       toast.error("Failed to mark as follow-up");
       throw err;
     } finally {
@@ -441,7 +465,7 @@ export const useAppointmentStore = create<appointmentStore>((set, get) => ({
             : state.currentAppointment,
       }));
       toast.success("Notes saved");
-    } catch (err: any) {
+    } catch (err: unknown) {
       toast.error("Failed to save notes");
       throw err;
     }

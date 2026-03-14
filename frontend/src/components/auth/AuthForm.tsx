@@ -10,7 +10,6 @@ import { Button } from "../ui/button";
 import { EyeClosedIcon, EyeIcon } from "lucide-react";
 import { Checkbox } from "../ui/checkbox";
 import Link from "next/link";
-import { toast } from "sonner";
 
 interface AuthFormProp {
   type: "login" | "signup";
@@ -33,7 +32,6 @@ const AuthForm = ({ type, userRole }: AuthFormProp) => {
     loginDoctor,
     loginPatient,
     isloading,
-    error,
     isAuthenticated,
     user
   } = userAuthStore();
@@ -45,7 +43,8 @@ const AuthForm = ({ type, userRole }: AuthFormProp) => {
         router.push(`/onboarding/${user.type}`)
       }
       else{
-        router.push(`/${user.type}/dashboard`)
+        if(user.type === 'doctor') router.push(`/${user.type}/dashboard`)
+        else router.push(`/${user.type}/appointments`)
       }
     }
   },[isAuthenticated, user, router])
@@ -68,7 +67,6 @@ const AuthForm = ({ type, userRole }: AuthFormProp) => {
         } else {
           await loginPatient(formData.email, formData.password);
         }
-        // Redirect handled by useEffect - don't push here
       }
     } catch (err) {
       console.log(err);

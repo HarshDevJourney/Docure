@@ -1,49 +1,47 @@
-"use client"
+"use client";
 
-import React, { useCallback, useEffect, useState } from 'react'
-import { useAppointmentStore } from '@/store/appointmentStore';
-import { useParams, useRouter } from 'next/navigation';
-import AppointmentCall from '@/components/call/AppointmentCall';
-import { userAuthStore } from '@/store/authStore';
+import React, { useCallback, useEffect, useState } from "react";
+import { useAppointmentStore } from "@/store/appointmentStore";
+import { useParams, useRouter } from "next/navigation";
+import AppointmentCall from "@/components/call/AppointmentCall";
+import { userAuthStore } from "@/store/authStore";
 
-const page = () => {
-    const router = useRouter();
-    const params = useParams();
-    const [isNavigating, setIsNavigating] = useState(false);
+const Page = () => {
+  const router = useRouter();
+  const params = useParams();
+  const [isNavigating, setIsNavigating] = useState(false);
 
-    const appointmentID = params?.appointmentID as string;
-    const { user } = userAuthStore();
-    const { currentAppointment, fetchAppointmentByID, joinConsultation } = useAppointmentStore();
+  const appointmentID = params?.appointmentID as string;
+  const { user } = userAuthStore();
+  const { currentAppointment, fetchAppointmentByID, joinConsultation } = useAppointmentStore();
 
-    useEffect(() => {
-      if(appointmentID) fetchAppointmentByID(appointmentID);
-    }, [appointmentID, fetchAppointmentByID])
+  useEffect(() => {
+    if (appointmentID) fetchAppointmentByID(appointmentID);
+  }, [appointmentID, fetchAppointmentByID]);
 
-    const currentUserData = {
-      id : user?.id,
-      name : user?.name,
-      role : user?.type as 'patient' | 'doctor'
-    }
+  const currentUserData = {
+    id: user?.id ?? "",
+    name: user?.name ?? "",
+    role: user?.type as "patient" | "doctor",
+  };
 
-    const handleCallEnd = useCallback(async () => {
-      if(isNavigating) return;
-      try{
-        setIsNavigating(true);
+  const handleCallEnd = useCallback(async () => {
+    if (isNavigating) return;
+    try {
+      setIsNavigating(true);
 
-        if(user?.type === 'doctor'){
-          router.push(`/doctor/dashboard?completedCall=${appointmentID}`)
-        }
-        else{
-          router.push(`/patient/appointments?completedCall=${appointmentID}`)
-        }
-
-      }catch(err : any){
-        console.error(err);
-        router.push('/')
-      }finally{
-        setIsNavigating(false);
+      if (user?.type === "doctor") {
+        router.push(`/doctor/dashboard?completedCall=${appointmentID}`);
+      } else {
+        router.push(`/patient/appointments?completedCall=${appointmentID}`);
       }
-    }, [appointmentID, router, isNavigating, user?.type])
+    } catch (err: unknown) {
+      console.error(err);
+      router.push("/");
+    } finally {
+      setIsNavigating(false);
+    }
+  }, [appointmentID, router, isNavigating, user?.type]);
 
   if (!currentAppointment?._id) {
     // appointment not yet fetched – show a simple loading state
@@ -62,6 +60,6 @@ const page = () => {
       onCallEnd={handleCallEnd}
     />
   );
-}
+};
 
-export default page;
+export default Page;

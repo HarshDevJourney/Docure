@@ -189,11 +189,12 @@ export const userAuthStore = create<AuthState>()(
           sessionStorage.removeItem(name);
         },
       },
-      partialize: (state) => ({
-        user: state.user,
-        token: state.token,
-        isAuthenticated: state.isAuthenticated,
-      }),
+      partialize: (state) =>
+        ({
+          user: state.user,
+          token: state.token,
+          isAuthenticated: state.isAuthenticated,
+        }) as AuthState,
     },
   ),
 );

@@ -155,7 +155,6 @@ const StopCard = ({
   appointment,
   index,
   isCurrent,
-  side,
 }: {
   appointment: Appointment;
   index: number;

@@ -28,7 +28,6 @@ import {
   Building2,
   Timer,
   CalendarDays,
-  XCircle,
 } from "lucide-react";
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
@@ -46,8 +45,6 @@ const toInputDate = (v?: string) => {
   if (isNaN(d.getTime())) return "";
   return d.toISOString().split("T")[0];
 };
-
-const dayLabel = (val: number) => days.find((d) => d.value === val)?.label || String(val);
 
 // ─── Form type ───────────────────────────────────────────────────────────────
 

@@ -80,9 +80,8 @@ export const Herosection = () => {
                  -mx-5 px-5"
             >
               {healthcareCategories.map((el) => (
-                <Link href={el.href}>
+                <Link href={el.href} key={el.id}>
                   <button
-                    key={el.id}
                     className="flex flex-col min-w-[100px] cursor-pointer items-center group transition-transform shrink-0 snap-start "
                     type="button"
                   >
