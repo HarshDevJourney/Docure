@@ -140,7 +140,7 @@ export const userAuthStore = create<AuthState>()(
         try {
           const { user } = get();
           if (!user) throw new Error("User Not Found");
-          const endPoint = user.type === "doctor" ? "/doctor/me" : "/patient/me";
+          const endPoint = user.type === "doctor" ? "doctor/me" : "patient/me";
           const res = await getWithAuth(endPoint);
           set({
             user: { ...user, ...res.data },
