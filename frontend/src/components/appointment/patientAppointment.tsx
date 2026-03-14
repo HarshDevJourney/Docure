@@ -1600,7 +1600,7 @@ const PatientAppointments: React.FC = () => {
                                         apt={apt}
                                         onRate={handleRate}
                                         onDoctorProfile={(id) =>
-                                            router.push(`/patient/doctors/${id}`)
+                                            router.replace(`/doctor/${id}`)
                                         }
                                     />
                                 ))}

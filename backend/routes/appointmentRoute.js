@@ -15,6 +15,7 @@ const {
   getRoomJoinInfo,
   endRoom,
   getAppointmentByID,
+  getPatientHistoryForDoctor,
   uploadPrescription,
   deletePrescription,
   updateAppointmentStatus,
@@ -32,6 +33,7 @@ router.get("/booked-slot/:doctorID/:date", getBookedSlotDoctor);
 router.use(protect);
 
 router.get("/details/:id", getAppointmentByID);
+router.get("/patient-history/:patientId", requiredRole("doctor"), getPatientHistoryForDoctor);
 router.get(
   "/doctor",
   requiredRole("doctor"),

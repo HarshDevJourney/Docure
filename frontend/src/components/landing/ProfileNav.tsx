@@ -29,61 +29,72 @@ export const ProfileNav: FC<ProfileNavProps> = ({ user }) => {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <button className="group flex items-center gap-2.5 px-3 py-1.5 rounded-xl border border-blue-100 bg-white hover:bg-blue-50 hover:border-blue-300 transition-all duration-200 shadow-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-400">
-          <Avatar className="w-8 h-8 ring-2 ring-blue-200 group-hover:ring-blue-400 transition-all duration-200">
+        <button className='group flex items-center gap-2.5 px-3 py-1.5 rounded-xl border border-blue-100 bg-white hover:bg-blue-50 hover:border-blue-300 transition-all duration-200 shadow-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-400'>
+          <Avatar className='w-8 h-8 ring-2 ring-blue-200 group-hover:ring-blue-400 transition-all duration-200'>
             <AvatarImage src={user?.profilePic} alt={user.name} />
-            <AvatarFallback className="bg-gradient-to-br from-blue-500 to-blue-700 text-white font-bold text-sm">
+            <AvatarFallback className='bg-gradient-to-br from-blue-500 to-blue-700 text-white font-bold text-sm'>
               {initials}
             </AvatarFallback>
           </Avatar>
-          <div className="hidden md:flex flex-col items-start leading-tight">
-            <span className="text-sm font-semibold text-blue-700 tracking-tight">{user.name}</span>
-            <span className="text-[11px] text-blue-400 capitalize font-medium">{user.type}</span>
+          <div className='hidden md:flex flex-col items-start leading-tight'>
+            <span className='text-sm font-semibold text-blue-700 tracking-tight'>{user.name}</span>
+            <span className='text-[11px] text-blue-400 capitalize font-medium'>{user.type}</span>
           </div>
-          <ChevronDown className="hidden md:block w-3.5 h-3.5 text-blue-300 group-hover:text-blue-500 transition-colors duration-200" />
+          <ChevronDown className='hidden md:block w-3.5 h-3.5 text-blue-300 group-hover:text-blue-500 transition-colors duration-200' />
         </button>
       </DropdownMenuTrigger>
 
       <DropdownMenuContent
-        align="end"
+        align='end'
         sideOffset={8}
-        className="w-64 p-0 rounded-2xl border border-blue-100 bg-white shadow-xl shadow-blue-100/50 overflow-hidden z-50"
+        className='w-64 p-0 rounded-2xl border border-blue-100 bg-white shadow-xl shadow-blue-100/50 overflow-hidden z-50'
       >
         {/* Header */}
-        <div className="bg-gradient-to-br from-blue-600 to-blue-800 px-5 py-4 flex flex-col items-center gap-2">
-          <Avatar className="w-14 h-14 ring-[3px] ring-white/40">
+        <div className='bg-gradient-to-br from-blue-600 to-blue-800 px-5 py-4 flex flex-col items-center gap-2'>
+          <Avatar className='w-14 h-14 ring-[3px] ring-white/40'>
             <AvatarImage src={user?.profilePic} alt={user.name} />
-            <AvatarFallback className="bg-blue-400 text-white font-bold text-xl">
+            <AvatarFallback className='bg-blue-400 text-white font-bold text-xl'>
               {initials}
             </AvatarFallback>
           </Avatar>
-          <div className="text-center">
-            <p className="text-white font-semibold text-sm tracking-wide">{user.name}</p>
-            <p className="text-blue-200 text-xs font-mono mt-0.5">{user.email}</p>
-            <span className="inline-block mt-1.5 bg-blue-500/40 text-blue-100 text-[10px] font-semibold uppercase tracking-widest px-2 py-0.5 rounded-full border border-blue-400/30">
+          <div className='text-center'>
+            <p className='text-white font-semibold text-sm tracking-wide'>{user.name}</p>
+            <p className='text-blue-200 text-xs font-mono mt-0.5'>{user.email}</p>
+            <span className='inline-block mt-1.5 bg-blue-500/40 text-blue-100 text-[10px] font-semibold uppercase tracking-widest px-2 py-0.5 rounded-full border border-blue-400/30'>
               {user.type}
             </span>
           </div>
         </div>
 
         {/* Nav Links */}
-        <div className="p-2 flex flex-col gap-0.5">
-          <NavLink href="/profile" icon={<User className="w-4 h-4" />} label="Profile" />
-          <NavLink href={`/${user.type}/dashboard`} icon={<LayoutDashboard className="w-4 h-4" />} label="Dashboard" />
-          <NavLink href="/settings" icon={<Settings className="w-4 h-4" />} label="Settings" />
+        <div className='p-2 flex flex-col gap-0.5'>
+          <NavLink
+            href={`/${user.type}/profile`}
+            icon={<User className='w-4 h-4' />}
+            label='Profile'
+          />
+          <NavLink
+            href={`/${user.type}/dashboard`}
+            icon={<LayoutDashboard className='w-4 h-4' />}
+            label='Dashboard'
+          />
+          <NavLink href='/settings' icon={<Settings className='w-4 h-4' />} label='Settings' />
         </div>
 
         {/* Divider */}
-        <div className="mx-3 border-t border-blue-50" />
+        <div className='mx-3 border-t border-blue-50' />
 
         {/* Logout */}
-        <div className="p-2">
+        <div className='p-2'>
           <button
-            onClick={() => { logout(); router.push('/'); }}
-            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold text-red-500 hover:bg-red-50 hover:text-red-600 transition-all duration-150 group"
+            onClick={() => {
+              logout();
+              router.push("/");
+            }}
+            className='w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold text-red-500 hover:bg-red-50 hover:text-red-600 transition-all duration-150 group'
           >
-            <span className="flex items-center justify-center w-7 h-7 rounded-lg bg-red-50 group-hover:bg-red-100 transition-colors duration-150">
-              <LogOut className="w-3.5 h-3.5" />
+            <span className='flex items-center justify-center w-7 h-7 rounded-lg bg-red-50 group-hover:bg-red-100 transition-colors duration-150'>
+              <LogOut className='w-3.5 h-3.5' />
             </span>
             Sign out
           </button>

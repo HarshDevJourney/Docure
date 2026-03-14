@@ -832,7 +832,7 @@ interface PastCardProps {
   onDelete: (id: string) => void;
   isUploading: boolean;
   uploadError?: string | null;
-  onProfile: (id: string) => void;
+  onPatientHistory: (id: string) => void;
   onMarkFollowUp?: (id: string) => void;
 }
 const PastCard: React.FC<PastCardProps> = ({
@@ -841,7 +841,7 @@ const PastCard: React.FC<PastCardProps> = ({
   onDelete,
   isUploading,
   uploadError,
-  onProfile,
+  onPatientHistory,
   onMarkFollowUp,
 }) => {
   const meta = {
@@ -894,10 +894,7 @@ const PastCard: React.FC<PastCardProps> = ({
 
       <div className='px-5 py-4'>
         <div className='flex items-start gap-3 mb-3'>
-          <button
-            onClick={() => onProfile(apt.patientID?._id)}
-            className='shrink-0 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-1'
-          >
+          <button className='shrink-0 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-1'>
             <div
               className={`w-10 h-10 rounded-full bg-gradient-to-br ${grad} flex items-center justify-center text-white text-sm font-black ring-2 ring-white shadow-sm`}
             >
@@ -906,10 +903,7 @@ const PastCard: React.FC<PastCardProps> = ({
           </button>
           <div className='flex-1 min-w-0'>
             <div className='flex flex-wrap items-center gap-2 mb-0.5'>
-              <button
-                onClick={() => onProfile(apt.patientID?._id)}
-                className='text-sm font-bold text-slate-800 hover:text-blue-600 hover:underline underline-offset-2 transition-colors leading-tight'
-              >
+              <button className='text-sm font-bold text-slate-800 hover:text-blue-600 hover:underline underline-offset-2 transition-colors leading-tight'>
                 {apt.patientID?.name}
               </button>
               <span className='text-[11px] text-slate-400 font-medium'>
@@ -985,7 +979,7 @@ const PastCard: React.FC<PastCardProps> = ({
 
         <div className='flex flex-wrap items-center gap-2 mt-3 pt-3 border-t border-blue-50'>
           <button
-            onClick={() => onProfile(apt.patientID?._id)}
+            onClick={() => onPatientHistory(apt.patientID?._id)}
             className='flex items-center gap-1.5 rounded-xl border border-blue-200 bg-blue-50/60 hover:bg-blue-100 px-3 py-1.5 text-xs font-semibold text-blue-700 transition-all duration-150'
           >
             <UserIcon className='text-blue-500' /> Patient History
@@ -1644,7 +1638,7 @@ const DoctorAppointments: React.FC = () => {
                     onDelete={handleDelete}
                     isUploading={!!uploading[apt._id]}
                     uploadError={uploadError[apt._id]}
-                    onProfile={(id) => router.push(`/doctor/patients/${id}`)}
+                    onPatientHistory={(id) => router.push(`/patient-history/${id}`)}
                     onMarkFollowUp={handleMarkFollowUp}
                   />
                 ))}
