@@ -698,11 +698,11 @@ const avatarGradients: Record<string, string> = {
 interface UpcomingCardProps {
   apt: Appointment;
   onJoin: (id: string) => void;
-  onProfile: (id: string) => void;
+  onPatientHistory: (id: string) => void;
   canJoinCall: boolean;
 }
 
-const UpcomingCard: React.FC<UpcomingCardProps> = ({ apt, onJoin, onProfile, canJoinCall }) => {
+const UpcomingCard: React.FC<UpcomingCardProps> = ({ apt, onJoin, onPatientHistory, canJoinCall }) => {
   const config = statusConfig[apt.status];
   const isVideo = apt.consultationType === "video";
   const canJoin = apt.status === "Scheduled" || apt.status === "Progress";
@@ -779,7 +779,6 @@ const UpcomingCard: React.FC<UpcomingCardProps> = ({ apt, onJoin, onProfile, can
           <div className='flex items-start justify-between gap-3 mb-3'>
             <div className='flex items-center gap-2.5'>
               <button
-                onClick={() => onProfile(apt.patientID?._id)}
                 className='shrink-0 relative focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-1 rounded-full'
               >
                 <div
@@ -802,7 +801,6 @@ const UpcomingCard: React.FC<UpcomingCardProps> = ({ apt, onJoin, onProfile, can
               <div>
                 <div className='flex items-center gap-1.5 flex-wrap'>
                   <button
-                    onClick={() => onProfile(apt.patientID?._id)}
                     className='text-[14px] font-bold text-slate-800 hover:text-blue-600 transition-colors duration-150 leading-tight'
                   >
                     {apt.patientID?.name}
@@ -922,7 +920,7 @@ const UpcomingCard: React.FC<UpcomingCardProps> = ({ apt, onJoin, onProfile, can
               </button>
 
               <button
-                onClick={() => onProfile(apt.patientID?._id)}
+                onClick={() => onPatientHistory(apt.patientID?._id)}
                 className='flex items-center gap-1.5 rounded-xl border border-blue-200 bg-blue-50/60 hover:bg-blue-100 px-3 py-2 text-xs font-semibold text-blue-700 transition-all duration-150 shadow-sm'
               >
                 <UserIcon className='text-blue-500' /> History
@@ -1152,11 +1150,11 @@ const useElapsed = (startISO: string) => {
 const LiveConsultationCard = ({
   apt,
   onJoin,
-  onProfile,
+  onPatientHistory,
 }: {
   apt: Appointment;
   onJoin: (id: string) => void;
-  onProfile: (id: string) => void;
+  onPatientHistory: (id: string) => void;
 }) => {
   const grad = avatarGradients[apt.patientID?.avatarColor ?? ""] ?? "from-blue-400 to-blue-600";
   const isVideo = apt.consultationType === "video";
@@ -1196,7 +1194,6 @@ const LiveConsultationCard = ({
         {/* Patient row */}
         <div className='flex items-center gap-4 mb-4'>
           <button
-            onClick={() => onProfile(apt.patientID?._id)}
             className='shrink-0 relative focus:outline-none focus:ring-2 focus:ring-white/40 rounded-full'
           >
             <div
@@ -1212,7 +1209,6 @@ const LiveConsultationCard = ({
           <div className='flex-1 min-w-0'>
             <div className='flex items-center gap-2 flex-wrap'>
               <button
-                onClick={() => onProfile(apt.patientID?._id)}
                 className='text-[17px] font-black text-white hover:text-blue-200 transition-colors truncate'
               >
                 {apt.patientID?.name}
@@ -1312,7 +1308,7 @@ const LiveConsultationCard = ({
           </button>
 
           <button
-            onClick={() => onProfile(apt.patientID?._id)}
+            onClick={() => onPatientHistory(apt.patientID?._id)}
             className='flex items-center gap-1.5 bg-white/10 hover:bg-white/20 backdrop-blur-sm border border-white/25 text-white px-4 py-2.5 rounded-xl text-xs font-bold transition-all duration-200'
           >
             <UserIcon className='text-white/70' />
@@ -1330,11 +1326,11 @@ const LiveConsultationCard = ({
 const CurrentConsultationSection = ({
   currentConsultations,
   onJoin,
-  onProfile,
+  onPatientHistory,
 }: {
   currentConsultations: Appointment[];
   onJoin: (id: string) => void;
-  onProfile: (id: string) => void;
+  onPatientHistory: (id: string) => void;
 }) => {
   if (currentConsultations.length === 0) return null;
 
@@ -1356,7 +1352,7 @@ const CurrentConsultationSection = ({
 
       <div className='grid gap-4'>
         {currentConsultations.map((apt) => (
-          <LiveConsultationCard key={apt._id} apt={apt} onJoin={onJoin} onProfile={onProfile} />
+          <LiveConsultationCard key={apt._id} apt={apt} onJoin={onJoin} onPatientHistory={onPatientHistory} />
         ))}
       </div>
     </div>
@@ -1620,7 +1616,7 @@ const DoctorAppointments: React.FC = () => {
         <CurrentConsultationSection
           currentConsultations={ongoing}
           onJoin={(id) => router.push(`/call/${id}`)}
-          onProfile={(id) => router.push(`/doctor/patients/${id}`)}
+          onPatientHistory={(id) => router.push(`/patient-history/${id}`)}
         />
 
         {activeTab === "upcoming" && !search && <TodayStrip apts={upcoming} />}
@@ -1747,7 +1743,7 @@ const DoctorAppointments: React.FC = () => {
                           apt={apt}
                           canJoinCall={canJoinCall(apt)}
                           onJoin={(id) => router.push(`/call/${id}`)}
-                          onProfile={(id) => router.push(`/doctor/patients/${id}`)}
+                          onPatientHistory={(id) => router.push(`/patient-history/${id}`)}
                         />
                       ))}
                     </div>
