@@ -14,9 +14,15 @@ import { toast } from "sonner";
 
 declare global {
     interface Window {
-        Razorpay: any;
+      Razorpay: new (options: Record<string, unknown>) => { open: () => void };
     }
 }
+
+type RazorpayResponse = {
+  razorpay_order_id: string;
+  razorpay_payment_id: string;
+  razorpay_signature: string;
+};
 
 type PaymentStatus = 'idle' | 'processing' | 'success' | 'fail';
 
@@ -148,41 +154,38 @@ const BookingPage: React.FC<{ doctor: Doctor }> = ({ doctor }) => {
         
         setLoading(true)
         try {
-            const expiresAt = new Date(Date.now() + 60 * 60 * 1000); // 60 minutes
+          const expiresAt = new Date(Date.now() + 60 * 60 * 1000); // 60 minutes
 
-            const booking = await bookAppointment({
-                doctorID: doctor._id,
-                date: formData.date,
-                slotStart: formData.time,
-                slotEnd: calSlotEnd(formData.time, doctor.slotDurationMinutes),
-                consultationType: formData.appointmentType,
-                symptoms: formData.symptoms,
-                medicalHistory: formData.medicalHistory,
-                paymentDetails: {
-                    doctorFees: consultationFee,
-                    platformFees: platformFee,
-                    totalFees: totalAmount,
-                    paymentStatus: "Pending",
-                },
-                paymentExpiresAt : expiresAt
-            });
+          const booking = await bookAppointment({
+            doctorID: doctor._id,
+            date: formData.date,
+            slotStart: formData.time,
+            slotEnd: calSlotEnd(formData.time, doctor.slotDurationMinutes),
+            consultationType: formData.appointmentType,
+            symptoms: formData.symptoms,
+            medicalHistory: formData.medicalHistory,
+            paymentDetails: {
+              doctorFees: consultationFee,
+              platformFees: platformFee,
+              totalFees: totalAmount,
+              paymentStatus: "Pending",
+            },
+            paymentExpiresAt: expiresAt,
+          });
 
-
-            if(booking && booking._id){
-                setAppointmentID(booking._id)
-                setPatientName(booking.patientID.name)
-                setStep(3)
-            }
-            else{
-                toast.error("Failed to create appointment. Please try again.");
-                await new Promise((resolve) => setTimeout(resolve, 3000))
-                router.push('/patient/dashboard')
-            }
-
-        } catch (error: any) {
-            alert(error.message);
+          if (booking && booking._id) {
+            setAppointmentID(booking._id);
+            setPatientName(booking.patientID.name);
+            setStep(3);
+          } else {
+            toast.error("Failed to create appointment. Please try again.");
+            await new Promise((resolve) => setTimeout(resolve, 3000));
+            router.push("/patient/dashboard");
+          }
+        } catch (error: unknown) {
+          alert(error instanceof Error ? error.message : "Something went wrong");
         } finally {
-            setLoading(false);
+          setLoading(false);
         }
         
     };
@@ -211,59 +214,56 @@ const BookingPage: React.FC<{ doctor: Doctor }> = ({ doctor }) => {
             const { orderID, amount, currency, key_id } = orderResponse.data
             
             const options = {
-                key: key_id,
-                amount : amount * 100,
-                currency,
-                order_id: orderID,
-                name: "Docure",
-                description: "Doctor Consultation",
+              key: key_id,
+              amount: amount * 100,
+              currency,
+              order_id: orderID,
+              name: "Docure",
+              description: "Doctor Consultation",
 
-                handler: async (response: any) => {
-                    try{
-
-                        const verifyRes = await httpService.postWithAuth('payment/verify-payment',{
-                            appointmentID,
-                            razorpay_order_id: response.razorpay_order_id,
-                            razorpay_payment_id: response.razorpay_payment_id,
-                            razorpay_signature: response.razorpay_signature,
-                        });
-    
-                        if (verifyRes.success) {
-                            setPaymentStatus("success");
-                            toast.success("Payment successful 🎉")
-                            router.push("/patient/dashboard");
-                        } else {
-                            throw new Error("Verification failed");
-                        }
-
-                    }
-                    catch(err){
-                        toast.error("Payment verification failed. You can retry.");
-                    }
-                },
-
-                prefill: {
-                    name: patientName,
-                    email : user?.email,
-                    phone : user?.phone
-                },
-                notes : {
+              handler: async (response: RazorpayResponse) => {
+                try {
+                  const verifyRes = await httpService.postWithAuth("payment/verify-payment", {
                     appointmentID,
-                    patientName
-                },
+                    razorpay_order_id: response.razorpay_order_id,
+                    razorpay_payment_id: response.razorpay_payment_id,
+                    razorpay_signature: response.razorpay_signature,
+                  });
 
-                theme: { color: "#2563eb" },
-                modal : {
-                    ondismiss : () => {
-                        setPaymentStatus('idle')
-                        toast("Payment window closed. You can pay within 1hr.", {
-                            action: {
-                                label: "Retry",
-                                onClick: () => handlePayment() // Allow retry
-                            }
-                        });
-                    }
+                  if (verifyRes.success) {
+                    setPaymentStatus("success");
+                    toast.success("Payment successful 🎉");
+                    router.push("/patient/dashboard");
+                  } else {
+                    throw new Error("Verification failed");
+                  }
+                } catch (err) {
+                  toast.error("Payment verification failed. You can retry.");
                 }
+              },
+
+              prefill: {
+                name: patientName,
+                email: user?.email,
+                phone: user?.phone,
+              },
+              notes: {
+                appointmentID,
+                patientName,
+              },
+
+              theme: { color: "#2563eb" },
+              modal: {
+                ondismiss: () => {
+                  setPaymentStatus("idle");
+                  toast("Payment window closed. You can pay within 1hr.", {
+                    action: {
+                      label: "Retry",
+                      onClick: () => handlePayment(), // Allow retry
+                    },
+                  });
+                },
+              },
             };
 
             const rzp = new window.Razorpay(options);

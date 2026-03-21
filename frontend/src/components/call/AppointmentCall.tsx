@@ -46,7 +46,7 @@ const AppointmentCall = ({
                 // Mark appointment as "Progress" on the backend
                 try {
                     await memorizedJoinConsultation(appointment._id);
-                } catch (err: any) {
+                } catch (err: unknown) {
                     console.error("joinConsultation error:", err);
                 }
 
@@ -113,7 +113,7 @@ const AppointmentCall = ({
                                 try {
                                     zpRef.current.mutePublishStreamAudio(true);
                                     zpRef.current.mutePublishStreamVideo(true);
-                                } catch (err) {
+                                } catch (err : unknown) {
                                     console.warn("Error turning off camera/Microphone");
                                 }
                             }
@@ -137,14 +137,14 @@ const AppointmentCall = ({
                             try {
                                 zpRef.current.mutePublishStreamAudio(true);
                                 zpRef.current.mutePublishStreamVideo(true);
-                            } catch (err) {
+                            } catch (err : unknown) {
                                 console.warn("Error turning off camera/Microphone");
                             }
                         }
                         onCallEnd();
                     },
                 });
-            } catch (err: any) {
+            } catch (err: unknown) {
                 console.error("Failed to join consultation:", err);
                 initializationRef.current = false;
                 if (isCompMountedRef.current) {

@@ -134,7 +134,7 @@ const DoctorOnboardForm = () => {
     }
   };
 
-  const onError = (errors: any) => {
+  const onError = (errors: unknown) => {
     toast.error("Incomplete form", {
       description: "Please fill all required fields before submitting.",
     });

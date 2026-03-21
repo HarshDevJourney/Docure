@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 export default function Example() {
     return (
         <div className="flex flex-col h-screen items-center justify-center text-sm max-md:px-4">
@@ -6,12 +8,12 @@ export default function Example() {
             <p className="text-2xl md:text-3xl font-bold text-gray-800">Page Not Found</p>
             <p className="text-sm md:text-base mt-4 text-gray-500 max-w-md text-center">The page you are looking for might have been removed, had its name changed, or is temporarily unavailable.</p>
             <div className="flex items-center gap-4 mt-6">
-                <a href="/" className="bg-gray-800 hover:bg-black px-7 py-2.5 text-white rounded-md active:scale-95 transition-all">
+                <Link href="/" className="bg-gray-800 hover:bg-black px-7 py-2.5 text-white rounded-md active:scale-95 transition-all">
                     Return Home
-                </a>
-                <a href="/" className="border border-gray-300 px-7 py-2.5 text-gray-800 rounded-md active:scale-95 transition-all">
+                </Link>
+                <Link href="/" className="border border-gray-300 px-7 py-2.5 text-gray-800 rounded-md active:scale-95 transition-all">
                     Contact support
-                </a>
+                </Link>
             </div>
         </div>
     );

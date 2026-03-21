@@ -9,7 +9,7 @@ import { BasicDocInfoFormData } from './onboardDoctor'
 import { Button } from '../ui/button'
 import { Plus, Trash2 } from 'lucide-react'
 
-const doctorOnboardForm3 = ({ form } : { form : UseFormReturn<BasicDocInfoFormData>}) => {
+const DoctorOnboardForm3 = ({ form } : { form : UseFormReturn<BasicDocInfoFormData>}) => {
   const { fields , append, remove } = useFieldArray({
     control: form.control,
     name: "dailyTimeRange",
@@ -331,4 +331,4 @@ const doctorOnboardForm3 = ({ form } : { form : UseFormReturn<BasicDocInfoFormDa
   )
 }
 
-export default doctorOnboardForm3
+export default DoctorOnboardForm3

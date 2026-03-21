@@ -7,13 +7,13 @@ import { Button } from '../ui/button';
 import { z } from 'zod'
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { redirect } from 'next/navigation';
 import { Form } from '../ui/form';
 import PatientOnboardForm1 from './patientOnboardForm1';
 import PatientOnboardForm2 from './patientOnboardForm2';
 import PatientOnboardForm3 from './patientOnboardForm3';
 import { toast } from 'sonner';
 import { useRouter } from 'next/navigation';
+import { FieldErrors } from "react-hook-form";
 
 function Step({ activeStep }: { activeStep: number }) {
   return (
@@ -86,7 +86,7 @@ const PatientOnboardForm = () => {
     if(user?.isVerified){
       router.replace('/patient/dashboard')
     }
-  },[router])
+  },[router, user?.isVerified])
 
 
   const form = useForm<BasicInfoFormData>({
@@ -124,14 +124,14 @@ const PatientOnboardForm = () => {
       toast.success('Patient Information Updated Successfully')
       if(user) user.isVerified = true
       router.replace('/patient/dashboard')
-    }catch(err){
+    }catch(err : unknown){
       toast.warning('Fill All Required Information')
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  const onError = (errors: any) => {
+  const onError = (errors: FieldErrors<BasicInfoFormData>) => {
     toast.error("Incomplete form", {
       description: "Please fill all required fields before submitting.",
     });
