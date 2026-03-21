@@ -385,7 +385,7 @@ const NotesSection = ({ notes }: { notes: string }) => {
                 className='flex items-center gap-1 text-[11px] text-blue-600 font-semibold hover:text-blue-700 transition-colors'
             >
                 <NoteIcon className='text-blue-500' />
-                {open ? "Hide" : "View"} doctor's notes
+                {open ? "Hide" : "View"} doctor notes
                 <ChevronDown
                     className={`transition-transform duration-200 ${open ? "rotate-180" : ""}`}
                 />
@@ -1424,7 +1424,7 @@ const PatientAppointments: React.FC = () => {
                             </p>
                         </div>
                         <button
-                            onClick={() => router.push("/patient/book")}
+                            onClick={() => router.push("/doctor-list")}
                             className='flex items-center gap-2 rounded-2xl bg-blue-600 hover:bg-blue-700 px-4 py-2.5 text-xs font-bold text-white shadow-md shadow-blue-200 transition-all duration-200 active:scale-95'
                         >
                             <CalIcon className='text-white' /> Book New
@@ -1550,7 +1550,7 @@ const PatientAppointments: React.FC = () => {
                                     Try adjusting your search or switch tabs.
                                 </p>
                                 <button
-                                    onClick={() => router.push("/patient/book")}
+                                    onClick={() => router.push("/doctor-list")}
                                     className='flex items-center gap-1.5 rounded-xl bg-blue-600 hover:bg-blue-700 px-4 py-2 text-xs font-bold text-white shadow-md shadow-blue-200 transition-all'
                                 >
                                     <CalIcon className='text-white' /> Book an appointment

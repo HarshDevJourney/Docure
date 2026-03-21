@@ -1,13 +1,13 @@
-'use client'
+"use client";
 
-import React, { FC } from 'react'
+import React, { FC } from "react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from "../ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
-import { Settings, User, LayoutDashboard, LogOut, ChevronDown } from "lucide-react";
-import { Button } from '../ui/button';
-import Link from 'next/link';
-import { userAuthStore } from '@/store/authStore';
-import { useRouter } from 'next/navigation';
+import { Settings, User, LayoutDashboard, LogOut, ChevronDown, Landmark } from "lucide-react";
+import { Button } from "../ui/button";
+import Link from "next/link";
+import { userAuthStore } from "@/store/authStore";
+import { useRouter } from "next/navigation";
 
 interface UserProfile {
   type: string;
@@ -73,6 +73,13 @@ export const ProfileNav: FC<ProfileNavProps> = ({ user }) => {
             icon={<User className='w-4 h-4' />}
             label='Profile'
           />
+          {user.type === "doctor" && (
+            <NavLink
+              href='/doctor/profile/payment'
+              icon={<Landmark className='w-4 h-4' />}
+              label='Bank Account'
+            />
+          )}
           <NavLink
             href={`/${user.type}/dashboard`}
             icon={<LayoutDashboard className='w-4 h-4' />}
@@ -105,20 +112,12 @@ export const ProfileNav: FC<ProfileNavProps> = ({ user }) => {
 };
 
 // Internal helper component
-const NavLink = ({
-  href,
-  icon,
-  label,
-}: {
-  href: string;
-  icon: React.ReactNode;
-  label: string;
-}) => (
+const NavLink = ({ href, icon, label }: { href: string; icon: React.ReactNode; label: string }) => (
   <Link
     href={href}
-    className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-gray-600 hover:bg-blue-50 hover:text-blue-700 transition-all duration-150 group"
+    className='flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-gray-600 hover:bg-blue-50 hover:text-blue-700 transition-all duration-150 group'
   >
-    <span className="flex items-center justify-center w-7 h-7 rounded-lg bg-gray-100 text-gray-400 group-hover:bg-blue-100 group-hover:text-blue-600 transition-all duration-150">
+    <span className='flex items-center justify-center w-7 h-7 rounded-lg bg-gray-100 text-gray-400 group-hover:bg-blue-100 group-hover:text-blue-600 transition-all duration-150'>
       {icon}
     </span>
     {label}

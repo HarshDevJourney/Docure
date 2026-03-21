@@ -12,16 +12,20 @@ const healthcareCategoriesList = [
   "Wellness",
 ];
 
-const dailyTimeStrapSchema = new Schema({
+const dailyTimeStrapSchema = new Schema(
+  {
     start: {
       type: String,
     },
     end: {
       type: String,
     },
-},{ _id: false });
+  },
+  { _id: false },
+);
 
-const avaliabilityRangeSchema = new Schema({
+const avaliabilityRangeSchema = new Schema(
+  {
     startDate: {
       type: String,
     },
@@ -32,7 +36,23 @@ const avaliabilityRangeSchema = new Schema({
       type: [String],
       default: [],
     },
-},{ _id: false });
+  },
+  { _id: false },
+);
+
+const doctorPaymentDetailsSchema = new Schema(
+  {
+    panNumber: String,
+    bank: {
+      accountHolderName: String,
+      bankName: String,
+      accountNumber: String,
+      ifscCode: String,
+      upiId: String,
+    },
+  },
+  { _id: false },
+);
 
 const DoctorSchema = new Schema({
   name: {
@@ -43,6 +63,7 @@ const DoctorSchema = new Schema({
     type: String,
     required: true,
     unique: true,
+    index: true,
   },
   password: {
     type: String,
@@ -93,18 +114,17 @@ const DoctorSchema = new Schema({
     address: String,
     city: String,
   },
-  availabilityRange : avaliabilityRangeSchema,
-  dailyTimeRange : [dailyTimeStrapSchema],
-  slotDurationMinutes : {
-    type : Number,
-    default : 30
+  availabilityRange: avaliabilityRangeSchema,
+  dailyTimeRange: [dailyTimeStrapSchema],
+  slotDurationMinutes: {
+    type: Number,
+    default: 30,
   },
-  isVerified : {
-    type : Boolean,
-    default : false
-  }
+  paymentDetails: doctorPaymentDetailsSchema,
+  isVerified: {
+    type: Boolean,
+    default: false,
+  },
 });
 
-
-
-module.exports = model('Doctor', DoctorSchema);
+module.exports = model("Doctor", DoctorSchema);

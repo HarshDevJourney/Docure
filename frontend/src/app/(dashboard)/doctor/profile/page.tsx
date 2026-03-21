@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { userAuthStore } from "@/store/authStore";
 import { toast } from "sonner";
 import { specializations, healthcareCategoriesList, days } from "@/lib/constant";
@@ -28,6 +29,7 @@ import {
   Building2,
   Timer,
   CalendarDays,
+  Wallet,
 } from "lucide-react";
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
@@ -274,6 +276,7 @@ const Pulse = ({ className }: { className?: string }) => (
 // ─── Page ─────────────────────────────────────────────────────────────────────
 
 export default function DoctorProfilePage() {
+  const router = useRouter();
   const { user, fetchProfile, updateProfile, isloading } = userAuthStore();
   const [editing, setEditing] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -528,43 +531,51 @@ export default function DoctorProfilePage() {
                   )}
                 </div>
               </div>
-                {/* Stat pills inside banner */}
-                {(u.experience || u.fees || u.slotDurationMinutes) && (
-                  <div className='relative mt-2 flex flex-wrap gap-2 ml-26'>
-                    {u.experience > 0 && (
-                      <div className='flex items-center gap-1.5 rounded-full bg-white/10 border border-white/15 px-3 py-1.5 text-xs font-semibold text-white/90 backdrop-blur-sm'>
-                        <Briefcase className='h-3 w-3 text-blue-200' />
-                        {u.experience} yrs exp
-                      </div>
-                    )}
-                    {u.fees > 0 && (
-                      <div className='flex items-center gap-1.5 rounded-full bg-white/10 border border-white/15 px-3 py-1.5 text-xs font-semibold text-white/90 backdrop-blur-sm'>
-                        <IndianRupee className='h-3 w-3 text-blue-200' />
-                        {u.fees} / consult
-                      </div>
-                    )}
-                    {u.slotDurationMinutes && (
-                      <div className='flex items-center gap-1.5 rounded-full bg-white/10 border border-white/15 px-3 py-1.5 text-xs font-semibold text-white/90 backdrop-blur-sm'>
-                        <Timer className='h-3 w-3 text-blue-200' />
-                        {u.slotDurationMinutes} min slots
-                      </div>
-                    )}
-                  </div>
-                )}
-
+              {/* Stat pills inside banner */}
+              {(u.experience || u.fees || u.slotDurationMinutes) && (
+                <div className='relative mt-2 flex flex-wrap gap-2 ml-26'>
+                  {u.experience > 0 && (
+                    <div className='flex items-center gap-1.5 rounded-full bg-white/10 border border-white/15 px-3 py-1.5 text-xs font-semibold text-white/90 backdrop-blur-sm'>
+                      <Briefcase className='h-3 w-3 text-blue-200' />
+                      {u.experience} yrs exp
+                    </div>
+                  )}
+                  {u.fees > 0 && (
+                    <div className='flex items-center gap-1.5 rounded-full bg-white/10 border border-white/15 px-3 py-1.5 text-xs font-semibold text-white/90 backdrop-blur-sm'>
+                      <IndianRupee className='h-3 w-3 text-blue-200' />
+                      {u.fees} / consult
+                    </div>
+                  )}
+                  {u.slotDurationMinutes && (
+                    <div className='flex items-center gap-1.5 rounded-full bg-white/10 border border-white/15 px-3 py-1.5 text-xs font-semibold text-white/90 backdrop-blur-sm'>
+                      <Timer className='h-3 w-3 text-blue-200' />
+                      {u.slotDurationMinutes} min slots
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
 
             {/* Action buttons */}
             <div className='px-6 py-4'>
               <div className='flex items-center gap-2'>
                 {!editing ? (
-                  <button
-                    onClick={() => setEditing(true)}
-                    className='flex items-center gap-2 rounded-xl bg-blue-600 px-5 py-2.5 text-sm font-bold text-white shadow-md shadow-blue-300/40 transition-all hover:bg-blue-700 hover:shadow-lg active:scale-[0.98]'
-                  >
-                    <Pen className='h-3.5 w-3.5' />
-                    Edit Profile
-                  </button>
+                  <>
+                    <button
+                      onClick={() => setEditing(true)}
+                      className='flex items-center gap-2 rounded-xl bg-blue-600 px-5 py-2.5 text-sm font-bold text-white shadow-md shadow-blue-300/40 transition-all hover:bg-blue-700 hover:shadow-lg active:scale-[0.98]'
+                    >
+                      <Pen className='h-3.5 w-3.5' />
+                      Edit Profile
+                    </button>
+                    <button
+                      onClick={() => router.push("/doctor/profile/payment")}
+                      className='flex items-center gap-2 rounded-xl border border-emerald-200 bg-emerald-50 px-5 py-2.5 text-sm font-bold text-emerald-700 transition-all hover:bg-emerald-100 hover:shadow-sm active:scale-[0.98]'
+                    >
+                      <Wallet className='h-3.5 w-3.5' />
+                      Payment Settings
+                    </button>
+                  </>
                 ) : (
                   <>
                     <button
@@ -911,9 +922,9 @@ export default function DoctorProfilePage() {
                         </p>
                         <div className='grid grid-cols-7 gap-1.5'>
                           {days.map((d) => {
-                            const isOff = (
-                              (u.availabilityRange?.excludedWeekdays || []).map(Number)
-                            ).includes(d.value);
+                            const isOff = (u.availabilityRange?.excludedWeekdays || [])
+                              .map(Number)
+                              .includes(d.value);
                             return (
                               <div
                                 key={d.value}
@@ -1122,7 +1133,9 @@ export default function DoctorProfilePage() {
                                 <span className='flex items-center gap-1.5 rounded-full border border-rose-200 bg-rose-50 px-3 py-1 text-xs font-semibold text-rose-600'>
                                   <X className='h-3 w-3' />
                                   {form.availabilityRange.excludedWeekdays.length} day
-                                  {form.availabilityRange.excludedWeekdays.length > 1 ? "s" : ""}{" "}
+                                  {form.availabilityRange.excludedWeekdays.length > 1
+                                    ? "s"
+                                    : ""}{" "}
                                   off
                                 </span>
                                 <span className='flex items-center gap-1.5 rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700'>

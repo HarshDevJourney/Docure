@@ -18,7 +18,8 @@ passport.use('google', new GoogleStrategy({
         
         const { emails, displayName, photos } = profile;
 
-        const email = emails?.[0]?.value;
+        const rawEmail = emails?.[0]?.value;
+        const email = rawEmail?.trim().toLowerCase();
         const photo = photos?.[0]?.value;
 
         if(userType === 'doctor'){

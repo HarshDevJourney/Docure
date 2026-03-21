@@ -153,7 +153,7 @@ exports.getDoctorDashboard = async (req, res) => {
     const totalPatients = new Set(allAppts.map((a) => a.patientID.toString())).size;
     const totalRevenue = allAppts
       .filter((a) => a.status === "Completed" && a.paymentDetails?.paymentStatus === "Paid")
-      .reduce((s, a) => s + (a.paymentDetails?.totalFees || 0), 0);
+      .reduce((s, a) => s + (a.paymentDetails?.doctorFees || 0), 0);
     const totalCompleted = allAppts.filter((a) => a.status === "Completed").length;
     const totalCancelled = allAppts.filter((a) => a.status === "Cancelled").length;
 

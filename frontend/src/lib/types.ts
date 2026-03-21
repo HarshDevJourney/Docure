@@ -37,7 +37,7 @@ export interface User {
   type: "doctor" | "patient";
   phone?: string;
   profileImage?: string;
-  isVerified : boolean
+  isVerified: boolean;
 
   // Patient fields
   dob?: string;
@@ -79,6 +79,16 @@ export interface User {
     end: string;
   }>;
   slotDurationMinutes?: number;
+  paymentDetails?: {
+    panNumber?: string;
+    bank?: {
+      accountHolderName?: string;
+      bankName?: string;
+      accountNumber?: string;
+      ifscCode?: string;
+      upiId?: string;
+    };
+  };
 }
 
 // interfaces/Doctor.ts
@@ -185,33 +195,33 @@ export interface ReportData {
 }
 
 export interface BookingFormData {
-    appointmentType: "video" | "audio";
-    date: string;
-    time: string;
-    symptoms: string;
-    medicalHistory: string;
+  appointmentType: "video" | "audio";
+  date: string;
+  time: string;
+  symptoms: string;
+  medicalHistory: string;
 }
 
 export interface PaymentFees {
-    consultationFee: number;
-    platformFee: number;
-    gst: number;
-    totalAmount: number;
+  consultationFee: number;
+  platformFee: number;
+  gst: number;
+  totalAmount: number;
 }
 
 export const TIME_SLOTS = [
-    "09:00",
-    "09:30",
-    "10:00",
-    "10:30",
-    "11:00",
-    "11:30",
-    "14:00",
-    "14:30",
-    "15:00",
-    "15:30",
-    "16:00",
-    "16:30",
+  "09:00",
+  "09:30",
+  "10:00",
+  "10:30",
+  "11:00",
+  "11:30",
+  "14:00",
+  "14:30",
+  "15:00",
+  "15:30",
+  "16:00",
+  "16:30",
 ];
 
 export const BOOKED_SLOTS = ["09:30", "11:00", "14:00", "15:30"];
