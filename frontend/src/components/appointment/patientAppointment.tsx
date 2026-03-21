@@ -573,7 +573,7 @@ const UpcomingCard: React.FC<UpcomingCardProps> = ({
     const relDate = formatRelative(apt.date);
     const isToday = relDate === "Today";
     const paid = apt.paymentDetails?.paymentStatus === "Paid";
-    const grad = avatarGradients[apt.doctorID?.avatarColor] ?? "from-blue-400 to-blue-600";
+    const grad = avatarGradients[apt.doctorID?.avatarColor || ''] ?? "from-blue-400 to-blue-600";
     const [startTime, startPeriod] = splitTime(apt.slotStart);
     const [endTime, endPeriod] = splitTime(apt.slotEnd);
 
@@ -844,7 +844,7 @@ const PastCard: React.FC<PastCardProps> = ({ apt, onRate, onDoctorProfile }) => 
     const isVideo = apt.consultationType === "video";
     const paid = apt.paymentDetails?.paymentStatus === "Paid";
     const relDate = formatRelative(apt.date);
-    const grad = avatarGradients[apt.doctorID?.avatarColor] ?? "from-blue-400 to-blue-600";
+    const grad = avatarGradients[apt.doctorID?.avatarColor || ''] ?? "from-blue-400 to-blue-600";
 
     return (
         <div className='relative rounded-2xl border border-blue-100 bg-white overflow-hidden shadow-sm hover:border-blue-200 hover:shadow-md hover:shadow-blue-50 transition-all duration-200'>
