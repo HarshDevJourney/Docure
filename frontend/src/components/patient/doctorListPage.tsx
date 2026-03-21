@@ -84,7 +84,7 @@ const DoctorListPage = () => {
         let result = [...doctors];
 
         // 1. Search by name
-        if (filters.search.trim()) {
+        if (filters.search?.trim()) {
             const q = filters.search.trim().toLowerCase();
             result = result.filter((d) => d.name?.toLowerCase().includes(q));
         }
@@ -102,7 +102,7 @@ const DoctorListPage = () => {
         if (filters.city) {
             const city = filters.city.toLowerCase();
             result = result.filter((d) =>
-                d.hospitalInfo?.cityName?.toLowerCase().includes(city)
+                d.hospitalInfo?.city?.toLowerCase().includes(city)
             );
         }
 
@@ -191,7 +191,7 @@ const DoctorListPage = () => {
                                             router.push(`/doctor/${doctor._id}`);
                                         }}
                                         onBookAppointment={(doctor) => {
-                                            router.push(`/doctor/${doctor._id}/book`);
+                                            router.push(`/patient/booking/${doctor._id}`);
                                         }}
                                     />
                                 </div>

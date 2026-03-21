@@ -65,13 +65,13 @@ const DoctorProfileCard: React.FC<DoctorProfileCardProps> = ({
 
     // Data with fallbacks for API
     const mockData = {
-        rating: doctor.rating || 4.8,
-        totalReviews: doctor.totalReviews || 1247,
-        languages: doctor.languages || ["English", "Hindi"],
+        rating: 4.8,
+        totalReviews: 1247,
+        languages: ["English", "Hindi"],
         avgConsultationTime: doctor.slotDurationMinutes || 30,
-        avgWaitingTime: doctor.avgWaitingTime || "15-20 mins",
-        totalPatients: doctor.totalPatients || 2500,
-        satisfaction: doctor.satisfaction || 96,
+        avgWaitingTime: "15-20 mins",
+        totalPatients: 2500,
+        satisfaction: 96,
     };
 
     return (
@@ -224,15 +224,15 @@ const DoctorProfileCard: React.FC<DoctorProfileCardProps> = ({
                                         </div>
                                     </div>
 
-                                    {doctor.dailyTimeRanges &&
-                                        doctor.dailyTimeRanges.length > 0 && (
+                                    {doctor.dailyTimeRange &&
+                                        doctor.dailyTimeRange.length > 0 && (
                                             <div className='bg-gradient-to-br from-green-500 to-green-600 rounded-xl p-3 sm:p-4 text-white shadow-md'>
                                                 <div className='flex items-center gap-1 text-xs text-green-100 mb-1'>
                                                     <Clock className='w-3 h-3' />
                                                     Available
                                                 </div>
                                                 <div className='text-lg sm:text-xl font-bold'>
-                                                    {formatTime(doctor.dailyTimeRanges[0].start)}
+                                                    {formatTime(doctor.dailyTimeRange[0].start)}
                                                 </div>
                                             </div>
                                         )}
@@ -384,7 +384,7 @@ const DoctorProfileCard: React.FC<DoctorProfileCardProps> = ({
                             {/* RIGHT - Detailed Info */}
                             <div className='flex-1 p-4 sm:p-6 space-y-3 sm:space-y-3.5 flex flex-col'>
                                 {/* About */}
-                                <div className='bg-white/10 backdrop-blur-sm rounded-xl p-3 sm:p-4 border border-white/20'>
+                                {/* <div className='bg-white/10 backdrop-blur-sm rounded-xl p-3 sm:p-4 border border-white/20'>
                                     <div className='flex items-center gap-2 mb-2'>
                                         <MessageCircle className='w-4 h-4 text-blue-200' />
                                         <h4 className='font-bold text-sm uppercase'>About</h4>
@@ -393,7 +393,7 @@ const DoctorProfileCard: React.FC<DoctorProfileCardProps> = ({
                                         {doctor.about ||
                                             "Experienced healthcare professional committed to delivering exceptional patient care with expertise and compassion."}
                                     </p>
-                                </div>
+                                </div> */}
 
                                 {/* Practice Details */}
                                 <div className='grid grid-cols-2 gap-2.5 sm:gap-3'>
@@ -419,7 +419,7 @@ const DoctorProfileCard: React.FC<DoctorProfileCardProps> = ({
                                 </div>
 
                                 {/* Schedule */}
-                                {doctor.dailyTimeRanges && doctor.dailyTimeRanges.length > 0 && (
+                                {doctor.dailyTimeRange && doctor.dailyTimeRange.length > 0 && (
                                     <div className='bg-white/10 backdrop-blur-sm rounded-xl p-3 sm:p-4 border border-white/20'>
                                         <h5 className='font-bold text-xs uppercase mb-2 text-blue-200'>
                                             Schedule
@@ -427,14 +427,14 @@ const DoctorProfileCard: React.FC<DoctorProfileCardProps> = ({
                                         <div className='bg-white/10 rounded-lg p-2.5 sm:p-3 border border-white/10 flex items-center justify-between'>
                                             <div>
                                                 <p className='text-lg sm:text-xl font-bold'>
-                                                    {formatTime(doctor.dailyTimeRanges[0].start)}
+                                                    {formatTime(doctor.dailyTimeRange[0].start)}
                                                 </p>
                                                 <p className='text-xs text-white/60'>Start</p>
                                             </div>
                                             <div className='text-white/40'>→</div>
                                             <div className='text-right'>
                                                 <p className='text-lg sm:text-xl font-bold'>
-                                                    {formatTime(doctor.dailyTimeRanges[0].end)}
+                                                    {formatTime(doctor.dailyTimeRange[0].end)}
                                                 </p>
                                                 <p className='text-xs text-white/60'>End</p>
                                             </div>

@@ -208,7 +208,7 @@ const DoctorFullProfile: React.FC = () => {
                         </div>
                         <h2 className='text-3xl font-bold text-gray-800 mb-4'>Doctor Not Found</h2>
                         <p className='text-gray-600 mb-8 max-w-md'>
-                            We couldn't find the doctor you're looking for. They may have been
+                            We couldnt find the doctor you are looking for. They may have been
                             removed or the link might be incorrect.
                         </p>
                         <Button
@@ -366,7 +366,7 @@ const DoctorFullProfile: React.FC = () => {
                                     size='lg'
                                     className='w-full bg-white text-indigo-700 hover:bg-gray-50 font-bold py-3.5 sm:py-4 px-6 sm:px-8 rounded-xl sm:rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 text-base sm:text-lg transform hover:scale-[1.02] active:scale-[0.98]'
                                     onClick={() => {
-                                        console.log("Book appointment:", doctor._id);
+                                        router.push(`/patient/booking/${doctor._id}`);
                                     }}
                                 >
                                     <Calendar className='w-5 h-5 sm:w-6 sm:h-6 mr-2 sm:mr-3' />
@@ -597,7 +597,7 @@ const DoctorFullProfile: React.FC = () => {
                                 </Card>
 
                                 {/* Availability Schedule */}
-                                {doctor.dailyTimeRanges && doctor.dailyTimeRanges.length > 0 && (
+                                {doctor.dailyTimeRange && doctor.dailyTimeRange.length > 0 && (
                                     <Card className='shadow-xl border-0 bg-white/90 backdrop-blur-sm hover:shadow-2xl transition-shadow duration-300'>
                                         <CardHeader className='pb-4'>
                                             <CardTitle className='text-xl sm:text-2xl font-bold text-gray-900 flex items-center gap-2 sm:gap-3'>
@@ -609,7 +609,7 @@ const DoctorFullProfile: React.FC = () => {
                                         </CardHeader>
                                         <CardContent className='pt-0'>
                                             <div className='space-y-3 sm:space-y-4'>
-                                                {doctor.dailyTimeRanges.map((range, index) => (
+                                                {doctor.dailyTimeRange.map((range, index) => (
                                                     <div
                                                         key={index}
                                                         className='bg-gradient-to-r from-emerald-50 to-teal-50 rounded-xl sm:rounded-2xl p-4 sm:p-6 border border-emerald-200 shadow-sm hover:shadow-md transition-shadow duration-300'
@@ -676,7 +676,7 @@ const DoctorFullProfile: React.FC = () => {
                                             <Button
                                                 className='w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 sm:py-3 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-[1.02] active:scale-[0.98]'
                                                 onClick={() =>
-                                                    console.log("Book appointment:", doctor._id)
+                                                    router.push(`/patient/booking/${doctor._id}`) 
                                                 }
                                             >
                                                 <Calendar className='w-4 h-4 sm:w-5 sm:h-5 mr-2' />

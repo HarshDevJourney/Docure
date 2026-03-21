@@ -195,14 +195,11 @@ const BankCard = ({
           </div>
           <div className='flex items-center gap-2'>
             {isComplete && (
-              <div className='flex items-center gap-1.5 bg-emerald-500/20 border border-emerald-400/30 rounded-full px-3 py-1'>
+              <div className='flex items-center gap-1.5 bg-emerald-500/20 border border-emerald-400/30 rounded-full px-3 mr-16 py-1'>
                 <CheckCircle2 size={12} className='text-emerald-400' />
-                <span className='text-[10px] font-bold text-emerald-400'>Verified</span>
+                <span className='text-[10px] font-bold text-emerald-300'>Verified</span>
               </div>
             )}
-            <div className='w-10 h-10 rounded-xl bg-white/10 backdrop-blur-sm flex items-center justify-center'>
-              <Building2 className='text-white/80' size={20} />
-            </div>
           </div>
         </div>
 
