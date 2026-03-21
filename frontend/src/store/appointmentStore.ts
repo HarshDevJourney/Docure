@@ -79,6 +79,7 @@ export interface Appointment {
 
   paymentExpiresAt?: string;
   isFollowUp: boolean;
+  rating?: number;
   createdAt: string;
   updatedAt: string;
 }
