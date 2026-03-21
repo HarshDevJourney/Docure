@@ -320,7 +320,7 @@ const StatCard = ({ label, value, sub, icon, gradient, iconBg, delay = 0 }: Stat
       {icon}
     </div>
     <p className='text-[10px] font-bold uppercase tracking-[0.14em] text-blue-400 mb-2'>{label}</p>
-    <p className='text-3xl font-extrabold text-slate-900 leading-none tracking-tight'>{value}</p>
+    <p className='text-[22px] font-extrabold text-slate-900 leading-none tracking-tight'>{value}</p>
     <p className='text-[11px] text-slate-400 mt-2'>{sub}</p>
   </div>
 );
@@ -463,74 +463,45 @@ const DoctorDashboard: React.FC = () => {
         </div>
 
         <div className='relative z-10 px-4 py-8 sm:px-8'>
-          <div className='mx-auto w-full max-w-5xl space-y-6'>
+          <div className='mx-auto w-full max-w-4xl space-y-6'>
             {/* ── HERO HEADER ── */}
             <div
-              className={`relative overflow-hidden rounded-3xl p-6 sm:p-8 ${animateIn ? "animate-fadeUp" : "opacity-0"}`}
-              style={{
-                background: "linear-gradient(135deg, #1e40af 0%, #3b82f6 50%, #0ea5e9 100%)",
-                boxShadow: "0 20px 60px -15px rgba(59,130,246,0.4)",
-              }}
+              className={`relative overflow-hidden rounded-2xl border border-blue-100 bg-gradient-to-r from-blue-600 to-blue-500 p-5 ${animateIn ? "animate-fadeUp" : "opacity-0"}`}
             >
-              {/* Background pattern */}
+              {/* Background accents - same as appointments page */}
               <div className='absolute inset-0 opacity-10'>
-                <svg className='w-full h-full' viewBox='0 0 400 200'>
-                  <defs>
-                    <pattern
-                      id='heroPattern'
-                      x='0'
-                      y='0'
-                      width='40'
-                      height='40'
-                      patternUnits='userSpaceOnUse'
-                    >
-                      <circle cx='20' cy='20' r='1.5' fill='white' />
-                    </pattern>
-                  </defs>
-                  <rect width='400' height='200' fill='url(#heroPattern)' />
-                </svg>
+                <div className='absolute top-0 right-0 w-48 h-48 rounded-full bg-white -translate-y-16 translate-x-16' />
+                <div className='absolute bottom-0 left-1/3 w-32 h-32 rounded-full bg-white translate-y-12' />
               </div>
 
-              {/* Gradient orbs */}
-              <div className='absolute -top-20 -right-20 w-60 h-60 bg-white/10 rounded-full blur-3xl' />
-              <div className='absolute -bottom-20 -left-20 w-40 h-40 bg-cyan-400/20 rounded-full blur-3xl' />
-
-              <div className='relative z-10 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6'>
-                <div className='flex items-center gap-5'>
+              <div className='relative z-10 flex items-center justify-between gap-4'>
+                <div className='flex items-center gap-4'>
                   {/* Avatar */}
                   <div className='relative'>
-                    <div className='w-20 h-20 rounded-2xl bg-white/20 backdrop-blur-sm border-2 border-white/30 flex items-center justify-center text-2xl font-bold text-white shadow-2xl'>
+                    <div className='w-14 h-14 rounded-xl bg-white/20 backdrop-blur-sm border border-white/30 flex items-center justify-center text-lg font-bold text-white'>
                       {initials}
                     </div>
-                    <div className='absolute -bottom-1 -right-1 w-6 h-6 bg-emerald-400 rounded-lg border-2 border-white flex items-center justify-center'>
+                    <div className='absolute -bottom-1 -right-1 w-5 h-5 bg-emerald-400 rounded-lg border-2 border-blue-500 flex items-center justify-center'>
                       <CheckIcon className='w-3 h-3 text-white' />
                     </div>
                   </div>
 
                   <div>
-                    {/* Live badge */}
-                    <div className='inline-flex items-center gap-2 bg-white/20 backdrop-blur-sm text-white text-[10px] font-bold uppercase tracking-[0.1em] px-3 py-1.5 rounded-full mb-3 border border-white/20'>
-                      <span className='relative flex h-2 w-2'>
-                        <span className='animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75'></span>
-                        <span className='relative inline-flex rounded-full h-2 w-2 bg-emerald-400'></span>
+                    <div className='flex items-center gap-2 mb-1'>
+                      <CalIcon className='w-4 h-4 text-blue-200' />
+                      <span className='text-xs font-bold uppercase tracking-widest text-blue-200'>
+                        {greeting()}
                       </span>
-                      <PulseIcon className='w-3 h-3' />
-                      Live Dashboard
                     </div>
-
-                    <h1
-                      className='text-2xl sm:text-3xl font-bold text-white leading-tight'
-                      style={{ fontFamily: "'DM Serif Display', serif" }}
-                    >
-                      {greeting()}, Dr. {doctorName}
+                    <h1 className='text-2xl font-black text-white tracking-tight'>
+                      Dr. {doctorName}
                     </h1>
-                    <p className='text-blue-100 text-sm mt-1 flex items-center gap-2'>
+                    <p className='text-sm text-blue-200 flex items-center gap-1.5 mt-1'>
                       <ClockIcon className='w-3.5 h-3.5' />
                       {new Date().toLocaleDateString(undefined, {
                         weekday: "long",
                         month: "long",
                         day: "numeric",
-                        year: "numeric",
                       })}
                     </p>
                   </div>
@@ -538,11 +509,11 @@ const DoctorDashboard: React.FC = () => {
 
                 <button
                   onClick={() => router.push("/doctor/appointments")}
-                  className='flex items-center gap-2 rounded-xl bg-white hover:bg-blue-50 active:scale-95 px-6 py-3 text-sm font-bold text-blue-600 shadow-xl transition-all duration-200'
+                  className='flex items-center gap-2 rounded-xl bg-white/15 hover:bg-white/25 border border-white/20 px-4 py-2.5 text-sm font-bold text-white transition-all'
                 >
-                  <CalIcon />
-                  View All Appointments
-                  <ChevronR />
+                  <CalIcon className='w-4 h-4' />
+                  Appointments
+                  <ChevronR className='w-4 h-4' />
                 </button>
               </div>
             </div>
@@ -603,12 +574,11 @@ const DoctorDashboard: React.FC = () => {
                         <TrendUpIcon className='text-white' />
                       </div>
                       <div>
-                        <span
-                          className='text-base font-bold text-slate-800'
-                          style={{ fontFamily: "'DM Serif Display', serif" }}
-                        >
-                          Weekly Activity
-                        </span>
+                        <div className='flex items-center gap-2'>
+                          <span className='text-[17px] font-bold text-blue-600'>
+                            Weekly Activity
+                          </span>
+                        </div>
                         <p className='text-[11px] text-slate-400'>Last 7 days performance</p>
                       </div>
                     </div>
@@ -744,8 +714,7 @@ const DoctorDashboard: React.FC = () => {
                         </div>
                         <div>
                           <span
-                            className='text-base font-bold text-slate-800'
-                            style={{ fontFamily: "'DM Serif Display', serif" }}
+                            className='text-base font-bold text-blue-600'
                           >
                             Today&apos;s Schedule
                           </span>
@@ -874,8 +843,7 @@ const DoctorDashboard: React.FC = () => {
                         </div>
                         <div>
                           <span
-                            className='text-sm font-bold text-slate-800'
-                            style={{ fontFamily: "'DM Serif Display', serif" }}
+                            className='text-md font-bold text-red-600'
                           >
                             Action Required
                           </span>
@@ -909,8 +877,7 @@ const DoctorDashboard: React.FC = () => {
                         </div>
                         <div>
                           <span
-                            className='text-sm font-bold text-slate-800'
-                            style={{ fontFamily: "'DM Serif Display', serif" }}
+                            className='text-md font-bold text-blue-600'
                           >
                             Recent Patients
                           </span>
