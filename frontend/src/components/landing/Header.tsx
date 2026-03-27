@@ -11,7 +11,6 @@ import { Logo } from "./Logo";
 import { ProfileNav } from "./ProfileNav";
 import { userAuthStore } from "@/store/authStore";
 
-
 interface HeaderProps {
   showDashboardNav?: boolean;
 }
@@ -25,7 +24,7 @@ interface NavItem {
 
 export const Header: FC<HeaderProps> = ({ showDashboardNav = false }) => {
   const pathname = usePathname();
-  const { isAuthenticated, user } = userAuthStore()
+  const { isAuthenticated, user } = userAuthStore();
   // const isAuthenticated = true;
   // const user = {
   //   type: "doctor",
@@ -67,12 +66,12 @@ export const Header: FC<HeaderProps> = ({ showDashboardNav = false }) => {
   };
 
   return (
-    <header className="bg-white border-b border-b-gray-400 fixed top-0 left-0 right-0 backdrop-blur-sm z-50 shadow-md">
-      <div className="container mx-auto h-16 px-4 flex items-center justify-between ">
-        <div className="flex items-center justify-between space-x-12">
+    <header className='bg-white border-b border-b-gray-400 fixed top-0 left-0 right-0 backdrop-blur-sm z-50 shadow-md'>
+      <div className='container mx-auto h-16 px-4 flex items-center justify-between '>
+        <div className='flex items-center justify-between space-x-12'>
           <Logo />
           {isAuthenticated && showDashboardNav && (
-            <nav className="hidden md:flex md:space-x-4">
+            <nav className='hidden md:flex md:space-x-4'>
               {getHeaderNavigation().map((item) => (
                 <Link
                   href={item.href}
@@ -83,37 +82,37 @@ export const Header: FC<HeaderProps> = ({ showDashboardNav = false }) => {
                       : "text-gray-600 hover:text-blue-600"
                   }`}
                 >
-                  <item.icon className="h-4 w-4 mx-1.5" />
-                  <span className="font-medium text-sm">{item.label}</span>
+                  <item.icon className='h-4 w-4 mx-1.5' />
+                  <span className='font-medium text-sm'>{item.label}</span>
                 </Link>
               ))}
             </nav>
           )}
         </div>
 
-        {isAuthenticated && showDashboardNav ? (
-          <div className="flex items-center space-x-0 md:space-x-3">
+        {isAuthenticated && showDashboardNav && user ? (
+          <div className='flex items-center space-x-0 md:space-x-3'>
             <ProfileNav user={user} />
 
-            <Button className="relative">
-              <Bell className="h-5 w-5 size-6 text-gray-600" />
-              <Badge className="absolute w-5 h-5 text-xs text-white -top-1.5 -right-0.5 bg-red-600 rounded-full">
+            <Button className='relative'>
+              <Bell className='h-5 w-5 size-6 text-gray-600' />
+              <Badge className='absolute w-5 h-5 text-xs text-white -top-1.5 -right-0.5 bg-red-600 rounded-full'>
                 2
               </Badge>
             </Button>
           </div>
         ) : (
-          <div className="flex">
-            <Link href={"/login/patient"} className="mx-4">
+          <div className='flex'>
+            <Link href={"/login/patient"} className='mx-4'>
               <Button
                 variant={"outline"}
-                className="text-blue-700 font-bold font-mono text-lg cursor-pointer rounded-2xl hover:bg-gray-200"
+                className='text-blue-700 font-bold font-mono text-lg cursor-pointer rounded-2xl hover:bg-gray-200'
               >
                 Login
               </Button>
             </Link>
-            <Link href={"/login/patient"} className="hidden md:flex">
-              <Button className="font-bold font-mono text-lg rounded-full bg-blue-600 hover:bg-blue-400 text-white cursor-pointer">
+            <Link href={"/login/patient"} className='hidden md:flex'>
+              <Button className='font-bold font-mono text-lg rounded-full bg-blue-600 hover:bg-blue-400 text-white cursor-pointer'>
                 Book Consultation
               </Button>
             </Link>

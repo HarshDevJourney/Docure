@@ -13,7 +13,7 @@ interface UserProfile {
   type: string;
   name: string;
   email: string;
-  profilePic: string;
+  profilePic?: string;
 }
 
 interface ProfileNavProps {
