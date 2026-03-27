@@ -48,7 +48,7 @@ export const Herosection = () => {
           </div>
         ) : (
           <div className="flex flex-col items-center justify-center my-12 sm:flex-row sm:space-x-6 md:space-x-8 gap-4 mx-auto max-w-2xl px-4 animate-fade-in">
-            <Link href="/doctor-list" className="group w-full sm:w-auto">
+            <Link href="/login/patient" className="group w-full sm:w-auto">
               <Button className="cursor-pointer font-bold md:text-lg rounded-full px-12 sm:px-10 py-6 bg-blue-600 hover:bg-blue-500 text-white shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition-all duration-300 ease-in-out w-full sm:w-auto min-w-[200px]">
                 <CalendarCheck className="w-5 h-5 mr-2 group-hover:scale-110 transition-transform duration-300" />
                 <span>Book a Visit</span>
